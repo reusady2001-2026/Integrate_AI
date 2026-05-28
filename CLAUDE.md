@@ -61,6 +61,23 @@ See [`templates/README.md`](templates/README.md) for how the templates connect.
   `[להשלמה / TO FILL: <what is needed>]` — never silently invented.
 - **Tweak-friendly:** Write so a non-technical executive can edit in place.
 
+### Fill-in document design rules (learned from human edits)
+Templates rendered to Word for position-holders MUST follow these:
+- **One field per line.** Each label + its fill-in line is its own paragraph
+  (in Markdown, separate every field with a blank line — pandoc merges
+  consecutive lines into one paragraph otherwise). Never run fields together.
+- **Visible fill-in lines + space.** Use the `«FILL»` token (renders to an
+  underscore line) and `«SPACER»` (blank writing row). No abstract markers.
+- **Explain every section.** Lead each section with a plain (non-italic)
+  `מה למלא:` sentence telling the filler exactly what goes there — headings
+  are not enough. Field labels are **bold**; guidance is plain.
+- **One example block + "duplicate as needed".** Never pre-duplicate blocks.
+- **Tables:** header row centered; body rows right-aligned; RTL column order.
+- **Font:** David throughout; compact sizes (body 9pt, H2 10pt, H1 11pt).
+- **True RTL:** section-level `bidi` (the master switch) + per-paragraph `bidi`;
+  do NOT set `jc="right"` (Word flips it to physical left in a bidi paragraph) —
+  right-alignment comes from bidi's default. See `scripts/rtl_postprocess.py`.
+
 ---
 
 ## 4. Methodology library (reusable skeletons)

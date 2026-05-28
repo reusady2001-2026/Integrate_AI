@@ -11,11 +11,20 @@ from docx import Document
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 
-HEBREW_FONT = "David"  # widely available Hebrew serif; falls back gracefully
+HEBREW_FONT = "David"  # standard Hebrew font; matches the user's own documents
+
+# Compact sizes (half-points): body 18=9pt, Heading2 20=10pt, Title/H1 22=11pt.
+def size_for(style_name):
+    n = (style_name or "").lower().replace(" ", "")
+    if "title" in n or "heading1" in n:
+        return 22
+    if "heading2" in n:
+        return 20
+    return 18
 
 
 def set_rtl(style):
-    """Mark a paragraph style as RTL with a Hebrew CS font.
+    """Mark a paragraph style RTL with the David font at a compact size.
 
     Note: we do NOT set <w:jc>. In a bidi (RTL) paragraph, Word aligns to the
     start side (the right) by default, and treats jc="right" as the logical end
@@ -43,7 +52,15 @@ def set_rtl(style):
     if rFonts is None:
         rFonts = OxmlElement("w:rFonts")
         rPr.append(rFonts)
-    rFonts.set(qn("w:cs"), HEBREW_FONT)
+    for attr in ("w:ascii", "w:hAnsi", "w:cs"):
+        rFonts.set(qn(attr), HEBREW_FONT)
+    sz = size_for(getattr(style, "name", "") or "")
+    for tag in ("w:sz", "w:szCs"):
+        e = rPr.find(qn(tag))
+        if e is None:
+            e = OxmlElement(tag)
+            rPr.append(e)
+        e.set(qn("w:val"), str(sz))
 
 
 def main():

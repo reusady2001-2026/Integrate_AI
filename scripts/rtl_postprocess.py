@@ -74,6 +74,18 @@ def set_section_rtl(sectPr):
         sectPr.append(OxmlElement("w:bidi"))
 
 
+def center_paragraph(p):
+    """Center a paragraph (used for table header rows). Center is symmetric, so
+    it is unaffected by the RTL jc start/end flip."""
+    pPr = p._p.get_or_add_pPr()
+    jc = pPr.find(qn("w:jc"))
+    if jc is None:
+        jc = OxmlElement("w:jc")
+        # jc belongs after bidi; appending is fine since pPr here ends with rPr at most
+        pPr.append(jc)
+    jc.set(qn("w:val"), "center")
+
+
 def process(path):
     doc = Document(path)
     for section in doc.sections:
@@ -90,6 +102,11 @@ def process(path):
                 for p in cell.paragraphs:
                     expand_tokens(p)
                     rtl_paragraph(p)
+        # Center the header row (first row); body rows stay right-aligned.
+        if tbl.rows:
+            for cell in tbl.rows[0].cells:
+                for p in cell.paragraphs:
+                    center_paragraph(p)
     doc.save(path)
     print("rtl-postprocessed:", path)
 
