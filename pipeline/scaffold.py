@@ -27,6 +27,20 @@ def template_for(artifact: str) -> Path:
     return mds[0]
 
 
+def scaffold_draft(artifact: str, dest_dir) -> Path:
+    """Copy an artifact's template into dest_dir/<artifact>.md, stripping the
+    leading HTML-comment meta block (agent/author instructions). Returns the path.
+    """
+    template = template_for(artifact)  # raises ValueError on unknown artifact
+    text = template.read_text(encoding="utf-8")
+    body = re.sub(r"\A<!--.*?-->\s*", "", text, count=1, flags=re.DOTALL)
+    dest_dir = Path(dest_dir)
+    dest_dir.mkdir(parents=True, exist_ok=True)
+    out = dest_dir / f"{artifact}.md"
+    out.write_text(body, encoding="utf-8")
+    return out
+
+
 def slugify(name: str) -> str:
     """Turn a name into a filesystem-safe ascii slug.
 
