@@ -1,0 +1,6 @@
+# Confidential company material — never commit grounding sources / filings.
+reference/
+*.uploads/
+
+# Scratch
+/tmp/
