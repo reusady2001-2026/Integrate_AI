@@ -35,14 +35,16 @@ public real-estate company). Each artifact exists in two layers:
 - **TEMPLATE** — blank skeleton + inline guidance + `[להשלמה / TO FILL]` markers.
 - **DRAFT** — the same skeleton filled with a specific company's real data.
 
-| # | Artifact | Hebrew name | Status |
-|---|----------|-------------|--------|
-| 1 | Strategy document (focused + full board version) | מסמך אסטרטגי | reference exists |
-| 2 | Strategy deck (board presentation) | מצגת אסטרטגית | reference exists |
-| 3 | Job / role definition | הגדרת תפקיד | reference exists (9 roles) |
-| 4 | Org structure / org chart | מבנה ארגוני | planned |
-| 5 | Workflows / SOPs / RACI | תהליכי עבודה | planned |
-| 6 | KPIs & metrics per role/function | מדדי ביצוע (KPIs) | planned |
+| # | Artifact | Hebrew name | Template |
+|---|----------|-------------|----------|
+| 1 | Strategy document (focused + full board version) | מסמך אסטרטגי | `templates/strategy-document/` |
+| 2 | Strategy deck (board presentation) | מצגת אסטרטגית | `templates/strategy-deck/` |
+| 3 | Job / role definition | הגדרת תפקיד | `templates/job-description/` |
+| 4 | Org structure / org chart | מבנה ארגוני | `templates/org-structure/` |
+| 5 | Workflows / SOPs / RACI | תהליכי עבודה | `templates/workflows/` |
+| 6 | KPIs & metrics per role/function | מדדי ביצוע (KPIs) | `templates/kpis/` |
+
+See [`templates/README.md`](templates/README.md) for how the templates connect.
 
 ---
 
@@ -140,11 +142,15 @@ I follow a **gated** process (see the `spec-driven-development` skill in
 
 ```
 CLAUDE.md            → this identity & operating manual
-templates/           → reusable blank templates (per artifact type)   [to build]
-reference/           → grounding examples (kept out of git if confidential)
+templates/           → reusable blank templates (per artifact type)
+  README.md             → library index + how templates connect
+  strategy-document/    strategy-deck/    job-description/
+  org-structure/        workflows/        kpis/
+reference/           → grounding examples (kept out of git — confidential)
 skills-library/      → vendored agent skills (document tooling + methodology)
   anthropics-skills/    docx, xlsx, pptx, pdf, ...
   addyosmani-agent-skills/  spec-driven-development, ...
+scripts/             → utilities (e.g. render markdown templates to .docx)
 .claude/             → settings (permissions)
 ```
 
@@ -152,9 +158,9 @@ skills-library/      → vendored agent skills (document tooling + methodology)
 
 ## 8. Roadmap
 
-- [ ] Build the **template library** (`templates/`) from the reference artifacts:
-      strategy document, strategy deck, job/role definition first.
-- [ ] Add org-structure, workflow/SOP, and KPI templates.
+- [x] Build the **template library** (`templates/`) from the reference artifacts:
+      strategy document, strategy deck, job/role definition.
+- [x] Add org-structure, workflow/SOP, and KPI templates.
 - [ ] Build the **filing → draft** pipeline (company description / SEC filing in,
       filled artifact out).
 - [ ] Grow toward the full org analyzer & restructurer.
