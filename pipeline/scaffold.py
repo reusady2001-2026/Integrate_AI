@@ -2,6 +2,29 @@
 from __future__ import annotations
 
 import re
+from pathlib import Path
+
+REPO_ROOT = Path(__file__).resolve().parent.parent
+TEMPLATES_DIR = REPO_ROOT / "templates"
+
+
+def available_artifacts() -> list[str]:
+    """Artifact names = subdirectories of templates/ that contain a markdown template."""
+    return sorted(
+        d.name
+        for d in TEMPLATES_DIR.iterdir()
+        if d.is_dir() and any(d.glob("*.md"))
+    )
+
+
+def template_for(artifact: str) -> Path:
+    """Resolve the markdown template for an artifact. Raises ValueError if unknown."""
+    mds = sorted((TEMPLATES_DIR / artifact).glob("*.md")) if (TEMPLATES_DIR / artifact).is_dir() else []
+    if not mds:
+        raise ValueError(
+            f"unknown artifact {artifact!r}; choose one of: {', '.join(available_artifacts())}"
+        )
+    return mds[0]
 
 
 def slugify(name: str) -> str:
