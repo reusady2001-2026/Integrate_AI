@@ -210,6 +210,12 @@ scripts/             → utilities (e.g. render markdown templates to .docx)
 - [x] Build the **template library** (`templates/`) from the reference artifacts:
       strategy document, strategy deck, job/role definition.
 - [x] Add org-structure, workflow/SOP, and KPI templates.
-- [ ] Build the **filing → draft** pipeline (company description / SEC filing in,
-      filled artifact out).
-- [ ] Grow toward the full org analyzer & restructurer.
+- [x] Add a **Word rendering pipeline** (RTL Hebrew `.docx`) and learned
+      fill-in design rules (`scripts/`, `dist/`).
+- [x] Add a **methodology framework library** to generalize to any org type
+      (`methodology/`).
+- [~] **Filing → draft** pipeline — demonstrated end-to-end (strategy + role
+      drafts from a real TASE filing); still manual per-artifact, not automated.
+- [ ] Add a **competitive-benchmarking** step (named peers + market data).
+- [ ] Grow toward the full org analyzer & restructurer (diagnose → benchmark →
+      full restructuring package).
