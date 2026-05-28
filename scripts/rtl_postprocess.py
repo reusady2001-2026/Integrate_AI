@@ -63,8 +63,16 @@ def expand_tokens(p):
             run.text = run.text.replace("«SPACER»", "")
 
 
+def set_section_rtl(sectPr):
+    """Set the section base direction to RTL (the document-level switch)."""
+    if sectPr.find(qn("w:bidi")) is None:
+        sectPr.append(OxmlElement("w:bidi"))
+
+
 def process(path):
     doc = Document(path)
+    for section in doc.sections:
+        set_section_rtl(section._sectPr)
     for p in doc.paragraphs:
         expand_tokens(p)
         rtl_paragraph(p)
