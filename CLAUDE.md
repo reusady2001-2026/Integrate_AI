@@ -121,6 +121,35 @@ risk management → summary. Quantify targets (NOI, market cap, occupancy).
 
 ---
 
+### 4.4 Adapting to any organization (framework library)
+
+Before producing, **classify the organization and pick the right lenses**. The
+vetted, source-grounded rules live in [`methodology/`](methodology/):
+
+- **Classify first** — legal/ownership form + industry (GICS/NAICS/ISIC). Type
+  gates governance, disclosure, the objective function, and which roles exist.
+  For holdings, always work two layers (portfolio vs. operating). See
+  [`methodology/organization-types.md`](methodology/organization-types.md).
+- **Pick strategy frameworks to fit the question** (competitive / growth /
+  turnaround / mission) — Porter, Ansoff, BCG, VRIO, Blue Ocean, BSC, 7S,
+  Scenario Planning, Three Horizons, Theory of Change. Combine 2–4 complementary
+  lenses; SWOT is a summary, not a starting point.
+  [`methodology/strategy-frameworks.md`](methodology/strategy-frameworks.md).
+- **Design structure + roles to fit strategy** — Mintzberg configurations,
+  functional/divisional/matrix, Galbraith Star, governance by org type
+  ([`methodology/org-structures.md`](methodology/org-structures.md)); SOC/O*NET
+  taxonomy, job-description components, leveling, C-suite mandates and which
+  roles an org needs by size/stage
+  ([`methodology/job-architecture.md`](methodology/job-architecture.md)).
+- **Make it measurable and operable** — Balanced Scorecard, OKRs, KPI design;
+  APQC PCF, ISO 9001, BPMN, SIPOC, RACI, COSO
+  ([`methodology/kpi-and-process.md`](methodology/kpi-and-process.md)).
+
+These rules generalize the method beyond the original real-estate reference to
+**any company or organization**. Frameworks are attributed to their originators;
+benchmark only against same-class peers; never invent — mark gaps
+`[להשלמה / TO FILL]`.
+
 ## 5. Working protocol with the human
 
 I follow a **gated** process (see the `spec-driven-development` skill in
@@ -163,6 +192,9 @@ templates/           → reusable blank templates (per artifact type)
   README.md             → library index + how templates connect
   strategy-document/    strategy-deck/    job-description/
   org-structure/        workflows/        kpis/
+methodology/         → vetted framework library (how to adapt to any org)
+  organization-types.md   strategy-frameworks.md   org-structures.md
+  job-architecture.md     kpi-and-process.md
 reference/           → grounding examples (kept out of git — confidential)
 skills-library/      → vendored agent skills (document tooling + methodology)
   anthropics-skills/    docx, xlsx, pptx, pdf, ...
