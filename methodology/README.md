@@ -11,6 +11,8 @@ relevant template in `../templates/`.
 - [`org-structures.md`](org-structures.md) — Mintzberg configurations, classic structures, Galbraith Star, governance by org type.
 - [`job-architecture.md`](job-architecture.md) — SOC/O*NET taxonomy, job-description components, leveling, C-suite mandates, role-set by size/stage.
 - [`kpi-and-process.md`](kpi-and-process.md) — Balanced Scorecard, OKRs, KPI design; APQC/ISO 9001/BPMN/SIPOC/RACI/COSO for processes.
+- [`competitive-benchmarking.md`](competitive-benchmarking.md) — reliability rubric for real, named-peer benchmarking (never invent).
+- [`drafting-playbook.md`](drafting-playbook.md) — the gated source → filled-draft method (pairs with `pipeline/` + `scripts/draft.py`).
 
 ## How the agent uses this
 1. **Classify the organization first** (type + industry) — see `organization-types.md`. This gates governance, disclosure, the objective function, and which roles exist.

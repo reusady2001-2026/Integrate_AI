@@ -1,0 +1,64 @@
+# Drafting Playbook — source → filled draft
+
+The repeatable, gated method the agent follows to turn a source document into a
+tweak-ready draft. The pipeline (`pipeline/`, `scripts/draft.py`) automates the
+mechanical steps; this playbook governs the **intelligent** steps. The agent
+stays in the loop — it does not auto-generate analysis unsupervised.
+
+## Inputs
+- A source: filing (TASE/Maya, SEC), annual report, or a written company description.
+- The target artifact (one of `templates/`).
+
+## Steps
+
+### 0. Extract (mechanical)
+`python scripts/draft.py extract <source>` → text. For large filings, pull the
+sections that matter (business description, segments, financial statements).
+
+### 1. Classify the organization
+Use `organization-types.md`: legal/ownership form + industry (GICS/NAICS/ISIC).
+For holdings, work two layers (portfolio vs. operating). The class gates
+governance, disclosure, the objective function, and which roles exist.
+
+### 2. Extract grounded data + flag gaps
+Pull the real figures the artifact needs (identity, segments, financials,
+challenges). Record each with its source. **Anything not in the source stays
+`[להשלמה / TO FILL]` — never invent.**
+
+### 3. Select frameworks
+Use `strategy-frameworks.md` to pick 2–4 lenses fitting the question (competitive
+/ growth / turnaround / mission). For structure/roles/KPIs, use
+`org-structures.md`, `job-architecture.md`, `kpi-and-process.md`.
+
+### 4. Scaffold the draft (mechanical)
+`python scripts/draft.py new <artifact> --slug <company>` → a working copy in
+`work/<company>/` (gitignored; treat as confidential).
+
+### 5. Fill — grounded vs. proposed
+- **Part A / facts** (current situation, identity, portfolio, financials): fill
+  directly from the source; mark gaps.
+- **Part B / analysis** (thesis, trade-offs, growth engines): draft as **proposals
+  to validate**, clearly labeled — grounded in the source's facts, not asserted.
+
+### 6. Competitive benchmarking
+Run `competitive-benchmarking.md`: named, same-class peers, every figure sourced
+and confidence-tagged; unresearched cells stay `[להשלמה / TO FILL]`.
+
+### 7. Render (mechanical)
+`python scripts/draft.py render work/<company>/<artifact>.md` → RTL Hebrew `.docx`.
+
+### 8. Deliver
+Hand the draft to the human to tweak. Do **not** commit `work/` (confidential).
+
+## Gates (do not skip)
+- Surfaced assumptions before drafting? 
+- Every claim sourced or marked `[להשלמה / TO FILL]`?
+- Competitors real, same-class, sourced — none invented?
+- Facts vs. proposals vs. inference clearly separated?
+- Confidential drafts kept out of git?
+
+## Boundaries
+- **Always:** ground in source; mark gaps; benchmark only same-class peers; keep
+  Hebrew/RTL correct; treat company data as confidential.
+- **Never:** invent figures/competitors/ratings; present proposals as facts;
+  commit `work/`.

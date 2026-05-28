@@ -144,6 +144,11 @@ vetted, source-grounded rules live in [`methodology/`](methodology/):
 - **Make it measurable and operable** — Balanced Scorecard, OKRs, KPI design;
   APQC PCF, ISO 9001, BPMN, SIPOC, RACI, COSO
   ([`methodology/kpi-and-process.md`](methodology/kpi-and-process.md)).
+- **Benchmark with discipline** — real, same-class, named peers only; every
+  figure sourced and confidence-tagged; never invent
+  ([`methodology/competitive-benchmarking.md`](methodology/competitive-benchmarking.md)).
+- **Follow the drafting playbook** to go from a source document to a filled draft
+  ([`methodology/drafting-playbook.md`](methodology/drafting-playbook.md)).
 
 These rules generalize the method beyond the original real-estate reference to
 **any company or organization**. Frameworks are attributed to their originators;
@@ -195,13 +200,22 @@ templates/           → reusable blank templates (per artifact type)
 methodology/         → vetted framework library (how to adapt to any org)
   organization-types.md   strategy-frameworks.md   org-structures.md
   job-architecture.md     kpi-and-process.md
+  competitive-benchmarking.md   drafting-playbook.md
+pipeline/            → source → draft automation (extract, scaffold, render)
+scripts/             → utilities: draft.py (CLI), render-docx.sh, RTL helpers
+tests/               → pytest unit tests for the pipeline
+docs/                → specs & plans (e.g. draft-pipeline-spec / -plan)
+work/                → scaffolded working drafts (gitignored — confidential)
 reference/           → grounding examples (kept out of git — confidential)
 skills-library/      → vendored agent skills (document tooling + methodology)
   anthropics-skills/    docx, xlsx, pptx, pdf, ...
   addyosmani-agent-skills/  spec-driven-development, ...
-scripts/             → utilities (e.g. render markdown templates to .docx)
 .claude/             → settings (permissions)
 ```
+
+**Pipeline (mechanical steps; agent stays in the loop for filling):**
+`python scripts/draft.py extract <file>` · `artifacts` · `new <artifact> --slug <x>` ·
+`render <draft.md>`. Method: [`methodology/drafting-playbook.md`](methodology/drafting-playbook.md). Tests: `python -m pytest -q`.
 
 ---
 
@@ -214,8 +228,10 @@ scripts/             → utilities (e.g. render markdown templates to .docx)
       fill-in design rules (`scripts/`, `dist/`).
 - [x] Add a **methodology framework library** to generalize to any org type
       (`methodology/`).
-- [~] **Filing → draft** pipeline — demonstrated end-to-end (strategy + role
-      drafts from a real TASE filing); still manual per-artifact, not automated.
-- [ ] Add a **competitive-benchmarking** step (named peers + market data).
+- [x] **Filing → draft** pipeline — productized: tested `pipeline/` package +
+      `scripts/draft.py` CLI (extract / scaffold / render) + gated
+      `drafting-playbook.md`. Agent stays in the loop for the filling.
+- [x] Add a **competitive-benchmarking** method + reliability rubric
+      (`competitive-benchmarking.md`). *(Live peer research still run per engagement.)*
 - [ ] Grow toward the full org analyzer & restructurer (diagnose → benchmark →
       full restructuring package).
