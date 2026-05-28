@@ -1,122 +1,138 @@
 <!--
-TEMPLATE: Strategy Deck (Board Presentation)  ·  תבנית: מצגת אסטרטגית
-================================================================
-Two-layer model:
-  • TEMPLATE (this file) — slide-by-slide skeleton + guidance + [TO FILL].
-  • DRAFT — a copy filled for one company, then rendered to .pptx / .pdf.
-
-RELATIONSHIP TO THE STRATEGY DOCUMENT
-  This deck is the BOARD-FACING distillation of the strategy document
-  (templates/strategy-document/). Build the document first; the deck compresses
-  it into a ~10-chapter narrative. Keep the two in sync.
-
-HOW TO USE
-  1. Copy to a working draft for the specific company.
-  2. One "## Slide" block = one slide. Fill [להשלמה / TO FILL]; keep text tight
-     (a board slide is headlines + a few quantified points, not paragraphs).
-  3. Render to .pptx (use skills-library/anthropics-skills/pptx) or to a designed
-     PDF. RTL Hebrew.
-  4. Delete grey "Guidance" notes before rendering.
-
-RULES
-  • Bilingual: Hebrew primary. Quantify everything that can be quantified.
-  • Never invent figures or competitors. Unsourced → [להשלמה / TO FILL].
-================================================================
+TEMPLATE: Strategy Deck (Board) · תבנית: מצגת אסטרטגית
+Master (Markdown). Render to RTL Hebrew Word with scripts/render-docx.sh.
+Tokens: «FILL» -> underscore fill-in line ; «SPACER» -> blank writing space.
+This deck distills the strategy document (templates/strategy-document/) for the
+board. Build the document first; keep the two in sync.
 -->
 
 # מצגת אסטרטגית · Strategy Deck
 
-**חברה / Company:** [להשלמה / TO FILL] · **טווח / Horizon:** [להשלמה / TO FILL] ·
-**קהל / Audience:** דירקטוריון והנהלה (Board & Management) · **סיווג:** חסוי (Confidential)
+*הסבר כללי:* זוהי הגרסה המוצגת לדירקטוריון של מסמך האסטרטגיה. כל "שקופית" היא נושא
+אחד. שמרו על טקסט קצר וממוקד (כותרות + מספרים, לא פסקאות). מלאו את השדות בקו תחתון.
+
+**שם החברה / Company** — «FILL»
+**טווח / Horizon** — «FILL»
+**קהל יעד / Audience:** דירקטוריון והנהלה · **סיווג:** חסוי (Confidential)
 
 ---
 
-## Slide 0 — שער · Cover
-> _Guidance: Company, plan title, horizon, date. Optionally a one-line headline
-> target (e.g. NOI target, market-cap target)._
+## שקופית 0 — שער · Cover
 
-- **כותרת / Title:** תכנית אסטרטגית [TO FILL: horizon]
-- **יעד-על / Headline target:** [להשלמה / TO FILL: e.g. NOI +X · market cap range]
+*מה למלא:* שם החברה, כותרת התכנית, טווח השנים, תאריך, ומשפט יעד-על אחד (לדוגמה יעד
+NOI או יעד שווי שוק).
 
-## Slide 1 — תוכן · Table of Contents
-> _Guidance: List the chapters. The reference frames it as "N links in one
-> strategic story." Keep to ~10 chapters._
+כותרת התכנית / Plan title:
+«FILL»
+יעד-על / Headline target:
+«FILL»
+«SPACER»
 
-01 תקציר מנהלים · 02 מי אנחנו · 03 האבחנה האסטרטגית · 04 עיקרון המיקוד ·
-05 צירים אסטרטגיים · 06 ניהול בסיס התזרים · 07 סדרי עדיפויות ·
-08 יעדים ומדדים · 09 ניהול סיכונים · 10 סיכום
+## שקופית 1 — תוכן · Table of Contents
 
-## Slide 2 — תקציר מנהלים · Executive Summary
-> _Guidance: The starting point + the core strategic assertion, in 3–5 bullets.
-> Mirrors §5 of the strategy document._
+*מה למלא:* רשימת הפרקים של הסיפור האסטרטגי (עד ~10 פרקים). אפשר להשתמש ברשימה
+המוצעת כאן או להתאים.
 
-- [להשלמה / TO FILL: where the company stands]
-- [להשלמה / TO FILL: the central gap]
-- [להשלמה / TO FILL: the thesis / the required shift]
+מבנה מוצע: תקציר מנהלים · מי אנחנו · האבחנה האסטרטגית · עקרון המיקוד · צירים
+אסטרטגיים · ניהול בסיס התזרים · סדרי עדיפויות · יעדים ומדדים · ניהול סיכונים · סיכום
+«SPACER»
 
-## Slide 3 — מי אנחנו · Who We Are
-> _Guidance: Snapshot — portfolio, activities, financial position. Use a compact
-> table. Mirrors §1–§3 of the document._
+## שקופית 2 — תקציר מנהלים · Executive Summary
 
-| תחום / Segment | שווי / Value | NOI/הכנסה | תפוסה/ניצול |
+*מה למלא:* נקודת המוצא והאמירה האסטרטגית המרכזית, ב-3–5 נקודות: היכן ניצבת החברה,
+מהו הפער המרכזי, ומהי האמירה / המעבר הנדרש.
+
+«FILL»
+«FILL»
+«FILL»
+«SPACER»
+
+## שקופית 3 — מי אנחנו · Who We Are
+
+*מה למלא:* תמונת מצב מתומצתת — פורטפוליו, פעילויות ומצב פיננסי. מלאו את הטבלה ואת
+שורת הסיכום הפיננסי.
+
+| תחום / Segment | שווי / Value | NOI / הכנסה | תפוסה / Occupancy |
 |---|---|---|---|
-| [TO FILL] | [TO FILL] | [TO FILL] | [TO FILL] |
+| «FILL» | «FILL» | «FILL» | «FILL» |
+| «FILL» | «FILL» | «FILL» | «FILL» |
 
-**פיננסי / Financial:** הכנסות [TO FILL] · NOI [TO FILL] · הון עצמי [TO FILL] · מינוף [TO FILL]
+סיכום פיננסי (הכנסות · NOI · הון עצמי · מינוף) / Financial snapshot:
+«FILL»
+«SPACER»
 
-## Slide 4 — האבחנה האסטרטגית · Strategic Diagnosis
-> _Guidance: Where the company stands vs. the market, and the precise gap.
-> Mirrors §4 (challenges & gaps). 3–4 sharp points._
+## שקופית 4 — האבחנה האסטרטגית · Strategic Diagnosis
 
-- [להשלמה / TO FILL: the gap, vs. named peers]
-- [להשלמה / TO FILL]
+*מה למלא:* היכן ניצבת החברה ביחס לשוק ומהו הפער המדויק, ב-3–4 נקודות חדות. השוו
+למתחרים בעלי שם.
 
-## Slide 5 — עיקרון המיקוד · The Focus Principle
-> _Guidance: What we will NOT do — the strategic trade-offs. Mirrors §6._
+«FILL»
+«FILL»
+«SPACER»
 
-- לא נעשה / We will not: [TO FILL] — [reason]
-- לא נעשה / We will not: [TO FILL] — [reason]
+## שקופית 5 — עקרון המיקוד · The Focus Principle
 
-## Slide 6 — צירים אסטרטגיים · Strategic Axes / Growth Engines
-> _Guidance: One slide (or one per engine) for the growth engines. For each:
-> the opportunity + the entry path. Mirrors §7. Add a slide per engine if needed._
+*מה למלא:* ממה החברה תימנע (הוויתורים האסטרטגיים), ולצד כל ויתור — הסיבה בקצרה.
 
-- **ציר / Axis 1:** [TO FILL] — הזדמנות [TO FILL] · נתיב כניסה [TO FILL]
-- **ציר / Axis 2:** [TO FILL]
-- **ציר / Axis 3:** [TO FILL]
+לא נעשה / We will not: «FILL» — סיבה: «FILL»
+לא נעשה / We will not: «FILL» — סיבה: «FILL»
+«SPACER»
 
-## Slide 7 — ניהול בסיס התזרים · Managing the Cash-Flow Base
-> _Guidance: How the existing business is actively managed to fund growth.
-> Mirrors §8. Per key segment: status → action._
+## שקופית 6 — צירים אסטרטגיים · Strategic Axes / Growth Engines
 
-- [להשלמה / TO FILL: segment — status → action]
-- [להשלמה / TO FILL]
+*מה למלא:* מנועי הצמיחה. לכל ציר — ההזדמנות ונתיב הכניסה בקצרה. אפשר שקופית נפרדת
+לכל ציר.
 
-## Slide 8 — סדרי עדיפויות · Year-One Priorities
-> _Guidance: The operating year — cadence, ownership, what must happen first.
-> Concrete, time-bound moves for the first horizon._
+ציר 1 / Axis 1: «FILL»
+הזדמנות + נתיב כניסה: «FILL»
+«SPACER»
+ציר 2 / Axis 2: «FILL»
+הזדמנות + נתיב כניסה: «FILL»
+«SPACER»
+ציר 3 / Axis 3: «FILL»
+הזדמנות + נתיב כניסה: «FILL»
+«SPACER»
 
-- [להשלמה / TO FILL: priority — owner — by when]
-- [להשלמה / TO FILL]
+## שקופית 7 — ניהול בסיס התזרים · Managing the Cash-Flow Base
 
-## Slide 9 — יעדים ומדדים · Goals & KPIs by Horizon
-> _Guidance: Quantified targets across horizons. Mirrors the document's KPI
-> appendix._
+*מה למלא:* כיצד מנוהל הבסיס הקיים כדי לממן את הצמיחה. לכל תחום מהותי — סטטוס ופעולה.
+
+«FILL»
+«FILL»
+«SPACER»
+
+## שקופית 8 — סדרי עדיפויות · Year-One Priorities
+
+*מה למלא:* מהלכי שנת ההפעלה הראשונה — מה קורה קודם, מי הבעלים, ועד מתי.
+
+עדיפות / Priority — בעלים — עד מתי:
+«FILL»
+«FILL»
+«SPACER»
+
+## שקופית 9 — יעדים ומדדים · Goals & KPIs by Horizon
+
+*מה למלא:* יעדים כמותיים לאורך אופקי זמן.
 
 | מדד / Metric | בסיס / Baseline | T+2 | T+5 |
 |---|---|---|---|
-| [TO FILL] | [TO FILL] | [TO FILL] | [TO FILL] |
-| [TO FILL] | [TO FILL] | [TO FILL] | [TO FILL] |
+| «FILL» | «FILL» | «FILL» | «FILL» |
+| «FILL» | «FILL» | «FILL» | «FILL» |
+«SPACER»
 
-## Slide 10 — ניהול סיכונים · Risk Management
-> _Guidance: Top risks → response → owner. Mirrors §9._
+## שקופית 10 — ניהול סיכונים · Risk Management
+
+*מה למלא:* הסיכונים המרכזיים — לכל אחד תגובה ובעלים.
 
 | סיכון / Risk | תגובה / Response | בעלים / Owner |
 |---|---|---|
-| [TO FILL] | [TO FILL] | [TO FILL] |
+| «FILL» | «FILL» | «FILL» |
+| «FILL» | «FILL» | «FILL» |
+«SPACER»
 
-## Slide 11 — סיכום אסטרטגי · Strategic Summary
-> _Guidance: The required transition stated plainly + the call to execution.
-> Mirrors §10._
+## שקופית 11 — סיכום אסטרטגי · Strategic Summary
 
-[להשלמה / TO FILL]
+*מה למלא:* המעבר הנדרש במשפט ברור + קריאה לביצוע.
+
+«FILL»
+«FILL»

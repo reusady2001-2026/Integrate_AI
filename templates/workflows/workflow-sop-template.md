@@ -1,83 +1,89 @@
 <!--
-TEMPLATE: Workflow / SOP  ·  תבנית: תהליך עבודה / נוהל
-================================================================
-Two-layer model:
-  • TEMPLATE (this file) — skeleton + guidance + [להשלמה / TO FILL].
-  • DRAFT — a copy filled for one specific process.
-
-RELATIONSHIP TO OTHER TEMPLATES
-  RACI roles map to Job/Role Definitions (templates/job-description/).
-  Process KPIs map to the KPI template (templates/kpis/).
-
-HOW TO USE
-  1. Copy to a working draft, one file per process.
-  2. Fill [להשלמה / TO FILL]. Keep steps atomic and ownable.
-  3. Delete grey "Guidance" notes before sharing.
-
-RULES
-  • Bilingual: Hebrew primary. RTL for Hebrew.
-  • Every step has ONE responsible role. Every process has ONE owner.
-================================================================
+TEMPLATE: Workflow / SOP · תבנית: תהליך עבודה / נוהל
+Master (Markdown). Render to RTL Hebrew Word with scripts/render-docx.sh.
+Tokens: «FILL» -> underscore fill-in line ; «SPACER» -> blank writing space.
+One file per process. Every step has ONE responsible role; the process has ONE owner.
 -->
 
 # תהליך עבודה / נוהל · Workflow / SOP
 
-| | |
-|---|---|
-| **שם התהליך / Process name** | [להשלמה / TO FILL] |
-| **בעל התהליך / Process owner** | [להשלמה / TO FILL: single role] |
-| **מטרה / Purpose** | [להשלמה / TO FILL] |
-| **תחולה / Scope** | [להשלמה / TO FILL: where it applies / boundaries] |
-| **טריגר / Trigger** | [להשלמה / TO FILL: what starts it] |
-| **תדירות / Frequency** | [להשלמה / TO FILL] |
-| **גרסה / Version · תאריך / Date** | [TO FILL] · [TO FILL] |
+*הסבר כללי:* מסמך זה מגדיר תהליך עבודה אחד מקצה לקצה. מלאו את השדות בקו תחתון. שמרו
+על שלבים אטומיים שאפשר להחזיק בהם בעלות.
+
+**שם התהליך / Process name** — «FILL»
+**בעל התהליך / Process owner** — *מה למלא:* תפקיד יחיד שאחראי על התהליך כולו. «FILL»
+**מטרה / Purpose** — *מה למלא:* מה התהליך נועד להשיג. «FILL»
+**תחולה / Scope** — *מה למלא:* היכן התהליך חל ומה גבולותיו. «FILL»
+**טריגר / Trigger** — *מה למלא:* מה מפעיל את התהליך. «FILL»
+**תדירות / Frequency** — «FILL»
+**גרסה ותאריך / Version & date** — «FILL»
 
 ---
 
 ## 1. כניסות ופלטים · Inputs & Outputs
-> _Guidance: What the process consumes and produces. Be specific (documents,
-> approvals, data, systems)._
 
-- **כניסות / Inputs:** [להשלמה / TO FILL]
-- **פלטים / Outputs:** [להשלמה / TO FILL]
+*מה למלא:* מה התהליך צורך (מסמכים, אישורים, נתונים, מערכות) ומה הוא מייצר.
+
+כניסות / Inputs:
+«FILL»
+«FILL»
+פלטים / Outputs:
+«FILL»
+«FILL»
+«SPACER»
 
 ## 2. תפקידים (RACI) · Roles (RACI)
-> _Guidance: Responsible (does it), Accountable (owns it — exactly one), Consulted,
-> Informed. Map to real roles._
+
+*מה למלא:* לכל תפקיד סמנו את תחומי האחריות — R (מבצע), A (אחראי-בעלים, בדיוק אחד),
+C (מתייעצים איתו), I (מיודע). מלאו את התא ב-X.
 
 | תפקיד / Role | R | A | C | I |
 |---|---|---|---|---|
-| [TO FILL] |  |  |  |  |
-| [TO FILL] |  |  |  |  |
+| «FILL» | «FILL» | «FILL» | «FILL» | «FILL» |
+| «FILL» | «FILL» | «FILL» | «FILL» | «FILL» |
+| «FILL» | «FILL» | «FILL» | «FILL» | «FILL» |
+«SPACER»
 
 ## 3. שלבי התהליך · Process Steps
-> _Guidance: Number each step. One responsible role per step. Note the system/tool,
-> the output, and an SLA/timing where relevant._
 
-| # | שלב / Step | אחראי / Responsible | מערכת/כלי / System | פלט / Output | SLA |
+*מה למלא:* מספרו כל שלב. תפקיד אחראי יחיד לכל שלב. ציינו את המערכת/הכלי, הפלט של
+השלב, וזמן יעד (SLA) היכן שרלוונטי.
+
+| # | שלב / Step | אחראי / Responsible | מערכת / System | פלט / Output | SLA |
 |---|---|---|---|---|---|
-| 1 | [TO FILL] | [TO FILL] | [TO FILL] | [TO FILL] | [TO FILL] |
-| 2 | [TO FILL] | [TO FILL] | [TO FILL] | [TO FILL] | [TO FILL] |
-| 3 | [TO FILL] | [TO FILL] | [TO FILL] | [TO FILL] | [TO FILL] |
+| 1 | «FILL» | «FILL» | «FILL» | «FILL» | «FILL» |
+| 2 | «FILL» | «FILL» | «FILL» | «FILL» | «FILL» |
+| 3 | «FILL» | «FILL» | «FILL» | «FILL» | «FILL» |
+| 4 | «FILL» | «FILL» | «FILL» | «FILL» | «FILL» |
+«SPACER»
 
 ## 4. בקרות ונקודות אישור · Controls & Checkpoints
-> _Guidance: Mandatory approvals, segregation of duties, quality gates._
 
-- [להשלמה / TO FILL: checkpoint — control — approver]
-- [להשלמה / TO FILL]
+*מה למלא:* אישורים מחייבים, הפרדת תפקידים, ושערי איכות — ולכל אחד מי המאשר.
+
+נקודת בקרה / Checkpoint — בקרה — מאשר:
+«FILL»
+«FILL»
+«SPACER»
 
 ## 5. חריגים והסלמה · Exceptions & Escalation
-> _Guidance: What to do when the happy path breaks, and who decides._
 
-- [להשלמה / TO FILL: exception → action → escalate to]
-- [להשלמה / TO FILL]
+*מה למלא:* מה עושים כשהמסלול התקין נשבר, ומי מחליט.
+
+חריג / Exception — פעולה — מסלים ל-:
+«FILL»
+«FILL»
+«SPACER»
 
 ## 6. מדדי תהליך · Process KPIs
-> _Guidance: How this process is measured (cycle time, error rate, throughput,
-> SLA adherence). Link to the KPI template._
 
-- [להשלמה / TO FILL: KPI + target]
-- [להשלמה / TO FILL]
+*מה למלא:* כיצד התהליך נמדד (זמן מחזור, שיעור שגיאות, תפוקה, עמידה ב-SLA), עם יעד.
 
-## 7. מסמכים ומערכות קשורים · Related Documents & Systems  _(optional)_
-- [להשלמה / TO FILL]
+«FILL»
+«FILL»
+«SPACER»
+
+## 7. מסמכים ומערכות קשורים · Related Documents & Systems  *(אופציונלי / optional)*
+
+«FILL»
+«FILL»

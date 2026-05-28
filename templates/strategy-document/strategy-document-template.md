@@ -1,92 +1,111 @@
 <!--
-TEMPLATE: Strategy Document  ·  תבנית: מסמך אסטרטגי
-================================================================
-This is the BLANK template. Two-layer model:
-  • TEMPLATE (this file) — skeleton + guidance + [להשלמה / TO FILL] markers.
-  • DRAFT — a copy of this filled with one company's real, sourced data.
-
-HOW TO USE
-  1. Copy this file to a working draft for the specific company.
-  2. Replace every [להשלמה / TO FILL: ...] with sourced data.
-  3. Delete the grey "Guidance" notes before sharing externally.
-  4. Render to .docx / .pptx / .pdf as needed (use skills-library document skills).
-
-RULES
-  • Bilingual: Hebrew is primary; keep English where provided. RTL for Hebrew.
-  • Never invent figures, competitors, or facts. Anything unsourced stays a
-    [להשלמה / TO FILL] marker.
-  • Benchmark against REAL, NAMED competitors only.
-================================================================
+TEMPLATE: Strategy Document · תבנית: מסמך אסטרטגי
+Master (Markdown). Render to RTL Hebrew Word with scripts/render-docx.sh.
+Tokens: «FILL» -> underscore fill-in line ; «SPACER» -> blank writing space.
+Every section carries a "*מה למלא:*" explanation that stays in the file so the
+filler knows exactly what goes there. Never invent facts — leave blanks blank.
 -->
 
 # מסמך אסטרטגי · Strategy Document
 
-| | |
-|---|---|
-| **חברה / Company** | [להשלמה / TO FILL: company legal name] |
-| **סוג מסמך / Document type** | אסטרטגיה ממוקדת \| אסטרטגיה רב-שנתית (Focused \| Multi-year) |
-| **טווח / Horizon** | [להשלמה / TO FILL: e.g. 2026–2030] |
-| **תאריך / Date** | [להשלמה / TO FILL] |
-| **קהל יעד / Audience** | הנהלה ודירקטוריון (Management & Board) |
-| **סיווג / Classification** | חסוי (Confidential) |
+*הסבר כללי:* זהו מסמך האסטרטגיה של החברה להנהלה ולדירקטוריון. מלאו את כל השדות
+המסומנים בקו תחתון על בסיס נתונים אמיתיים בלבד (דוחות, נתונים פנימיים, דיווחי
+בורסה). מה שאינכם יודעים — השאירו ריק ואל תמציאו. *General:* the company's
+board-level strategy. Fill every underlined line with real, sourced data only.
+
+**שם החברה / Company legal name**
+*מה למלא:* השם המשפטי המלא של החברה.
+«FILL»
+
+**סוג המסמך / Document type**
+*מה למלא:* סמנו אם זו אסטרטגיה ממוקדת (קצרה) או אסטרטגיה רב-שנתית מלאה לדירקטוריון.
+«FILL»
+
+**טווח התכנית / Horizon** — *מה למלא:* טווח השנים שהתכנית מכסה (לדוגמה 2026–2030).
+«FILL»
+
+**תאריך / Date** — «FILL»
+
+**סיווג / Classification:** חסוי (Confidential)
 
 ---
 
 ## חלק א' — תמונת מצב נוכחית · Part A — Current Situation
 
-> _Guidance: The factual baseline. Everything here must be sourced (filing,
-> financials, internal data). This is the ground the strategy stands on._
+*הסבר:* חלק זה הוא הבסיס העובדתי של האסטרטגיה. כל נתון כאן חייב להיות מגובה במקור.
+זו "נקודת ההתחלה" שעליה נשענות כל ההמלצות בהמשך.
 
 ### 1. זהות תאגידית · Corporate Identity
 
-> _Guidance: Founding & history, ownership/control chain, listing & indices,
-> credit ratings, key officers (Chair, CEO), capital structure._
+*מה למלא:* שנת ההקמה והרקע (כיצד נוסדה החברה), שרשרת הבעלות והשליטה — מיהו בעל
+השליטה, אחוז ההחזקה, ומיהו בעל השליטה האולטימטיבי; הבורסה והמדדים שבהם נסחרת
+החברה; דירוג האשראי; ונושאי המשרה המרכזיים (יו"ר הדירקטוריון, מנכ"ל, ומועד מינוי).
 
-- **הקמה והיסטוריה / Founding & history:** [להשלמה / TO FILL]
-- **בעלות ושליטה / Ownership & control:** [להשלמה / TO FILL: controlling shareholder, %, ultimate owner]
-- **מסחר ומדדים / Listing & indices:** [להשלמה / TO FILL]
-- **דירוג אשראי / Credit rating:** [להשלמה / TO FILL]
-- **נושאי משרה מרכזיים / Key officers:** [להשלמה / TO FILL: Chair, CEO, since]
-- **מבנה הון / Capital structure:** [להשלמה / TO FILL: equity, debt series, etc.]
+הקמה והיסטוריה / Founding & history:
+«FILL»
+«FILL»
+
+בעלות ושליטה (בעל שליטה, % החזקה, בעל שליטה אולטימטיבי) / Ownership & control:
+«FILL»
+«FILL»
+
+מסחר בבורסה ומדדים / Listing & indices:
+«FILL»
+
+דירוג אשראי / Credit rating:
+«FILL»
+
+נושאי משרה מרכזיים (יו"ר, מנכ"ל ומועד מינוי) / Key officers:
+«FILL»
+«SPACER»
 
 ### 2. תיק הפעילות · Activity Portfolio
 
-> _Guidance: One row per business segment / activity line. Use the metrics that
-> matter for the industry (for real estate: m², value, NOI, occupancy; for other
-> sectors swap in revenue, units, margin, market share, etc.)._
+*מה למלא:* שורה אחת לכל תחום פעילות / קו עסקים. בכל שורה ציינו את היקף הפעילות
+(לדוגמה שטח במ"ר, מספר יחידות), השווי, ה-NOI או ההכנסה השנתית, שיעור התפוסה/הניצול,
+והערות מהותיות (שוכרים/לקוחות עיקריים, חוזים ארוכי טווח). הוסיפו שורות לפי הצורך.
 
-| תחום / Segment | היקף / Scale | שווי / Value | NOI / הכנסה (Revenue) | תפוסה/ניצול (Occupancy) | הערות / Notes |
+| תחום / Segment | היקף / Scale | שווי / Value | NOI / הכנסה | תפוסה / Occupancy | הערות / Notes |
 |---|---|---|---|---|---|
-| [TO FILL] | [TO FILL] | [TO FILL] | [TO FILL] | [TO FILL] | [TO FILL] |
-| [TO FILL] | [TO FILL] | [TO FILL] | [TO FILL] | [TO FILL] | [TO FILL] |
+| «FILL» | «FILL» | «FILL» | «FILL» | «FILL» | «FILL» |
+| «FILL» | «FILL» | «FILL» | «FILL» | «FILL» | «FILL» |
+| «FILL» | «FILL» | «FILL» | «FILL» | «FILL» | «FILL» |
 
-**שותפים/לקוחות מהותיים / Key counterparties:** [להשלמה / TO FILL]
+שותפים / לקוחות מהותיים (ריכוזיות, חוזים עיקריים) / Key counterparties:
+«FILL»
+«SPACER»
 
 ### 3. מצב פיננסי · Financial State
 
-> _Guidance: The headline financials, each with a one-line note (YoY change, what
-> drove it). Adapt line items to the company._
+*מה למלא:* הנתונים הפיננסיים המרכזיים נכון לתום השנה האחרונה. בעמודת "הערה" כתבו את
+השינוי לעומת השנה הקודמת ומה הניע אותו. התאימו את שורות המדדים לחברה שלכם.
 
-| מדד / Metric | ערך / Value | הערה / Note |
+| מדד / Metric | ערך / Value | הערה (שינוי YoY ומה הניע) / Note |
 |---|---|---|
-| סך הכנסות / Total revenue | [TO FILL] | [TO FILL] |
-| NOI / רווח תפעולי | [TO FILL] | [TO FILL] |
-| FFO | [TO FILL] | [TO FILL] |
-| רווח נקי / Net profit | [TO FILL] | [TO FILL] |
-| הון עצמי / Equity | [TO FILL] | [TO FILL] |
-| חוב נטו / מאזן / Net debt-to-balance | [TO FILL] | [TO FILL] |
-| נזילות / Liquidity | [TO FILL] | [TO FILL] |
-| שווי שוק / Market cap | [TO FILL] | [TO FILL] |
-| שווי למניה / Per-share value | [TO FILL] | [TO FILL] |
+| סך הכנסות / Total revenue | «FILL» | «FILL» |
+| NOI / רווח תפעולי | «FILL» | «FILL» |
+| FFO | «FILL» | «FILL» |
+| רווח נקי / Net profit | «FILL» | «FILL» |
+| הון עצמי / Equity | «FILL» | «FILL» |
+| חוב נטו / מאזן / Net debt-to-balance | «FILL» | «FILL» |
+| נזילות / Liquidity | «FILL» | «FILL» |
+| שווי שוק / Market cap | «FILL» | «FILL» |
+| שווי למניה / Per-share value | «FILL» | «FILL» |
+«SPACER»
 
 ### 4. אתגרים תפעוליים ופערים · Operational Challenges & Gaps
 
-> _Guidance: The explicit list of problems the strategy MUST answer. Be concrete
-> and quantified. Each item here should map to something in Part B._
+*מה למלא:* רשימה מפורשת וכמותית של הבעיות שהאסטרטגיה חייבת לתת להן מענה. כל אתגר
+צריך להיות קונקרטי ומגובה במספרים (לדוגמה: "ירידה של X% בתפוסת נכס Y במשך 3 שנים").
+כל פריט כאן אמור לקבל מענה בחלק ב'.
 
-1. [להשלמה / TO FILL: challenge, quantified]
-2. [להשלמה / TO FILL]
-3. [להשלמה / TO FILL]
+אתגר 1 / Challenge 1:
+«FILL»
+אתגר 2 / Challenge 2:
+«FILL»
+אתגר 3 / Challenge 3:
+«FILL»
+«SPACER»
 
 ---
 
@@ -94,67 +113,106 @@ RULES
 
 ### 5. תקציר אסטרטגי · Executive Summary / Strategic Thesis
 
-> _Guidance: The turning point and the single core assertion. Where the company
-> stands, what must change, and the one-sentence thesis. 1–3 short paragraphs._
+*מה למלא:* 2–3 פסקאות קצרות. תארו היכן ניצבת החברה כיום, מהי נקודת המפנה הנדרשת,
+ומהי האמירה האסטרטגית המרכזית (המשפט האחד שמסכם את כל המהלך). זהו ה"סיפור" של
+המסמך.
 
-[להשלמה / TO FILL]
+«FILL»
+«FILL»
+«FILL»
+«FILL»
+«SPACER»
 
 ### 6. עקרון הוויתורים האסטרטגיים · Principle of Strategic Trade-offs
 
-> _Guidance: Signature section. What the company will deliberately NOT do during
-> the plan, each with a one-line reason. Focus comes from exclusion._
+*מה למלא:* זהו חלק חתימה של השיטה. פרטו ממה החברה תימנע באופן מודע בתקופת התכנית —
+ולצד כל ויתור, הסיבה לו. מיקוד נוצר דווקא ממה שבוחרים לא לעשות.
 
-- **לא נעשה / We will not:** [TO FILL] — _סיבה / reason:_ [TO FILL]
-- **לא נעשה / We will not:** [TO FILL] — _סיבה / reason:_ [TO FILL]
-- **לא נעשה / We will not:** [TO FILL] — _סיבה / reason:_ [TO FILL]
+ויתור 1 — לא נעשה / We will not: «FILL»
+הסיבה / Reason: «FILL»
+«SPACER»
+ויתור 2 — לא נעשה / We will not: «FILL»
+הסיבה / Reason: «FILL»
+«SPACER»
+ויתור 3 — לא נעשה / We will not: «FILL»
+הסיבה / Reason: «FILL»
+«SPACER»
 
 ### 7. מנועי הצמיחה · Growth Engines
 
-> _Guidance: Repeat the block below for each growth engine (typically 3–5).
-> The competitive landscape must name REAL competitors with real figures.
-> The entry path must leverage assets/capabilities the company ALREADY has._
+*מה למלא:* חזרו על הבלוק הבא עבור כל מנוע צמיחה (בדרך כלל 3–5 מנועים). לכל מנוע
+פרטו: (א) ההזדמנות; (ב) מצב התחרות בענף — חובה לנקוב בשמות מתחרים אמיתיים ובנתונים
+אמיתיים, לא בכלליות; (ג) מודל הפעולה (לדוגמה שותפות 50/50, Build-to-Suit, רכישה);
+(ד) נתיב הכניסה המומלץ — תוך מינוף נכסים ויכולות שכבר קיימים בחברה.
 
-#### 7.x [להשלמה / TO FILL: engine name]
-- **ההזדמנות / The opportunity:** [TO FILL]
-- **מצב התחרות / Competitive landscape (named):** [להשלמה / TO FILL: real competitors + figures]
-- **מודל הפעולה / Operating model:** [TO FILL: e.g. JV 50/50, build-to-suit, M&A]
-- **נתיב כניסה מומלץ / Recommended entry path (from existing assets):** [TO FILL]
+#### מנוע צמיחה / Growth engine — שם / Name:
+«FILL»
 
-_(Duplicate 7.x for each additional engine.)_
+ההזדמנות / The opportunity:
+«FILL»
+«FILL»
+
+מצב התחרות (שמות מתחרים אמיתיים + נתונים) / Competitive landscape (named):
+«FILL»
+«FILL»
+
+מודל הפעולה / Operating model:
+«FILL»
+
+נתיב כניסה מומלץ מהנכסים הקיימים / Recommended entry path:
+«FILL»
+«FILL»
+«SPACER»
+
+*(שכפלו את הבלוק לעיל עבור כל מנוע צמיחה נוסף.)*
 
 ### 8. ניהול בסיס התזרים הקיים · Active Management of the Existing Base
 
-> _Guidance: The existing business funds the new engines. One block per existing
-> segment: current status → risk to watch → concrete action this period._
+*מה למלא:* הפעילות הקיימת מממנת את מנועי הצמיחה החדשים. עבור כל תחום קיים מהותי
+כתבו: הסטטוס הנוכחי, הסיכון שצריך לעקוב אחריו, והפעולה הקונקרטית בתקופה זו.
 
-#### 8.x [להשלמה / TO FILL: existing segment]
-- **סטטוס / Status:** [TO FILL]
-- **סיכון בעקיבה / Risk to monitor:** [TO FILL]
-- **פעולה / Action:** [TO FILL]
+תחום קיים / Segment: «FILL»
+סטטוס / Status: «FILL»
+סיכון בעקיבה / Risk to monitor: «FILL»
+פעולה / Action: «FILL»
+«SPACER»
+תחום קיים / Segment: «FILL»
+סטטוס / Status: «FILL»
+סיכון בעקיבה / Risk to monitor: «FILL»
+פעולה / Action: «FILL»
+«SPACER»
 
 ### 9. ניהול סיכונים · Risk Management
 
-> _Guidance: For each major risk — the operational response AND a named internal
-> owner. No orphan risks._
+*מה למלא:* עבור כל סיכון מרכזי — התגובה האופרטיבית ובעל התפקיד הפנימי האחראי. אסור
+שיישאר סיכון ללא בעלים.
 
 | סיכון / Risk | תגובה אופרטיבית / Operational response | בעלים פנימי / Internal owner |
 |---|---|---|
-| [TO FILL] | [TO FILL] | [TO FILL] |
-| [TO FILL] | [TO FILL] | [TO FILL] |
+| «FILL» | «FILL» | «FILL» |
+| «FILL» | «FILL» | «FILL» |
+| «FILL» | «FILL» | «FILL» |
+«SPACER»
 
 ### 10. סיכום אסטרטגי · Strategic Summary
 
-> _Guidance: Close with the required transition stated plainly (e.g. "from
-> portfolio management to platform management"). Reaffirm focus + execution._
+*מה למלא:* סגירה קצרה — נסחו במפורש את המעבר הנדרש (לדוגמה "מניהול פורטפוליו לניהול
+פלטפורמת צמיחה") והדגישו את שילוב המיקוד עם יכולת הביצוע.
 
-[להשלמה / TO FILL]
+«FILL»
+«FILL»
+«FILL»
+«SPACER»
 
 ---
 
-<!-- Optional appendix: quantified targets across horizons (mirror the board deck). -->
 ## נספח — יעדים ומדדים · Appendix — Goals & KPIs by Horizon
 
-| מדד / Metric | בסיס (Baseline) | יעד T+2 | יעד T+5 |
+*מה למלא:* יעדים כמותיים לאורך אופקי זמן (בסיס היום, ויעד לטווח בינוני וארוך). אלו
+המספרים שלפיהם תימדד הצלחת האסטרטגיה.
+
+| מדד / Metric | בסיס היום / Baseline | יעד T+2 | יעד T+5 |
 |---|---|---|---|
-| [TO FILL: e.g. NOI] | [TO FILL] | [TO FILL] | [TO FILL] |
-| [TO FILL: e.g. market cap] | [TO FILL] | [TO FILL] | [TO FILL] |
+| «FILL» | «FILL» | «FILL» | «FILL» |
+| «FILL» | «FILL» | «FILL» | «FILL» |
+| «FILL» | «FILL» | «FILL» | «FILL» |

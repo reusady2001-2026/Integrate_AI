@@ -1,99 +1,115 @@
 <!--
-TEMPLATE: Job / Role Definition  ·  תבנית: הגדרת תפקיד
-================================================================
-Two-layer model (same as all templates):
-  • TEMPLATE (this file) — skeleton + guidance + [להשלמה / TO FILL] markers.
-  • DRAFT — a copy filled for one specific role at one specific company.
-
-HOW TO USE
-  1. Copy to a working draft for the specific role.
-  2. Replace every [להשלמה / TO FILL: ...] with real content.
-  3. Sections 1–3 are CORE (every role has them). Sections 4–7 are OPTIONAL
-     extensions — keep the ones that add value, delete the rest.
-  4. Delete grey "Guidance" notes before sharing. Render to .docx as needed.
-
-RULES
-  • Bilingual: Hebrew primary, English where provided. RTL for Hebrew.
-  • Keep responsibilities concrete and grouped under clear area headers.
-  • Don't pad — every bullet should be a real, ownable responsibility.
-================================================================
+TEMPLATE: Job / Role Definition · תבנית: הגדרת תפקיד
+Master (Markdown). Render to RTL Hebrew Word with scripts/render-docx.sh.
+Tokens: «FILL» -> underscore fill-in line ; «SPACER» -> blank writing space.
+Sections 1–2 are core (every role). Sections 3–6 are optional extensions.
 -->
 
 # הגדרת תפקיד · Job / Role Definition
 
-| | |
-|---|---|
-| **שם התפקיד / Role title** | [להשלמה / TO FILL: e.g. סמנכ"ל כספים (CFO)] |
-| **מיצוב / Positioning (one line)** | [להשלמה / TO FILL: the role's "arm"/function in one line] |
-| **כפיפות / Reports to** | [להשלמה / TO FILL] |
-| **כפופים ישירים / Direct reports** | [להשלמה / TO FILL] |
-| **חטיבה / Division** | [להשלמה / TO FILL] |
-| **תאריך / Date** | [להשלמה / TO FILL] |
+*הסבר כללי:* מסמך זה מגדיר תפקיד בודד בחברה. מלאו את השדות בקו תחתון. החלקים 1–2 הם
+ליבת המסמך (לכל תפקיד), והחלקים 3–6 הם הרחבות אופציונליות — השאירו את מה שרלוונטי
+ומחקו את היתר.
+
+**שם התפקיד / Role title** — *מה למלא:* התואר הרשמי (לדוגמה: סמנכ"ל כספים).
+«FILL»
+
+**מיצוב התפקיד במשפט / Positioning (one line)** — *מה למלא:* תיאור בשורה אחת של
+"הזרוע" או הפונקציה שהתפקיד מוביל בחברה.
+«FILL»
+
+**כפיפות / Reports to** — *מה למלא:* למי התפקיד כפוף ישירות.
+«FILL»
+
+**כפופים ישירים / Direct reports** — *מה למלא:* אילו תפקידים כפופים לבעל התפקיד.
+«FILL»
+
+**חטיבה / Division** — «FILL»
+**תאריך / Date** — «FILL»
 
 ---
 
 ## 1. ייעוד התפקיד · Role Purpose
 
-> _Guidance: 1–3 short paragraphs. What the role owns end-to-end, its scope
-> across the business, who it partners with strategically, and the standard it is
-> held to. State the mandate, not a task list (tasks go in Section 2)._
+*מה למלא:* 2–3 פסקאות קצרות המתארות את המנדט של התפקיד — מה הוא מחזיק מקצה לקצה,
+מהו היקף האחריות שלו בחברה, עם מי הוא עובד בשיתוף אסטרטגי, ולפי איזה סטנדרט הוא
+נמדד. כתבו מנדט, לא רשימת משימות (המשימות נכנסות בחלק 2).
 
-[להשלמה / TO FILL]
+«FILL»
+«FILL»
+«FILL»
+«FILL»
+«SPACER»
 
 ---
 
 ## 2. תחומי אחריות מרכזיים · Key Responsibility Areas
 
-> _Guidance: This is the core of the document. Group responsibilities under
-> clear AREA headers (typically 4–8 areas). Under each, list concrete, ownable
-> duties. Repeat the block below per area._
+*מה למלא:* זהו לב המסמך. קבצו את האחריות תחת כותרות-תחום ברורות (בדרך כלל 4–8
+תחומים). תחת כל תחום, רשמו מטלות קונקרטיות ושאפשר להחזיק בהן בעלות. שכפלו את הבלוק
+לכל תחום נוסף.
 
-### 2.x [להשלמה / TO FILL: responsibility area name]
-- [להשלמה / TO FILL: concrete duty]
-- [להשלמה / TO FILL: concrete duty]
-- [להשלמה / TO FILL: concrete duty]
+#### תחום אחריות / Responsibility area — שם / Name:
+«FILL»
 
-### 2.x [להשלמה / TO FILL: responsibility area name]
-- [להשלמה / TO FILL]
-- [להשלמה / TO FILL]
+מטלות / Duties:
+«FILL»
+«FILL»
+«FILL»
+«SPACER»
 
-_(Duplicate 2.x for each additional area.)_
+#### תחום אחריות / Responsibility area — שם / Name:
+«FILL»
+
+מטלות / Duties:
+«FILL»
+«FILL»
+«FILL»
+«SPACER»
+
+*(שכפלו את הבלוק לעיל עבור כל תחום אחריות נוסף.)*
 
 ---
 
-<!-- ===== OPTIONAL EXTENSION SECTIONS — keep what adds value, delete the rest ===== -->
+<!-- ===== חלקים אופציונליים — השאירו את מה שמוסיף ערך ===== -->
 
-## 3. ממשקים מרכזיים · Key Interfaces  _(optional)_
+## 3. ממשקים מרכזיים · Key Interfaces  *(אופציונלי / optional)*
 
-> _Guidance: Internal and external parties this role works with regularly, and
-> the purpose of each interface._
+*מה למלא:* גורמים פנימיים וחיצוניים שאיתם התפקיד עובד באופן קבוע, ומטרת כל ממשק.
 
-| גורם / Party | פנימי/חיצוני (Internal/External) | מטרת הממשק / Purpose |
+| גורם / Party | פנימי/חיצוני | מטרת הממשק / Purpose |
 |---|---|---|
-| [TO FILL] | [TO FILL] | [TO FILL] |
-| [TO FILL] | [TO FILL] | [TO FILL] |
+| «FILL» | «FILL» | «FILL» |
+| «FILL» | «FILL» | «FILL» |
+«SPACER»
 
-## 4. מדדי הצלחה · Success Metrics / KPIs  _(optional)_
+## 4. מדדי הצלחה · Success Metrics / KPIs  *(אופציונלי / optional)*
 
-> _Guidance: How performance in this role is measured. Tie to the org's KPI set
-> once that template exists. Keep measurable._
+*מה למלא:* כיצד נמדדת ההצלחה בתפקיד. כל מדד עם יעד ותדירות. קשרו לתבנית ה-KPI.
 
-- [להשלמה / TO FILL: KPI + target/cadence]
-- [להשלמה / TO FILL]
+«FILL»
+«FILL»
+«SPACER»
 
-## 5. כישורים ודרישות · Qualifications & Requirements  _(optional)_
+## 5. כישורים ודרישות · Qualifications & Requirements  *(אופציונלי / optional)*
 
-> _Guidance: Education, professional experience, domain expertise, and core
-> competencies required. Separate "must have" from "advantage"._
+*מה למלא:* השכלה, ניסיון מקצועי, מומחיות תחומית וכישורי ליבה. הפרידו בין "חובה"
+לבין "יתרון".
 
-- **חובה / Required:** [להשלמה / TO FILL]
-- **יתרון / Advantage:** [להשלמה / TO FILL]
+חובה / Required:
+«FILL»
+«FILL»
+יתרון / Advantage:
+«FILL»
+«SPACER»
 
-## 6. סמכויות וגבולות החלטה · Authority & Decision Boundaries  _(optional)_
+## 6. סמכויות וגבולות החלטה · Authority & Decision Boundaries  *(אופציונלי / optional)*
 
-> _Guidance: What this role decides alone vs. recommends vs. escalates. Mirrors
-> the Always / Ask-first / Escalate logic._
+*מה למלא:* מה בעל התפקיד מחליט לבד, על מה הוא ממליץ, ומה הוא מסלים כלפי מעלה.
 
-- **מחליט עצמאית / Decides:** [להשלמה / TO FILL]
-- **ממליץ / Recommends:** [להשלמה / TO FILL]
-- **מסלים / Escalates:** [להשלמה / TO FILL]
+מחליט עצמאית / Decides:
+«FILL»
+ממליץ / Recommends:
+«FILL»
+מסלים / Escalates:
+«FILL»

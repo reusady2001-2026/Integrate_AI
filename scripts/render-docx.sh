@@ -24,6 +24,7 @@ for md in templates/*/*.md; do
   name="$(basename "$(dirname "$md")")"
   dest="$OUT/${name}.docx"
   pandoc "$md" -o "$dest" --reference-doc="$REF"
+  python3 scripts/rtl_postprocess.py "$dest"
   echo "rendered: $md -> $dest"
 done
 
