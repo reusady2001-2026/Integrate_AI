@@ -17,6 +17,14 @@ Every template exists in two layers:
 Markdown files are the **versionable master**. Render to `.docx` / `.pptx` / `.pdf`
 on delivery using the document skills in [`../skills-library/`](../skills-library/).
 
+**Distributable Word versions** (RTL Hebrew) are pre-rendered in
+[`../dist/word/`](../dist/word/) for position-holders who just want to download and
+fill in. Regenerate them after editing a template with:
+
+```bash
+bash scripts/render-docx.sh   # requires pandoc (+ python-docx for first run)
+```
+
 ## Templates
 
 | Template | Path | Hebrew | Use for |
