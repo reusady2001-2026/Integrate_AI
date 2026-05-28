@@ -12,7 +12,6 @@ Usage: python3 scripts/rtl_postprocess.py <file.docx>
 """
 import sys
 from docx import Document
-from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 
@@ -42,8 +41,14 @@ def ensure_bidi(pPr):
 
 
 def rtl_paragraph(p):
-    p.alignment = WD_ALIGN_PARAGRAPH.RIGHT          # correct <w:jc> placement
-    ensure_bidi(p._p.get_or_add_pPr())
+    # Right-alignment comes from bidi (RTL default = start = right). Do NOT set
+    # jc="right": Word treats that as the logical end (physical LEFT) in a bidi
+    # paragraph. Strip any inherited jc so nothing forces left/justify.
+    pPr = p._p.get_or_add_pPr()
+    ensure_bidi(pPr)
+    jc = pPr.find(qn("w:jc"))
+    if jc is not None:
+        pPr.remove(jc)
     for r in p._p.findall(qn("w:r")):
         rPr = r.find(qn("w:rPr"))
         if rPr is None:

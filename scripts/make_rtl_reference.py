@@ -15,7 +15,13 @@ HEBREW_FONT = "David"  # widely available Hebrew serif; falls back gracefully
 
 
 def set_rtl(style):
-    """Mark a paragraph style as RTL + right-aligned, with a Hebrew CS font."""
+    """Mark a paragraph style as RTL with a Hebrew CS font.
+
+    Note: we do NOT set <w:jc>. In a bidi (RTL) paragraph, Word aligns to the
+    start side (the right) by default, and treats jc="right" as the logical end
+    (physical LEFT). Real Word-authored Hebrew docs right-align via bidi alone —
+    we mirror that here and strip any inherited jc.
+    """
     el = style.element
     pPr = el.find(qn("w:pPr"))
     if pPr is None:
@@ -24,10 +30,8 @@ def set_rtl(style):
     if pPr.find(qn("w:bidi")) is None:
         pPr.append(OxmlElement("w:bidi"))
     jc = pPr.find(qn("w:jc"))
-    if jc is None:
-        jc = OxmlElement("w:jc")
-        pPr.append(jc)
-    jc.set(qn("w:val"), "right")
+    if jc is not None:
+        pPr.remove(jc)
 
     rPr = el.find(qn("w:rPr"))
     if rPr is None:
