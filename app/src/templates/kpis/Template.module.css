@@ -84,6 +84,15 @@
   margin: 0 0 0.85rem;
 }
 
+.fieldInline {
+  margin: 0 0 0.6rem;
+  line-height: 1.7;
+}
+
+.fieldInline strong {
+  font-weight: 700;
+}
+
 .fieldLabel {
   font-size: 0.95em;
   margin-bottom: 0.2rem;
@@ -116,6 +125,10 @@
   padding: 0.25rem 0;
   border-bottom: 1px solid var(--doc-border-soft);
   white-space: pre-wrap;
+}
+
+.valueInline {
+  display: inline;
 }
 
 .fillLine {
