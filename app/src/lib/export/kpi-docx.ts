@@ -1,9 +1,7 @@
 import {
   AlignmentType,
-  BorderStyle,
   Document,
   HeadingLevel,
-  LevelFormat,
   Packer,
   PageOrientation,
   Paragraph,
@@ -17,191 +15,206 @@ import {
 import type { KpiDocument } from "../schemas/kpis";
 
 const DAVID = "David";
-const HEEBO = "Heebo";
+const BODY_HP = 14;
+const H1_HP = 18;
+const H2_HP = 16;
+const H3_HP = 14;
+const FILL_LINE = "_______________________________________________________";
 
-function he(text: string, opts: Partial<IRunOptions> = {}): TextRun {
+function run(text: string, opts: Partial<IRunOptions> = {}): TextRun {
   return new TextRun({
     text,
     font: DAVID,
     rightToLeft: true,
+    size: BODY_HP,
     ...opts,
   });
 }
 
 function bold(text: string): TextRun {
-  return he(text, { bold: true });
+  return run(text, { bold: true });
 }
 
-function gloss(text: string): TextRun {
-  return new TextRun({ text, font: HEEBO, color: "6b6b6b", italics: false });
-}
-
-function pBidi(children: TextRun[], opts: { spacingBefore?: number; spacingAfter?: number } = {}) {
+function heading(
+  text: string,
+  level: (typeof HeadingLevel)[keyof typeof HeadingLevel],
+  hp: number,
+) {
   return new Paragraph({
-    children,
+    children: [
+      new TextRun({ text, font: DAVID, rightToLeft: true, size: hp }),
+    ],
+    heading: level,
     bidirectional: true,
-    spacing: { before: opts.spacingBefore ?? 0, after: opts.spacingAfter ?? 100 },
   });
 }
 
-function h1(text: string, glossText: string) {
+function inlineField(
+  label: string,
+  value: string,
+  opts: { sep?: string; hint?: string } = {},
+) {
+  const sep = opts.sep ?? " — ";
+  const hint = opts.hint ? `${opts.hint} ` : "";
+  const tail = value.trim() ? value : FILL_LINE;
   return new Paragraph({
-    children: [bold(text), gloss(`  · ${glossText}`)],
-    heading: HeadingLevel.HEADING_1,
+    children: [bold(label), run(`${sep}${hint}${tail}`)],
     bidirectional: true,
-    spacing: { before: 200, after: 200 },
-    border: { bottom: { color: "1a1a1a", size: 12, style: BorderStyle.SINGLE, space: 4 } },
   });
-}
-
-function h2(num: string, text: string, glossText: string) {
-  return new Paragraph({
-    children: [bold(`${num}. ${text}`), gloss(`  · ${glossText}`)],
-    heading: HeadingLevel.HEADING_2,
-    bidirectional: true,
-    spacing: { before: 320, after: 120 },
-  });
-}
-
-function h3(text: string, glossText: string) {
-  return new Paragraph({
-    children: [bold(text), gloss(`  · ${glossText}`)],
-    heading: HeadingLevel.HEADING_3,
-    bidirectional: true,
-    spacing: { before: 200, after: 100 },
-  });
-}
-
-function field(label: string, glossText: string, value: string, opts: { hint?: string } = {}) {
-  const labelRuns: TextRun[] = [
-    bold(`${label} `),
-    gloss(`/ ${glossText}`),
-  ];
-  if (opts.hint) labelRuns.push(he(` — ${opts.hint}`, { color: "6b6b6b" }));
-  return [
-    pBidi(labelRuns, { spacingAfter: 40 }),
-    pBidi(value ? [he(value)] : [he("________________________________________", { color: "c8c4bb" })], {
-      spacingAfter: 160,
-    }),
-  ];
 }
 
 function guidance(text: string) {
   return new Paragraph({
-    children: [bold("מה למלא: "), he(text, { color: "5a5a5a" })],
+    children: [run(text)],
     bidirectional: true,
-    spacing: { before: 80, after: 200 },
-    indent: { start: 240 },
   });
 }
 
-function rule() {
-  return new Paragraph({
-    children: [],
-    border: { bottom: { color: "d8d4cc", size: 6, style: BorderStyle.SINGLE, space: 1 } },
-    spacing: { before: 240, after: 240 },
-  });
-}
-
-function tableCell(text: string, isHeader = false): TableCell {
+function cell(children: TextRun[]): TableCell {
   return new TableCell({
     children: [
       new Paragraph({
-        children: [isHeader ? bold(text) : he(text)],
-        alignment: isHeader ? AlignmentType.CENTER : AlignmentType.START,
+        children,
+        alignment: AlignmentType.CENTER,
         bidirectional: true,
       }),
     ],
   });
 }
 
+function textCell(text: string, header = false): TableCell {
+  const value = text.trim() ? text : FILL_LINE;
+  return cell([header ? bold(value) : run(value)]);
+}
+
+function statusCell(text: string): TableCell {
+  if (text.trim()) return cell([run(text)]);
+  return cell([run("🟢 __________ 🟡 __________ 🔴 __________")]);
+}
+
 export async function renderKpiDocx(doc: KpiDocument): Promise<Blob> {
   const children: (Paragraph | Table)[] = [];
 
-  children.push(h1("מדדי ביצוע", "KPIs & Metrics"));
   children.push(
-    pBidi(
-      [
-        he(
-          "מסמך זה מגדיר את מערך המדדים — ברמת הארגון, החטיבה או התפקיד. שמרו על מספר מדדים קטן שמניע החלטות.",
-        ),
-      ],
-      { spacingAfter: 200 },
-    ),
+    heading("מדדי ביצוע · KPIs & Metrics", HeadingLevel.HEADING_1, H1_HP),
   );
 
-  children.push(...field("שם החברה", "Company", doc.company));
-  children.push(...field("רמת המדידה", "Level", doc.level, { hint: "ארגון / חטיבה / תפקיד" }));
-  children.push(...field("תאריך", "Date", doc.date));
-  children.push(...field("סיווג", "Classification", doc.classification));
+  children.push(inlineField("שם החברה / Company", doc.company));
+  children.push(
+    inlineField("רמת המדידה / Level", doc.level, {
+      hint: "מה למלא: ארגון / חטיבה / תפקיד.",
+    }),
+  );
+  children.push(inlineField("תאריך / Date", doc.date));
 
-  children.push(rule());
-
-  children.push(h2("1", "מסגרת המדידה", "Measurement Framework"));
+  children.push(
+    heading("הגדרות מדדים · KPI Definitions", HeadingLevel.HEADING_2, H2_HP),
+  );
   children.push(
     guidance(
-      "כיצד המדדים מאורגנים (לפי ציר אסטרטגי / לפי פונקציה / לפי תפקיד) ומהו קצב הסקירה.",
+      "מה למלא: “נוסחה” חייבת להיות חד-משמעית. ה”ספים” קובעים את סטטוס הרמזור (ירוק/צהוב/אדום). לכל מדד חייב להיות בעלים יחיד ומקור נתונים.",
     ),
   );
-  children.push(...field("לוגיקת המדידה", "Logic", doc.framework.logic));
-  children.push(...field("קצב סקירה", "Review cadence", doc.framework.cadence));
+  children.push(heading("מדדים / KPI's :", HeadingLevel.HEADING_3, H3_HP));
 
-  children.push(rule());
+  const kpis =
+    doc.kpis.length > 0
+      ? doc.kpis
+      : [
+          {
+            name: "",
+            definition: "",
+            formula: "",
+            owner: "",
+            dataSource: "",
+            cadence: "",
+            baseline: "",
+            targets: "",
+            thresholds: "",
+          },
+        ];
 
-  children.push(h2("2", "הגדרות מדדים", "KPI Definitions"));
-  children.push(
-    guidance(
-      "בלוק אחד לכל מדד. נוסחה חייבת להיות חד-משמעית. הספים קובעים את סטטוס הרמזור.",
-    ),
-  );
-  children.push(h3("מדדים", "KPI's"));
-
-  doc.kpis.forEach((k, i) => {
-    if (doc.kpis.length > 1) {
-      children.push(
-        pBidi([gloss(`מדד ${i + 1}`)], { spacingBefore: 200, spacingAfter: 80 }),
-      );
-    }
-    children.push(...field("שם", "Name", k.name));
-    children.push(...field("הגדרה (מה הוא מודד, בפשטות)", "Definition", k.definition));
-    children.push(...field("נוסחה", "Formula", k.formula));
-    children.push(...field("בעלים (תפקיד יחיד)", "Owner", k.owner));
-    children.push(...field("מקור נתונים", "Data source", k.dataSource));
-    children.push(...field("תדירות", "Cadence", k.cadence));
-    children.push(...field("בסיס היום", "Baseline", k.baseline));
-    children.push(...field("יעדים: T+1 / T+2 / T+5", "Targets", k.targets));
-    children.push(...field("ספים — 🟢 ירוק / 🟡 צהוב / 🔴 אדום", "Thresholds", k.thresholds));
+  kpis.forEach((k) => {
+    children.push(
+      new Paragraph({
+        children: [
+          bold("שם / Name"),
+          run(`: ${k.name.trim() ? k.name : FILL_LINE} `),
+        ],
+        heading: HeadingLevel.HEADING_3,
+        bidirectional: true,
+      }),
+    );
+    children.push(
+      inlineField(
+        "הגדרה (מה הוא מודד, בפשטות) / Definition",
+        k.definition,
+        { sep: ": " },
+      ),
+    );
+    children.push(inlineField("נוסחה / Formula", k.formula, { sep: ": " }));
+    children.push(
+      inlineField("בעלים (תפקיד יחיד) / Owner", k.owner, { sep: ": " }),
+    );
+    children.push(
+      inlineField("מקור נתונים / Data source", k.dataSource, { sep: ": " }),
+    );
+    children.push(inlineField("תדירות / Cadence", k.cadence, { sep: ": " }));
+    children.push(
+      inlineField("בסיס היום / Baseline", k.baseline, { sep: ": " }),
+    );
+    children.push(
+      inlineField("יעדים: T+1 / T+2 / T+5", k.targets, { sep: ": " }),
+    );
+    children.push(
+      inlineField(
+        "ספים — 🟢 ירוק / 🟡 צהוב / 🔴 אדום",
+        k.thresholds,
+        { sep: ": " },
+      ),
+    );
   });
 
-  children.push(rule());
-
-  children.push(h2("3", "כרטיס מדדים", "Scorecard"));
-  children.push(guidance("טבלת סיכום של כל המדדים שלמעלה במבט אחד."));
+  children.push(
+    heading("כרטיס מדדים · Scorecard", HeadingLevel.HEADING_2, H2_HP),
+  );
+  children.push(guidance("מה למלא: טבלת סיכום של כל המדדים שלמעלה במבט אחד."));
 
   const headerRow = new TableRow({
     tableHeader: true,
     children: [
-      tableCell("מדד · KPI", true),
-      tableCell("בעלים · Owner", true),
-      tableCell("בסיס · Baseline", true),
-      tableCell("יעד · Target", true),
-      tableCell("תדירות · Cadence", true),
-      tableCell("סטטוס", true),
+      textCell("מדד / KPI", true),
+      textCell("בעלים / Owner", true),
+      textCell("בסיס / Baseline", true),
+      textCell("יעד / Target", true),
+      textCell("תדירות / Cadence", true),
+      textCell("סטטוס", true),
     ],
   });
-  const bodyRows = doc.scorecard.map(
+
+  const rows =
+    doc.scorecard.length > 0
+      ? doc.scorecard
+      : [
+          { kpi: "", owner: "", baseline: "", target: "", cadence: "", status: "" },
+          { kpi: "", owner: "", baseline: "", target: "", cadence: "", status: "" },
+          { kpi: "", owner: "", baseline: "", target: "", cadence: "", status: "" },
+        ];
+
+  const bodyRows = rows.map(
     (r) =>
       new TableRow({
         children: [
-          tableCell(r.kpi),
-          tableCell(r.owner),
-          tableCell(r.baseline),
-          tableCell(r.target),
-          tableCell(r.cadence),
-          tableCell(r.status),
+          textCell(r.kpi),
+          textCell(r.owner),
+          textCell(r.baseline),
+          textCell(r.target),
+          textCell(r.cadence),
+          statusCell(r.status),
         ],
       }),
   );
+
   children.push(
     new Table({
       rows: [headerRow, ...bodyRows],
@@ -210,29 +223,16 @@ export async function renderKpiDocx(doc: KpiDocument): Promise<Blob> {
     }),
   );
 
-  children.push(rule());
-
-  children.push(h2("4", "ממשל המדידה", "KPI Governance"));
-  children.push(guidance("מי סוקר מה ומתי, ואיזו פעולה מפעיל סטטוס אדום."));
-  children.push(
-    ...field(
-      "פורום · תדירות · זכויות החלטה",
-      "Forum · Frequency · Decision rights",
-      doc.governance,
-    ),
-  );
-
   const document = new Document({
     creator: "Integrate AI",
     title: `מדדי ביצוע — ${doc.company || "Untitled"}`,
     styles: {
       default: {
         document: {
-          run: { font: DAVID, rightToLeft: true },
+          run: { font: DAVID, rightToLeft: true, size: BODY_HP },
         },
       },
     },
-    numbering: { config: [{ reference: "bullets", levels: [{ level: 0, format: LevelFormat.BULLET, text: "•" }] }] },
     sections: [
       {
         properties: {
