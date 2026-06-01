@@ -1,0 +1,33 @@
+{
+  "name": "Integrate_AI + Open Design",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:24",
+  "features": {
+    "ghcr.io/devcontainers/features/common-utils:2": {}
+  },
+  "forwardPorts": [34091, 38353],
+  "portsAttributes": {
+    "34091": {
+      "label": "Open Design — Web",
+      "onAutoForward": "openBrowser",
+      "protocol": "http"
+    },
+    "38353": {
+      "label": "Open Design — Daemon",
+      "onAutoForward": "silent",
+      "protocol": "http"
+    }
+  },
+  "postCreateCommand": "bash .devcontainer/setup.sh",
+  "remoteUser": "node",
+  "containerEnv": {
+    "PNPM_VERSION": "10.33.2"
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode"
+      ]
+    }
+  }
+}
