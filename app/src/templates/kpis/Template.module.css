@@ -199,44 +199,68 @@
   font-size: 1.1em;
 }
 
-/* Table style variants */
+/* Table style variants — base table resets all styles, variants add back what they need */
+.table th, .table td { border: 0; background: transparent; color: inherit; }
+
+/* plain */
+.table_plain .table th { background: color-mix(in oklab, var(--doc-surface), var(--doc-fg) 6%); }
+
+/* lines */
+.table_lines .table th,
+.table_lines .table td { border-bottom: 1px solid var(--doc-border); }
+.table_lines .table th { border-bottom: 2px solid var(--doc-accent); }
+
+/* grid */
+.table_grid .table { border: 1px solid var(--doc-border); }
+.table_grid .table th,
+.table_grid .table td { border: 1px solid var(--doc-border); }
+
+/* classic */
 .table_classic .table th,
-.table_classic .table td {
-  border: 1px solid var(--doc-border);
-}
-.table_classic .table th {
-  background: color-mix(in oklab, var(--doc-surface), var(--doc-accent) 8%);
-}
+.table_classic .table td { border: 1px solid var(--doc-border); }
+.table_classic .table th { background: color-mix(in oklab, var(--doc-surface), var(--doc-accent) 8%); }
 
-.table_minimal .table th,
-.table_minimal .table td {
-  border: 0;
-  border-bottom: 1px solid var(--doc-border-soft);
-}
-.table_minimal .table th {
-  background: transparent;
-  border-bottom: 2px solid var(--doc-accent);
-}
-
+/* striped */
 .table_striped .table th,
-.table_striped .table td {
-  border: 1px solid var(--doc-border-soft);
-}
-.table_striped .table th {
-  background: var(--doc-accent);
-  color: var(--doc-surface);
-}
-.table_striped .table tbody tr:nth-child(even) td {
-  background: color-mix(in oklab, var(--doc-surface), var(--doc-accent) 4%);
-}
+.table_striped .table td { border: 1px solid var(--doc-border-soft); }
+.table_striped .table th { background: color-mix(in oklab, var(--doc-surface), var(--doc-fg) 15%); }
+.table_striped .table tbody tr:nth-child(even) td { background: color-mix(in oklab, var(--doc-surface), var(--doc-fg) 4%); }
 
-.table_bordered .table {
-  border: 2px solid var(--doc-accent);
-}
+/* minimal */
+.table_minimal .table th,
+.table_minimal .table td { border-bottom: 1px solid var(--doc-border-soft); }
+.table_minimal .table th { border-bottom: 2px solid var(--doc-accent); background: transparent; }
+
+/* dark-header */
+.table_dark-header .table th,
+.table_dark-header .table td { border-bottom: 1px solid var(--doc-border); }
+.table_dark-header .table th { background: var(--doc-fg); color: var(--doc-surface); border: 0; border-bottom: 0; }
+
+/* colored-header */
+.table_colored-header .table th,
+.table_colored-header .table td { border: 1px solid var(--doc-border); }
+.table_colored-header .table th { background: var(--doc-accent); color: var(--doc-surface); }
+
+/* accent-alt */
+.table_accent-alt .table th,
+.table_accent-alt .table td { border: 1px solid color-mix(in oklab, var(--doc-surface), var(--doc-accent) 30%); }
+.table_accent-alt .table th { background: var(--doc-accent); color: var(--doc-surface); }
+.table_accent-alt .table tbody tr:nth-child(even) td { background: color-mix(in oklab, var(--doc-surface), var(--doc-accent) 6%); }
+
+/* professional */
+.table_professional .table { border-top: 2px solid var(--doc-accent); border-bottom: 2px solid var(--doc-accent); }
+.table_professional .table th,
+.table_professional .table td { border-bottom: 1px solid var(--doc-border-soft); }
+.table_professional .table th { border-bottom: 1.5px solid var(--doc-accent); background: transparent; font-weight: 700; }
+
+/* bordered */
+.table_bordered .table { border: 2px solid var(--doc-accent); }
 .table_bordered .table th,
-.table_bordered .table td {
-  border: 1px solid var(--doc-accent);
-}
-.table_bordered .table th {
-  background: color-mix(in oklab, var(--doc-surface), var(--doc-accent) 12%);
-}
+.table_bordered .table td { border: 1px solid var(--doc-border); }
+.table_bordered .table th { background: color-mix(in oklab, var(--doc-surface), var(--doc-accent) 14%); }
+
+/* elegant */
+.table_elegant .table th,
+.table_elegant .table td { border-bottom: 1px solid var(--doc-border-soft); }
+.table_elegant .table th { border-bottom: 1.5px solid var(--doc-accent); background: transparent; }
+.table_elegant .table tbody tr:nth-child(even) td { background: color-mix(in oklab, var(--doc-surface), var(--doc-fg) 3%); }

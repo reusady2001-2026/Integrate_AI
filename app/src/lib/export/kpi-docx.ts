@@ -19,8 +19,8 @@ import { strings, type Lang } from "../i18n";
 import {
   defaultFormatting,
   FONT_DOCX,
+  TABLE_STYLE_DEFS,
   type Formatting,
-  type TableStyle,
 } from "../formatting";
 
 const FILL_LINE = "_______________________________________________________";
@@ -76,7 +76,8 @@ function build(fmt: Formatting) {
   return { run, bold, heading, inlineField, guidance, bodyHp, h1Hp, h2Hp, h3Hp, font, headColor };
 }
 
-function tableBorders(style: TableStyle, accent: string) {
+function tableBorders(style: string, accent: string) {
+  const def = TABLE_STYLE_DEFS[style as keyof typeof TABLE_STYLE_DEFS] ?? TABLE_STYLE_DEFS.classic;
   const solid = (color: string, size: number) => ({
     style: BorderStyle.SINGLE,
     size,
@@ -86,55 +87,39 @@ function tableBorders(style: TableStyle, accent: string) {
   const soft = mixHex(`#${accent}`, 0.18);
   const accentSize = 8;
 
-  switch (style) {
-    case "minimal":
-      return {
-        top: none,
-        bottom: solid(soft, 4),
-        left: none,
-        right: none,
-        insideHorizontal: solid(soft, 4),
-        insideVertical: none,
-      };
-    case "bordered":
-      return {
-        top: solid(accent, 16),
-        bottom: solid(accent, 16),
-        left: solid(accent, 16),
-        right: solid(accent, 16),
-        insideHorizontal: solid(accent, accentSize),
-        insideVertical: solid(accent, accentSize),
-      };
-    case "striped":
-      return {
-        top: solid(soft, 4),
-        bottom: solid(soft, 4),
-        left: solid(soft, 4),
-        right: solid(soft, 4),
-        insideHorizontal: solid(soft, 4),
-        insideVertical: solid(soft, 4),
-      };
-    case "classic":
-    default:
-      return {
-        top: solid("888888", 6),
-        bottom: solid("888888", 6),
-        left: solid("888888", 6),
-        right: solid("888888", 6),
-        insideHorizontal: solid("888888", 6),
-        insideVertical: solid("888888", 6),
-      };
-  }
+  const outer = def.outerBorder === "thick" ? solid(accent, 16)
+    : def.outerBorder === "normal" ? solid("888888", 6)
+    : def.outerBorder === "thin" ? solid(soft, 4)
+    : none;
+  const innerH = def.innerH === "normal" ? solid("888888", 6)
+    : def.innerH === "thin" ? solid(soft, 4)
+    : none;
+  const innerV = def.innerV === "normal" ? solid("888888", 6)
+    : def.innerV === "thin" ? solid(soft, 4)
+    : none;
+
+  return {
+    top: outer,
+    bottom: outer,
+    left: outer,
+    right: outer,
+    insideHorizontal: innerH,
+    insideVertical: innerV,
+  };
 }
 
-function cellShading(role: "header" | "evenBody" | "oddBody" | "body", style: TableStyle, accent: string): { fill: string } | undefined {
+function cellShading(role: "header" | "evenBody" | "body", style: string, accent: string): { fill: string } | undefined {
+  const def = TABLE_STYLE_DEFS[style as keyof typeof TABLE_STYLE_DEFS] ?? TABLE_STYLE_DEFS.classic;
   if (role === "header") {
-    if (style === "striped") return { fill: accent };
-    if (style === "bordered") return { fill: mixHex(`#${accent}`, 0.85) };
-    return { fill: mixHex(`#${accent}`, 0.92) };
+    if (def.headerBg === "accent") return { fill: accent };
+    if (def.headerBg === "dark") return { fill: "1a1a1a" };
+    if (def.headerBg === "medium") return { fill: mixHex(`#${accent}`, 0.72) };
+    if (def.headerBg === "light") return { fill: mixHex(`#${accent}`, 0.88) };
+    return undefined;
   }
-  if (role === "evenBody" && style === "striped") {
-    return { fill: mixHex(`#${accent}`, 0.96) };
+  if (role === "evenBody" && def.altRows) {
+    if (def.altBg === "accent-light") return { fill: mixHex(`#${accent}`, 0.93) };
+    if (def.altBg === "light") return { fill: "f5f5f5" };
   }
   return undefined;
 }

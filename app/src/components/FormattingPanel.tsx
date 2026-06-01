@@ -2,13 +2,8 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useKpiStore } from "@/lib/store";
-import {
-  FONT_LABELS,
-  TABLE_STYLE_LABELS,
-  TABLE_STYLE_LABELS_EN,
-  type FontFamily,
-  type TableStyle,
-} from "@/lib/formatting";
+import { FONT_LABELS, type FontFamily } from "@/lib/formatting";
+import { TableStylePicker } from "./TableStylePicker";
 
 export function FormattingPanel() {
   const [open, setOpen] = useState(false);
@@ -28,7 +23,6 @@ export function FormattingPanel() {
   }, [open]);
 
   const isHe = lang === "he";
-  const tableLabels = isHe ? TABLE_STYLE_LABELS : TABLE_STYLE_LABELS_EN;
 
   return (
     <div ref={ref} className="relative">
@@ -41,7 +35,7 @@ export function FormattingPanel() {
       </button>
       {open && (
         <div
-          className="absolute top-full mt-1 end-0 w-64 bg-white border border-[color:var(--app-border)] rounded shadow-lg p-3 z-50 space-y-3 text-xs"
+          className="absolute top-full mt-1 end-0 w-80 bg-white border border-[color:var(--app-border)] rounded shadow-lg p-3 z-50 space-y-4 text-xs"
           dir={isHe ? "rtl" : "ltr"}
         >
           <Row label={isHe ? "גופן" : "Font"}>
@@ -58,7 +52,7 @@ export function FormattingPanel() {
             </select>
           </Row>
 
-          <Row label={isHe ? `גודל טקסט (${formatting.fontSize}pt)` : `Font size (${formatting.fontSize}pt)`}>
+          <Row label={isHe ? `גודל טקסט — ${formatting.fontSize}pt` : `Font size — ${formatting.fontSize}pt`}>
             <input
               type="range"
               min={8}
@@ -79,19 +73,17 @@ export function FormattingPanel() {
             />
           </Row>
 
-          <Row label={isHe ? "סגנון טבלה" : "Table style"}>
-            <select
+          <div>
+            <span className="block text-xs font-bold mb-2 text-[color:var(--app-fg)]">
+              {isHe ? "סגנון טבלה" : "Table style"}
+            </span>
+            <TableStylePicker
               value={formatting.tableStyle}
-              onChange={(e) => setFormatting({ tableStyle: e.target.value as TableStyle })}
-              className="w-full text-xs bg-white border border-[color:var(--app-border)] rounded px-2 py-1"
-            >
-              {(Object.keys(tableLabels) as TableStyle[]).map((s) => (
-                <option key={s} value={s}>
-                  {tableLabels[s]}
-                </option>
-              ))}
-            </select>
-          </Row>
+              onChange={(s) => setFormatting({ tableStyle: s })}
+              accent={formatting.headingColor}
+              lang={lang}
+            />
+          </div>
 
           <button
             type="button"

@@ -12,6 +12,7 @@ export function KpiTemplate({ doc }: { doc: KpiDocument }) {
   const fmt = useKpiStore((s) => s.formatting);
   const t = strings[lang];
 
+  const tableClass = styles[`table_${fmt.tableStyle}` as keyof typeof styles] ?? "";
   const docStyle = {
     "--doc-font-body": FONT_CSS[fmt.fontFamily],
     "--doc-font-display": FONT_CSS[fmt.fontFamily],
@@ -21,7 +22,7 @@ export function KpiTemplate({ doc }: { doc: KpiDocument }) {
 
   return (
     <article
-      className={`${styles.doc} ${styles[`table_${fmt.tableStyle}`] ?? ""}`}
+      className={`${styles.doc} ${tableClass}`}
       lang={lang}
       dir={t.dir}
       style={docStyle}
