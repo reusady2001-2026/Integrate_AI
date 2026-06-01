@@ -102,22 +102,99 @@ clone the slice for the other five artifacts.
 - [ ] **Task 13 (S):** A small documentation page (`/about`) listing the systems with their OD attribution. *Verify:* present, readable, links to OD.
 
 ### Phase 5 — Remaining artifacts
-Each is a repeat of Tasks 5–8 with a new schema + template; tests in parallel.
 
-- [ ] **Task 14 (M):** Strategy document — schema + template + form + export.
-- [ ] **Task 15 (S):** Job / role definition — schema + template + form + export.
-- [ ] **Task 16 (M):** Strategy deck (board) — schema + slide-by-slide template + form + export (probably as `.pptx` via `pptxgenjs`, separate route).
-- [ ] **Task 17 (M):** Org structure — schema + template + form + export.
-- [ ] **Task 18 (M):** Workflow / SOP — schema + template (incl. BPMN/RACI table) + form + export.
+KPI proved the architecture in Phase 2; each remaining artifact reuses the
+form-generator, the contenteditable wiring, and the export route from there.
+But every artifact still has its own schema, its own template, its own
+artifact-specific widgets (risk register, slide deck, org chart, RACI / BPMN),
+and its own export quirks. So each gets its own mini-phase of four tasks,
+mirroring Phase 2's structure (Tasks 5–8).
 
-### Checkpoint: All artifacts
-- [ ] Six pickers in the homepage; each works end-to-end.
+> Per-artifact sub-task pattern: **schema** (Zod) · **template** (TSX) · **form
+> widgets** (any artifact-specific inputs the generator can't auto-render) ·
+> **export** (Word + PDF, deck also PPTX).
+
+#### Phase 5a — Strategy document (full + focused board version)
+- [ ] **Task 14 (M):** `app/lib/schemas/strategy-document.ts` — Zod schema for
+      the 7-section structure from `CLAUDE.md` §4.1 (current situation →
+      executive summary → trade-offs → growth engines → cash-flow base → risk
+      management → strategic summary). Variant flag for full vs. board-focused.
+      *Verify:* unit tests for valid/invalid, both variants.
+- [ ] **Task 15 (M):** `app/templates/strategy-document/Template.tsx` — renders
+      the schema honoring the methodology: named-competitor blocks per growth
+      engine, the trade-offs section as a signature block, risk table with
+      *risk → response → owner* shape. *Verify:* visual snapshot against
+      `templates/strategy-document/`.
+- [ ] **Task 16 (S):** Artifact-specific widgets — risk-row repeater,
+      growth-engine block (opportunity / competitive landscape / operating
+      model / entry path), trade-off pair widget. *Verify:* each can add/remove.
+- [ ] **Task 17 (M):** Word + PDF export route. Long doc → check page breaks
+      and bidi on every section. *Verify:* open exported `.docx` in Word, RTL
+      correct, no orphan headings.
+
+#### Phase 5b — Job / role definition
+- [ ] **Task 18 (S):** `app/lib/schemas/job-description.ts` — title +
+      positioning, role purpose, responsibility areas (grouped header +
+      bulleted duties), extensions (KPIs, interfaces, qualifications,
+      reporting lines). *Verify:* unit tests.
+- [ ] **Task 19 (S):** `app/templates/job-description/Template.tsx`. *Verify:*
+      snapshot against `templates/job-description/`.
+- [ ] **Task 20 (S):** Responsibility-area block widget (header + bullets,
+      duplicatable). *Verify:* +/− works.
+- [ ] **Task 21 (S):** Word + PDF export. *Verify:* round-trips through the
+      rtl checks.
+
+#### Phase 5c — Strategy deck (board, ~10 chapters)
+- [ ] **Task 22 (M):** `app/lib/schemas/strategy-deck.ts` — slide-array
+      schema mirroring `CLAUDE.md` §4.2 (exec summary → who we are → diagnosis
+      → focus principle → axes → managing the base → year-one priorities →
+      goals/KPIs across horizons → risk → summary). Each slide has its own
+      typed shape. *Verify:* unit tests for each slide type.
+- [ ] **Task 23 (L):** `app/templates/strategy-deck/Template.tsx` — slide-by-
+      slide TSX rendering with a slide-thumbnail nav. Quantified-targets slide
+      (NOI / market cap / occupancy across e.g. 2026/2028/2030) gets a custom
+      multi-horizon table widget. *Verify:* visual snapshot.
+- [ ] **Task 24 (M):** Slide-specific widgets — horizon-targets table,
+      chapter-reorder, slide-add/remove. *Verify:* all interactions.
+- [ ] **Task 25 (L):** PDF export (v1) + PPTX export (`pptxgenjs`, v2). RTL
+      slide direction. *Verify:* both formats open cleanly. (PPTX deferred if
+      Phase 5c runs long; PDF is the v1 deliverable per the open question.)
+
+#### Phase 5d — Org structure / org chart
+- [ ] **Task 26 (M):** `app/lib/schemas/org-structure.ts` — nodes (role,
+      reporting line, function, headcount, mandate) + edges. *Verify:* unit
+      tests; validates no cycles.
+- [ ] **Task 27 (M):** `app/templates/org-structure/Template.tsx` — an SVG
+      org chart (top-down or sideways for compact RTL pages) with a fallback
+      tabular view. *Verify:* visual snapshot.
+- [ ] **Task 28 (M):** Org-chart editor widget — add/edit/delete node,
+      drag-to-reparent. *Verify:* tree edits round-trip into the schema.
+- [ ] **Task 29 (M):** Export — Word embeds an SVG of the chart + the tabular
+      view; PDF keeps the SVG. *Verify:* chart renders in Word.
+
+#### Phase 5e — Workflow / SOP (incl. RACI, BPMN-lite)
+- [ ] **Task 30 (M):** `app/lib/schemas/workflow.ts` — process steps,
+      swimlanes (actors), RACI table, inputs / outputs / triggers,
+      KPIs-for-this-process. *Verify:* unit tests.
+- [ ] **Task 31 (M):** `app/templates/workflow/Template.tsx` — SIPOC header,
+      a BPMN-lite swimlane diagram (SVG), RACI table per step. *Verify:*
+      snapshot.
+- [ ] **Task 32 (M):** Workflow-specific widgets — swimlane editor, RACI
+      cell picker (R/A/C/I), step reorder. *Verify:* edits round-trip.
+- [ ] **Task 33 (M):** Export — Word table for RACI + embedded SVG; PDF
+      keeps both. *Verify:* RACI columns RTL-correct.
+
+### Checkpoint: all artifacts
+- [ ] Six pickers in the homepage; each works end-to-end (form → preview →
+      edit → export to Word + PDF; deck adds PPTX where supported).
+- [ ] Snapshot tests pass for each template against its `templates/` source.
+- [ ] Manual smoke pass: fill one of each artifact end-to-end.
 
 ### Phase 6 — Polish
-- [ ] **Task 19 (S):** Persistence — Zustand persists to `localStorage` per artifact + slug; reload restores state.
-- [ ] **Task 20 (S):** Error handling — schema validation surfaces inline; export errors show a clear message.
-- [ ] **Task 21 (S):** Keyboard & accessibility — focus order in RTL, escape closes toolbars, all interactive elements reachable by keyboard.
-- [ ] **Task 22 (S):** README in `app/` — local dev steps, deploy steps (kept for the future, even though we're not deploying now).
+- [ ] **Task 34 (S):** Persistence — Zustand persists to `localStorage` per artifact + slug; reload restores state.
+- [ ] **Task 35 (S):** Error handling — schema validation surfaces inline; export errors show a clear message.
+- [ ] **Task 36 (S):** Keyboard & accessibility — focus order in RTL, escape closes toolbars, all interactive elements reachable by keyboard.
+- [ ] **Task 37 (S):** README in `app/` — local dev steps, deploy steps (kept for the future, even though we're not deploying now).
 
 ### Checkpoint: complete
 - [ ] All success criteria in the design spec met.
@@ -143,6 +220,6 @@ Each is a repeat of Tasks 5–8 with a new schema + template; tests in parallel.
 - [x] Every task has acceptance criteria.
 - [x] Every task has a verification step.
 - [x] Dependencies identified and ordered correctly.
-- [x] No task touches more than ~5 files (Task 8 / 16 are the largest).
+- [x] No task touches more than ~5 files (Task 8, 23, 25 are the largest).
 - [x] Checkpoints between phases.
 - [ ] The operator (you) reviews and approves before any code is written.
