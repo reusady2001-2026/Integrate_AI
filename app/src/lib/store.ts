@@ -3,6 +3,7 @@
 import { create } from "zustand";
 import type { Lang } from "./i18n";
 import { translateDoc } from "./translate";
+import { defaultFormatting, type Formatting } from "./formatting";
 import {
   emptyKpiBlock,
   emptyKpiDocument,
@@ -16,6 +17,9 @@ type KpiState = {
   doc: KpiDocument;
   lang: Lang;
   translating: boolean;
+  formatting: Formatting;
+  setFormatting: (patch: Partial<Formatting>) => void;
+  resetFormatting: () => void;
   switchLang: (to: Lang) => Promise<void>;
   setField: <K extends keyof KpiDocument>(key: K, value: KpiDocument[K]) => void;
   setKpi: (index: number, patch: Partial<KpiBlock>) => void;
@@ -32,6 +36,11 @@ export const useKpiStore = create<KpiState>((set, get) => ({
   doc: emptyKpiDocument(),
   lang: "he",
   translating: false,
+  formatting: defaultFormatting(),
+
+  setFormatting: (patch) =>
+    set((s) => ({ formatting: { ...s.formatting, ...patch } })),
+  resetFormatting: () => set({ formatting: defaultFormatting() }),
 
   switchLang: async (to) => {
     const { lang, doc } = get();

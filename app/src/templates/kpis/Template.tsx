@@ -1,16 +1,31 @@
 "use client";
 
+import type { CSSProperties } from "react";
 import type { KpiDocument } from "@/lib/schemas/kpis";
 import { strings } from "@/lib/i18n";
 import { useKpiStore } from "@/lib/store";
+import { FONT_CSS } from "@/lib/formatting";
 import styles from "./Template.module.css";
 
 export function KpiTemplate({ doc }: { doc: KpiDocument }) {
   const lang = useKpiStore((s) => s.lang);
+  const fmt = useKpiStore((s) => s.formatting);
   const t = strings[lang];
 
+  const docStyle = {
+    "--doc-font-body": FONT_CSS[fmt.fontFamily],
+    "--doc-font-display": FONT_CSS[fmt.fontFamily],
+    "--doc-accent": fmt.headingColor,
+    fontSize: `${fmt.fontSize}pt`,
+  } as CSSProperties;
+
   return (
-    <article className={styles.doc} lang={lang} dir={t.dir}>
+    <article
+      className={`${styles.doc} ${styles[`table_${fmt.tableStyle}`] ?? ""}`}
+      lang={lang}
+      dir={t.dir}
+      style={docStyle}
+    >
       <h1 className={styles.h1}>{t.docTitle}</h1>
 
       <Field label={t.company} gloss={t.companyGloss} hint={undefined} value={doc.company} />

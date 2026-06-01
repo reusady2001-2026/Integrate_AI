@@ -3,6 +3,7 @@
 import { useState, type ReactNode } from "react";
 import { useKpiStore } from "@/lib/store";
 import { strings } from "@/lib/i18n";
+import { FormattingPanel } from "./FormattingPanel";
 
 export type DesignSystem =
   | "editorial"
@@ -56,6 +57,7 @@ export function Shell({
               ))}
             </select>
           </label>
+          <FormattingPanel />
           <button
             type="button"
             onClick={() => switchLang(lang === "he" ? "en" : "he")}
