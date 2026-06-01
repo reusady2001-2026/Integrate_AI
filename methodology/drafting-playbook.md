@@ -50,6 +50,19 @@ and confidence-tagged; unresearched cells stay `[להשלמה / TO FILL]`.
 ### 8. Deliver
 Hand the draft to the human to tweak. Do **not** commit `work/` (confidential).
 
+## Voice (the document is the deliverable, not a demo)
+Filled drafts read as **official corporate documents**, not presentations or
+teaching material:
+- **No methodology notes inside the document.** The framework choice (BSC,
+  Theory of Change, etc.) informs the structure but is not announced in the body.
+- **No comparisons to other companies, industries, or templates** unless the
+  user explicitly asks for one. A KPI document for company X is about company X.
+- **No "pay attention to…", "note that…", "the point here is…"** — official
+  register, not narration.
+- **No "(draft/demo)" labels in the title.** Drafts may be marked once in a
+  header/classification line; the body reads as the finished thing.
+- Test: a recipient should not be able to tell the document was AI-generated.
+
 ## Language (default)
 Filled drafts are **Hebrew-primary** in the body. English appears only as
 bilingual labels and preserved technical terms (NOI, FFO, IFRS, FDA, BSC, etc.).

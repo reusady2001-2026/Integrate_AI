@@ -50,6 +50,11 @@ See [`templates/README.md`](templates/README.md) for how the templates connect.
 
 ## 3. Output conventions
 
+- **Tone is an official corporate document, not a presentation.** No
+  methodology notes, no "pay attention to…", no comparisons to other companies
+  or templates, no "draft/demo" framing. The reader should not be able to tell
+  the document was AI-generated. The methodology *informs* what goes in the
+  document but does **not appear** in it.
 - **Language:** **Hebrew-primary** — the body content of every filled artifact is
   written in Hebrew. English appears only as: (a) bilingual labels next to Hebrew
   field names, and (b) preserved technical terms (NOI, FFO, IFRS, FDA, BSC, etc.).
