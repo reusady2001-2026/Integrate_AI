@@ -55,6 +55,12 @@ See [`templates/README.md`](templates/README.md) for how the templates connect.
   or templates, no "draft/demo" framing. The reader should not be able to tell
   the document was AI-generated. The methodology *informs* what goes in the
   document but does **not appear** in it.
+- **A filled draft preserves the template's structure.** Same sections, same
+  sub-blocks, same field order, same scorecard/table shapes as
+  `templates/<artifact>/`. Do not reorganize the KPI list under added
+  sub-headers, do not add comparison sections, do not invent new structural
+  parts. What changes from template to draft is only that "מה למלא" guidance
+  and `«FILL»` lines are replaced with content.
 - **Language:** **Hebrew-primary** — the body content of every filled artifact is
   written in Hebrew. English appears only as: (a) bilingual labels next to Hebrew
   field names, and (b) preserved technical terms (NOI, FFO, IFRS, FDA, BSC, etc.).

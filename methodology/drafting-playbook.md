@@ -53,6 +53,15 @@ Hand the draft to the human to tweak. Do **not** commit `work/` (confidential).
 ## Voice (the document is the deliverable, not a demo)
 Filled drafts read as **official corporate documents**, not presentations or
 teaching material:
+- **Preserve the template structure.** A DRAFT *fills* the approved template
+  in `templates/<artifact>/` — same sections, same sub-blocks, same field order,
+  same scorecard/table shapes. Do not add, reorder, or regroup sections
+  (no extra sub-headers like "Financial / Customer / Internal Process /
+  Learning & Growth" inside `2. הגדרות מדדים` — keep the KPIs as a flat list
+  of blocks, exactly as the template defines).
+- **What changes between template and draft:** "מה למלא" guidance lines and
+  `«FILL»` underscore lines disappear (the fields are filled); the *skeleton*
+  stays identical.
 - **No methodology notes inside the document.** The framework choice (BSC,
   Theory of Change, etc.) informs the structure but is not announced in the body.
 - **No comparisons to other companies, industries, or templates** unless the
