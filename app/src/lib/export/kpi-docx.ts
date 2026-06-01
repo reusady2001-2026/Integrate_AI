@@ -115,7 +115,7 @@ function tableCell(text: string, isHeader = false): TableCell {
   });
 }
 
-export async function renderKpiDocx(doc: KpiDocument): Promise<Buffer> {
+export async function renderKpiDocx(doc: KpiDocument): Promise<Blob> {
   const children: (Paragraph | Table)[] = [];
 
   children.push(h1("מדדי ביצוע", "KPIs & Metrics"));
@@ -245,5 +245,5 @@ export async function renderKpiDocx(doc: KpiDocument): Promise<Buffer> {
     ],
   });
 
-  return Packer.toBuffer(document);
+  return Packer.toBlob(document);
 }
