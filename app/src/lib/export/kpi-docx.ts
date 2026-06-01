@@ -73,8 +73,8 @@ export async function renderKpiDocx(doc: KpiDocument, lang: Lang = "he"): Promis
   const levelLabel = t.companyGloss ? `${t.company} / ${t.companyGloss}` : t.company;
   children.push(inlineField(levelLabel, doc.company, rtl));
 
-  const measLabel = t.levelGloss ? `${t.level} / ${t.levelGloss}` : t.level;
-  children.push(inlineField(measLabel, doc.level, rtl, { hint: t.levelHint }));
+  const roleLabel = t.roleGloss ? `${t.role} / ${t.roleGloss}` : t.role;
+  children.push(inlineField(roleLabel, doc.role, rtl, { hint: t.roleHint || undefined }));
 
   const dateLabel = t.dateGloss ? `${t.date} / ${t.dateGloss}` : t.date;
   children.push(inlineField(dateLabel, doc.date, rtl));

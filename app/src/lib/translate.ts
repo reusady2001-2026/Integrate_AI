@@ -16,7 +16,7 @@ async function t(text: string, from: Lang, to: Lang): Promise<string> {
 export async function translateDoc(doc: KpiDocument, from: Lang, to: Lang): Promise<KpiDocument> {
   const tr = (s: string) => t(s, from, to);
 
-  const [company, level, date] = await Promise.all([tr(doc.company), tr(doc.level), tr(doc.date)]);
+  const [company, role, date] = await Promise.all([tr(doc.company), tr(doc.role), tr(doc.date)]);
 
   const kpis = await Promise.all(
     doc.kpis.map(async (k) => ({
@@ -41,5 +41,5 @@ export async function translateDoc(doc: KpiDocument, from: Lang, to: Lang): Prom
     })),
   );
 
-  return { company, level, date, kpis, scorecard };
+  return { company, role, date, kpis, scorecard };
 }

@@ -14,7 +14,7 @@ export function KpiTemplate({ doc }: { doc: KpiDocument }) {
       <h1 className={styles.h1}>{t.docTitle}</h1>
 
       <Field label={t.company} gloss={t.companyGloss} hint={undefined} value={doc.company} />
-      <Field label={t.level} gloss={t.levelGloss} hint={t.levelHint} value={doc.level} />
+      <Field label={t.role} gloss={t.roleGloss} hint={t.roleHint} value={doc.role} />
       <Field label={t.date} gloss={t.dateGloss} hint={undefined} value={doc.date} />
 
       <h2 className={styles.h2}>{t.kpiDefsHeading}</h2>

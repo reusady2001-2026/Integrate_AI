@@ -47,11 +47,11 @@ export function KpiForm() {
           onChange={(v) => setField("company", v)}
         />
         <TextInput
-          label={t.level}
-          gloss={t.levelGloss}
-          value={doc.level}
-          onChange={(v) => setField("level", v)}
-          placeholder={t.levelHint}
+          label={t.role}
+          gloss={t.roleGloss}
+          value={doc.role}
+          onChange={(v) => setField("role", v)}
+          placeholder={t.roleHint}
         />
         <TextInput
           label={t.date}

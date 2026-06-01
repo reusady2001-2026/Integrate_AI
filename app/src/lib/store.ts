@@ -76,7 +76,7 @@ export const useKpiStore = create<KpiState>((set, get) => ({
 function sampleKpiDocument(): KpiDocument {
   return {
     company: "אינטגרייט AI בע\"מ",
-    level: "ארגון",
+    role: "מנכ\"ל",
     date: "1 ביוני 2026",
     kpis: [
       {

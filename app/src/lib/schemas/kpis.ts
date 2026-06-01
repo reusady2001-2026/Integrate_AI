@@ -23,7 +23,7 @@ export type ScorecardRow = z.infer<typeof ScorecardRow>;
 
 export const KpiDocument = z.object({
   company: z.string(),
-  level: z.string(),
+  role: z.string(),
   date: z.string(),
   kpis: z.array(KpiBlock),
   scorecard: z.array(ScorecardRow),
@@ -51,7 +51,7 @@ export const emptyScorecardRow = (): ScorecardRow => ({
 
 export const emptyKpiDocument = (): KpiDocument => ({
   company: "",
-  level: "",
+  role: "",
   date: "",
   kpis: [emptyKpiBlock()],
   scorecard: [emptyScorecardRow()],
