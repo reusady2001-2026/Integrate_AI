@@ -6,7 +6,6 @@ export function KpiForm() {
   const doc = useKpiStore((s) => s.doc);
   const {
     setField,
-    setFrameworkField,
     setKpi,
     addKpi,
     removeKpi,
@@ -56,31 +55,10 @@ export function KpiForm() {
           value={doc.date}
           onChange={(v) => setField("date", v)}
         />
-        <TextInput
-          label="סיווג"
-          gloss="Classification"
-          value={doc.classification}
-          onChange={(v) => setField("classification", v)}
-        />
-      </FormSection>
-
-      <FormSection title="1. מסגרת המדידה · Framework">
-        <TextArea
-          label="לוגיקת המדידה"
-          gloss="Logic"
-          value={doc.framework.logic}
-          onChange={(v) => setFrameworkField("logic", v)}
-        />
-        <TextArea
-          label="קצב סקירה"
-          gloss="Review cadence"
-          value={doc.framework.cadence}
-          onChange={(v) => setFrameworkField("cadence", v)}
-        />
       </FormSection>
 
       <FormSection
-        title="2. הגדרות מדדים · KPI Definitions"
+        title="הגדרות מדדים · KPI Definitions"
         action={
           <button
             type="button"
@@ -169,7 +147,7 @@ export function KpiForm() {
       </FormSection>
 
       <FormSection
-        title="3. כרטיס מדדים · Scorecard"
+        title="כרטיס מדדים · Scorecard"
         action={
           <button
             type="button"
@@ -240,15 +218,6 @@ export function KpiForm() {
             />
           </div>
         ))}
-      </FormSection>
-
-      <FormSection title="4. ממשל המדידה · Governance">
-        <TextArea
-          label="פורום · תדירות · זכויות החלטה"
-          gloss="Forum · Frequency · Decision rights"
-          value={doc.governance}
-          onChange={(v) => setField("governance", v)}
-        />
       </FormSection>
     </div>
   );

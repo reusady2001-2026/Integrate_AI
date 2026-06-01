@@ -27,14 +27,8 @@ export const KpiDocument = z.object({
   company: z.string(),
   level: z.string(),
   date: z.string(),
-  classification: z.string().default("חסוי (Confidential)"),
-  framework: z.object({
-    logic: z.string(),
-    cadence: z.string(),
-  }),
   kpis: z.array(KpiBlock),
   scorecard: z.array(ScorecardRow),
-  governance: z.string(),
 });
 export type KpiDocument = z.infer<typeof KpiDocument>;
 
@@ -63,9 +57,6 @@ export const emptyKpiDocument = (): KpiDocument => ({
   company: "",
   level: "",
   date: "",
-  classification: "חסוי (Confidential)",
-  framework: { logic: "", cadence: "" },
   kpis: [emptyKpiBlock()],
   scorecard: [emptyScorecardRow()],
-  governance: "",
 });

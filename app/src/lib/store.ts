@@ -13,7 +13,6 @@ import {
 type KpiState = {
   doc: KpiDocument;
   setField: <K extends keyof KpiDocument>(key: K, value: KpiDocument[K]) => void;
-  setFrameworkField: (key: keyof KpiDocument["framework"], value: string) => void;
   setKpi: (index: number, patch: Partial<KpiBlock>) => void;
   addKpi: () => void;
   removeKpi: (index: number) => void;
@@ -28,8 +27,6 @@ export const useKpiStore = create<KpiState>((set) => ({
   doc: emptyKpiDocument(),
   setField: (key, value) =>
     set((s) => ({ doc: { ...s.doc, [key]: value } })),
-  setFrameworkField: (key, value) =>
-    set((s) => ({ doc: { ...s.doc, framework: { ...s.doc.framework, [key]: value } } })),
   setKpi: (index, patch) =>
     set((s) => ({
       doc: {
@@ -74,12 +71,6 @@ function sampleKpiDocument(): KpiDocument {
     company: "אינטגרייט AI בע\"מ",
     level: "ארגון",
     date: "1 ביוני 2026",
-    classification: "חסוי (Confidential)",
-    framework: {
-      logic:
-        "המדדים מאורגנים לפי ארבעת הצירים האסטרטגיים — צמיחה, יעילות תפעולית, נאמנות לקוחות והון אנושי — ונסקרים על ידי ההנהלה.",
-      cadence: "סקירה תפעולית חודשית; סקירת הנהלה רבעונית; סקירת דירקטוריון חצי-שנתית.",
-    },
     kpis: [
       {
         name: "צמיחה בהכנסות חוזרות (ARR Growth)",
@@ -103,7 +94,5 @@ function sampleKpiDocument(): KpiDocument {
         status: "🟡",
       },
     ],
-    governance:
-      "ועדת הנהלה — חודשי — סוקרת ביצועים מול יעדים; סטטוס אדום מפעיל תכנית פעולה כתובה תוך 14 יום.",
   };
 }
