@@ -3,7 +3,6 @@
 import { create } from "zustand";
 import type { Lang } from "./i18n";
 import { translateDoc } from "./translate";
-import { defaultFormatting, type Formatting } from "./formatting";
 import {
   emptyKpiBlock,
   emptyKpiDocument,
@@ -15,12 +14,6 @@ import {
 
 type KpiState = {
   doc: KpiDocument;
-  lang: Lang;
-  translating: boolean;
-  formatting: Formatting;
-  setFormatting: (patch: Partial<Formatting>) => void;
-  resetFormatting: () => void;
-  switchLang: (to: Lang) => Promise<void>;
   setField: <K extends keyof KpiDocument>(key: K, value: KpiDocument[K]) => void;
   setKpi: (index: number, patch: Partial<KpiBlock>) => void;
   addKpi: () => void;
@@ -30,25 +23,11 @@ type KpiState = {
   removeScorecardRow: (index: number) => void;
   loadSample: () => void;
   reset: () => void;
+  translate: (from: Lang, to: Lang) => Promise<void>;
 };
 
 export const useKpiStore = create<KpiState>((set, get) => ({
   doc: emptyKpiDocument(),
-  lang: "he",
-  translating: false,
-  formatting: defaultFormatting(),
-
-  setFormatting: (patch) =>
-    set((s) => ({ formatting: { ...s.formatting, ...patch } })),
-  resetFormatting: () => set({ formatting: defaultFormatting() }),
-
-  switchLang: async (to) => {
-    const { lang, doc } = get();
-    if (lang === to) return;
-    set({ translating: true });
-    const translated = await translateDoc(doc, lang, to);
-    set({ doc: translated, lang: to, translating: false });
-  },
 
   setField: (key, value) =>
     set((s) => ({ doc: { ...s.doc, [key]: value } })),
@@ -80,6 +59,10 @@ export const useKpiStore = create<KpiState>((set, get) => ({
     })),
   loadSample: () => set({ doc: sampleKpiDocument() }),
   reset: () => set({ doc: emptyKpiDocument() }),
+  translate: async (from, to) => {
+    const translated = await translateDoc(get().doc, from, to);
+    set({ doc: translated });
+  },
 }));
 
 function sampleKpiDocument(): KpiDocument {

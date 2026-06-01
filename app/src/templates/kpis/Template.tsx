@@ -3,13 +3,13 @@
 import type { CSSProperties } from "react";
 import type { KpiDocument } from "@/lib/schemas/kpis";
 import { strings } from "@/lib/i18n";
-import { useKpiStore } from "@/lib/store";
+import { useAppStore } from "@/lib/app-store";
 import { FONT_CSS } from "@/lib/formatting";
 import styles from "./Template.module.css";
 
 export function KpiTemplate({ doc }: { doc: KpiDocument }) {
-  const lang = useKpiStore((s) => s.lang);
-  const fmt = useKpiStore((s) => s.formatting);
+  const lang = useAppStore((s) => s.lang);
+  const fmt = useAppStore((s) => s.formatting);
   const t = strings[lang];
 
   const tableClass = styles[`table_${fmt.tableStyle}` as keyof typeof styles] ?? "";

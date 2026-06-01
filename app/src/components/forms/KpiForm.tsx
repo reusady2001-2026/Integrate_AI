@@ -1,11 +1,12 @@
 "use client";
 
 import { useKpiStore } from "@/lib/store";
+import { useAppStore } from "@/lib/app-store";
 import { strings } from "@/lib/i18n";
 
 export function KpiForm() {
   const doc = useKpiStore((s) => s.doc);
-  const lang = useKpiStore((s) => s.lang);
+  const lang = useAppStore((s) => s.lang);
   const {
     setField,
     setKpi,

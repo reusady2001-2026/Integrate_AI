@@ -1,17 +1,17 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { useKpiStore } from "@/lib/store";
+import { useAppStore } from "@/lib/app-store";
 import { FONT_LABELS, type FontFamily } from "@/lib/formatting";
 import { TableStylePicker } from "./TableStylePicker";
 
 export function FormattingPanel() {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
-  const lang = useKpiStore((s) => s.lang);
-  const formatting = useKpiStore((s) => s.formatting);
-  const setFormatting = useKpiStore((s) => s.setFormatting);
-  const resetFormatting = useKpiStore((s) => s.resetFormatting);
+  const lang = useAppStore((s) => s.lang);
+  const formatting = useAppStore((s) => s.formatting);
+  const setFormatting = useAppStore((s) => s.setFormatting);
+  const resetFormatting = useAppStore((s) => s.resetFormatting);
 
   useEffect(() => {
     if (!open) return;
