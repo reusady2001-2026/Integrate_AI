@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
+import { useKpiStore } from "@/lib/store";
+import { strings } from "@/lib/i18n";
 
 export type DesignSystem =
   | "editorial"
@@ -29,6 +31,9 @@ export function Shell({
   onExport?: () => void;
 }) {
   const [ds, setDs] = useState<DesignSystem>("editorial");
+  const lang = useKpiStore((s) => s.lang);
+  const setLang = useKpiStore((s) => s.setLang);
+  const t = strings[lang];
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -52,11 +57,18 @@ export function Shell({
           </label>
           <button
             type="button"
+            onClick={() => setLang(lang === "he" ? "en" : "he")}
+            className="text-xs px-2 py-1 rounded border border-[color:var(--app-border)] hover:bg-neutral-50"
+          >
+            {t.langToggle}
+          </button>
+          <button
+            type="button"
             onClick={onExport}
             disabled={!onExport}
             className="text-xs px-3 py-1.5 rounded bg-[color:var(--app-accent)] text-white disabled:opacity-40"
           >
-            ייצוא Word
+            {t.exportBtn}
           </button>
         </div>
       </header>

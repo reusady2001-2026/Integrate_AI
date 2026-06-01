@@ -1,67 +1,55 @@
 "use client";
 
 import type { KpiDocument } from "@/lib/schemas/kpis";
+import { strings } from "@/lib/i18n";
+import { useKpiStore } from "@/lib/store";
 import styles from "./Template.module.css";
 
 export function KpiTemplate({ doc }: { doc: KpiDocument }) {
+  const lang = useKpiStore((s) => s.lang);
+  const t = strings[lang];
+
   return (
-    <article className={styles.doc} lang="he" dir="rtl">
-      <h1 className={styles.h1}>
-        מדדי ביצוע <span className={styles.gloss}>· KPIs &amp; Metrics</span>
-      </h1>
+    <article className={styles.doc} lang={lang} dir={t.dir}>
+      <h1 className={styles.h1}>{t.docTitle}</h1>
 
-      <Field label="שם החברה" gloss="Company" value={doc.company} />
-      <Field
-        label="רמת המדידה"
-        gloss="Level"
-        hint="ארגון / חטיבה / תפקיד"
-        value={doc.level}
-      />
-      <Field label="תאריך" gloss="Date" value={doc.date} />
+      <Field label={t.company} gloss={t.companyGloss} hint={undefined} value={doc.company} />
+      <Field label={t.level} gloss={t.levelGloss} hint={t.levelHint} value={doc.level} />
+      <Field label={t.date} gloss={t.dateGloss} hint={undefined} value={doc.date} />
 
-      <h2 className={styles.h2}>
-        הגדרות מדדים <span className={styles.gloss}>· KPI Definitions</span>
-      </h2>
-      <p className={styles.guidance}>
-        מה למלא: &quot;נוסחה&quot; חייבת להיות חד-משמעית. ה&quot;ספים&quot; קובעים את סטטוס הרמזור (ירוק/צהוב/אדום). לכל מדד חייב להיות בעלים יחיד ומקור נתונים.
-      </p>
+      <h2 className={styles.h2}>{t.kpiDefsHeading}</h2>
+      <p className={styles.guidance}>{t.kpiDefsGuidance}</p>
 
-      <h3 className={styles.h3}>
-        מדדים <span className={styles.gloss}>/ KPI&apos;s</span> :
-      </h3>
+      <h3 className={styles.h3}>{t.kpisSubheading}</h3>
 
       {doc.kpis.map((k, i) => (
         <div key={i} className={styles.kpiBlock}>
           {doc.kpis.length > 1 && (
-            <div className={styles.kpiIndex}>מדד {i + 1}</div>
+            <div className={styles.kpiIndex}>{t.kpiLabel(i)}</div>
           )}
-          <Field label="שם" gloss="Name" value={k.name} inline />
-          <Field label="הגדרה (מה הוא מודד, בפשטות)" gloss="Definition" value={k.definition} inline />
-          <Field label="נוסחה" gloss="Formula" value={k.formula} inline />
-          <Field label="בעלים (תפקיד יחיד)" gloss="Owner" value={k.owner} inline />
-          <Field label="מקור נתונים" gloss="Data source" value={k.dataSource} inline />
-          <Field label="תדירות" gloss="Cadence" value={k.cadence} inline />
-          <Field label="בסיס היום" gloss="Baseline" value={k.baseline} inline />
-          <Field label="יעדים: T+1 / T+2 / T+5" gloss="Targets" value={k.targets} inline />
+          <Field label={t.kpiName} gloss={t.kpiNameGloss} value={k.name} inline />
+          <Field label={t.kpiDef} gloss={t.kpiDefGloss} value={k.definition} inline />
+          <Field label={t.kpiFormula} gloss={t.kpiFormulaGloss} value={k.formula} inline />
+          <Field label={t.kpiOwner} gloss={t.kpiOwnerGloss} value={k.owner} inline />
+          <Field label={t.kpiDataSource} gloss={t.kpiDataSourceGloss} value={k.dataSource} inline />
+          <Field label={t.kpiCadence} gloss={t.kpiCadenceGloss} value={k.cadence} inline />
+          <Field label={t.kpiBaseline} gloss={t.kpiBaselineGloss} value={k.baseline} inline />
+          <Field label={t.kpiTargets} gloss={t.kpiTargetsGloss} value={k.targets} inline />
         </div>
       ))}
 
-      <h2 className={styles.h2}>
-        כרטיס מדדים <span className={styles.gloss}>· Scorecard</span>
-      </h2>
-      <p className={styles.guidance}>
-        מה למלא: טבלת סיכום של כל המדדים שלמעלה במבט אחד.
-      </p>
+      <h2 className={styles.h2}>{t.scorecardHeading}</h2>
+      <p className={styles.guidance}>{t.scorecardGuidance}</p>
 
       <div className={styles.tableWrap}>
         <table className={styles.table}>
           <thead>
             <tr>
-              <th>מדד / KPI</th>
-              <th>בעלים / Owner</th>
-              <th>בסיס / Baseline</th>
-              <th>יעד / Target</th>
-              <th>תדירות / Cadence</th>
+              <th>{t.colKpi}</th>
+              <th>{t.colOwner}</th>
+              <th>{t.colBaseline}</th>
+              <th>{t.colTarget}</th>
+              <th>{t.colCadence}</th>
             </tr>
           </thead>
           <tbody>
@@ -89,21 +77,21 @@ function Field({
   inline,
 }: {
   label: string;
-  gloss: string;
+  gloss?: string;
   hint?: string;
   value: string;
   inline?: boolean;
 }) {
-  const fill = value || null;
   return (
     <div className={inline ? styles.fieldInline : styles.field}>
       <strong>
-        {label} <span className={styles.gloss}>/ {gloss}</span>
+        {label}
+        {gloss && <span className={styles.gloss}> / {gloss}</span>}
       </strong>
       {hint && <span className={styles.hint}> — {hint}</span>}
       {": "}
       <span className={inline ? styles.valueInline : styles.value}>
-        {fill ?? <FillLine />}
+        {value || <FillLine />}
       </span>
     </div>
   );

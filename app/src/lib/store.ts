@@ -1,6 +1,7 @@
 "use client";
 
 import { create } from "zustand";
+import type { Lang } from "./i18n";
 import {
   emptyKpiBlock,
   emptyKpiDocument,
@@ -12,6 +13,8 @@ import {
 
 type KpiState = {
   doc: KpiDocument;
+  lang: Lang;
+  setLang: (lang: Lang) => void;
   setField: <K extends keyof KpiDocument>(key: K, value: KpiDocument[K]) => void;
   setKpi: (index: number, patch: Partial<KpiBlock>) => void;
   addKpi: () => void;
@@ -25,6 +28,8 @@ type KpiState = {
 
 export const useKpiStore = create<KpiState>((set) => ({
   doc: emptyKpiDocument(),
+  lang: "he",
+  setLang: (lang) => set({ lang }),
   setField: (key, value) =>
     set((s) => ({ doc: { ...s.doc, [key]: value } })),
   setKpi: (index, patch) =>

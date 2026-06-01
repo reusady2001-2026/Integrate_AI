@@ -9,9 +9,10 @@ import { renderKpiDocx } from "@/lib/export/kpi-docx";
 
 export default function HomePage() {
   const doc = useKpiStore((s) => s.doc);
+  const lang = useKpiStore((s) => s.lang);
 
   const onExport = useCallback(async () => {
-    const blob = await renderKpiDocx(doc);
+    const blob = await renderKpiDocx(doc, lang);
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
@@ -20,7 +21,7 @@ export default function HomePage() {
     a.click();
     a.remove();
     URL.revokeObjectURL(url);
-  }, [doc]);
+  }, [doc, lang]);
 
   return (
     <Shell
