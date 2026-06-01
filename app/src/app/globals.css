@@ -1,0 +1,32 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import "../styles/design-systems.generated.css";
+
+:root {
+  --app-bg: #f7f7f5;
+  --app-fg: #1a1a1a;
+  --app-muted: #6b6b6b;
+  --app-border: #e3e3df;
+  --app-accent: #1a1a1a;
+}
+
+html,
+body {
+  background: var(--app-bg);
+  color: var(--app-fg);
+}
+
+body {
+  font-family: var(--font-ui), "Heebo", system-ui, sans-serif;
+}
+
+/* The preview pane is the document — scoped surface where vendored
+   design-system tokens are allowed to take over. The app chrome
+   stays neutral so swapping a system doesn't reskin the whole UI. */
+.preview-surface {
+  background: #ffffff;
+  color: var(--app-fg);
+  font-family: var(--font-body), "David", serif;
+}
