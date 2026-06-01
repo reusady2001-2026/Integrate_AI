@@ -1,0 +1,187 @@
+/* Token aliases: each design system supplies different variable names.
+ * We read the broad set and fall back to neutral defaults so the doc
+ * renders even before a design system is applied. */
+.doc {
+  --doc-fg: var(--fg, var(--app-fg, #1a1a1a));
+  --doc-fg-2: var(--fg-2, var(--doc-fg));
+  --doc-muted: var(--muted, #6b6b6b);
+  --doc-border: var(--border, #d8d4cc);
+  --doc-border-soft: var(--border-soft, #ebe6dc);
+  --doc-accent: var(--accent, #1a1a1a);
+  --doc-surface: var(--surface, #ffffff);
+  --doc-font-display: var(--font-display, var(--font-display-app, "Frank Ruhl Libre"), serif);
+  --doc-font-body: var(--font-body, var(--font-body-app, "David Libre"), serif);
+
+  color: var(--doc-fg);
+  background: var(--doc-surface);
+  font-family: var(--doc-font-body);
+  font-size: 11.5pt;
+  line-height: 1.65;
+  padding: 1.5rem 1.75rem;
+  border-radius: 4px;
+  border: 1px solid var(--doc-border-soft);
+  /* The chrome of the preview is set by Shell; the doc only paints content. */
+}
+
+.h1 {
+  font-family: var(--doc-font-display);
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem;
+  letter-spacing: -0.005em;
+  border-bottom: 2px solid var(--doc-accent);
+  padding-bottom: 0.5rem;
+}
+
+.h2 {
+  font-family: var(--doc-font-display);
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin: 2rem 0 0.5rem;
+  padding-inline-start: 0.6rem;
+  color: var(--doc-accent);
+  border-inline-start: 3px solid var(--doc-accent);
+}
+
+.h3 {
+  font-family: var(--doc-font-body);
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 1.25rem 0 0.75rem;
+  color: var(--doc-fg);
+}
+
+.intro {
+  color: var(--doc-fg-2);
+  margin: 0 0 1.25rem;
+}
+
+.section {
+  margin: 0 0 1.5rem;
+}
+
+.guidance {
+  color: var(--doc-muted);
+  font-size: 0.92em;
+  margin: 0 0 1rem;
+  padding: 0.5rem 0.75rem;
+  border-inline-start: 2px solid var(--doc-border-soft);
+  background: color-mix(in oklab, var(--doc-surface), var(--doc-fg) 2%);
+}
+
+.guidanceLabel {
+  font-weight: 700;
+  color: var(--doc-fg-2);
+}
+
+.rule {
+  border: 0;
+  border-top: 1px solid var(--doc-border);
+  margin: 1.75rem 0;
+}
+
+.field {
+  margin: 0 0 0.85rem;
+}
+
+.fieldLabel {
+  font-size: 0.95em;
+  margin-bottom: 0.2rem;
+}
+
+.fieldLabel strong {
+  font-weight: 700;
+}
+
+.gloss {
+  font-weight: 400;
+  color: var(--doc-muted);
+  font-size: 0.92em;
+}
+
+.hint {
+  color: var(--doc-muted);
+  font-weight: 400;
+  font-size: 0.92em;
+}
+
+.value {
+  min-height: 1.5em;
+  padding: 0.1rem 0;
+  border-bottom: 1px solid var(--doc-border-soft);
+}
+
+.valueMulti {
+  min-height: 2.5em;
+  padding: 0.25rem 0;
+  border-bottom: 1px solid var(--doc-border-soft);
+  white-space: pre-wrap;
+}
+
+.fillLine {
+  display: inline-block;
+  width: 100%;
+  height: 0;
+}
+
+.kpiBlock {
+  margin: 0 0 1.5rem;
+  padding: 1rem 1rem 0.5rem;
+  border: 1px solid var(--doc-border-soft);
+  border-radius: 4px;
+}
+
+.kpiIndex {
+  font-size: 0.85em;
+  color: var(--doc-muted);
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.note {
+  color: var(--doc-muted);
+  font-size: 0.9em;
+  margin: 0.5rem 0 0;
+}
+
+.optional {
+  font-weight: 400;
+  color: var(--doc-muted);
+  font-size: 0.85em;
+}
+
+.tableWrap {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95em;
+  font-variant-numeric: tabular-nums;
+}
+
+.table th,
+.table td {
+  border: 1px solid var(--doc-border);
+  padding: 0.5rem 0.6rem;
+  text-align: start;
+  vertical-align: top;
+}
+
+.table th {
+  background: color-mix(in oklab, var(--doc-surface), var(--doc-accent) 6%);
+  font-weight: 700;
+  text-align: center;
+}
+
+.table td {
+  min-width: 5rem;
+}
+
+.statusCell {
+  text-align: center;
+  font-size: 1.1em;
+}

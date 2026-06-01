@@ -65,13 +65,8 @@ export function Shell({
         <aside className="border-l border-[color:var(--app-border)] bg-white overflow-y-auto p-4">
           {form}
         </aside>
-        <section className="overflow-y-auto p-6">
-          <div
-            data-ds={ds}
-            className="preview-surface mx-auto max-w-3xl rounded shadow-sm border border-[color:var(--app-border)] p-8"
-          >
-            {preview}
-          </div>
+        <section data-ds={ds} className="preview-surface overflow-y-auto p-8">
+          <div className="mx-auto max-w-3xl">{preview}</div>
         </section>
       </div>
     </div>

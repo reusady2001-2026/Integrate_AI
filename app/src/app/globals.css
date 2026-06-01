@@ -24,9 +24,11 @@ body {
 
 /* The preview pane is the document — scoped surface where vendored
    design-system tokens are allowed to take over. The app chrome
-   stays neutral so swapping a system doesn't reskin the whole UI. */
+   stays neutral so swapping a system doesn't reskin the whole UI.
+   We read --bg from the active design system so the canvas color
+   itself shifts on swap (parchment / cream / ivory / etc). */
 .preview-surface {
-  background: #ffffff;
-  color: var(--app-fg);
-  font-family: var(--font-body), "David", serif;
+  background: var(--bg, #ffffff);
+  color: var(--fg, var(--app-fg));
+  font-family: var(--font-body), "David Libre", serif;
 }

@@ -1,60 +1,42 @@
+"use client";
+
+import { useCallback } from "react";
 import { Shell } from "@/components/Shell";
+import { KpiForm } from "@/components/forms/KpiForm";
+import { KpiTemplate } from "@/templates/kpis/Template";
+import { useKpiStore } from "@/lib/store";
 
 export default function HomePage() {
+  const doc = useKpiStore((s) => s.doc);
+
+  const onExport = useCallback(async () => {
+    const res = await fetch("/api/export/kpis", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(doc),
+    });
+    if (!res.ok) {
+      const text = await res.text();
+      alert(`Export failed: ${text}`);
+      return;
+    }
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `kpis_${(doc.company || "untitled").replace(/\s+/g, "_")}.docx`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }, [doc]);
+
   return (
     <Shell
-      artifactTitle="Integrate AI — Phase 1 scaffold"
-      form={<FormPlaceholder />}
-      preview={<PreviewPlaceholder />}
+      artifactTitle="מדדי ביצוע · KPIs & Metrics"
+      form={<KpiForm />}
+      preview={<KpiTemplate doc={doc} />}
+      onExport={onExport}
     />
-  );
-}
-
-function FormPlaceholder() {
-  return (
-    <div className="space-y-3 text-sm">
-      <p className="text-[color:var(--app-muted)]">
-        כאן יופיע הטופס לפי הסכמה של התוצר הנבחר.
-      </p>
-      <p className="text-[color:var(--app-muted)]">
-        Phase 2 onwards: a Zod-driven form panel.
-      </p>
-    </div>
-  );
-}
-
-function PreviewPlaceholder() {
-  return (
-    <article
-      className="space-y-4"
-      style={{
-        background: "var(--surface, #ffffff)",
-        color: "var(--fg, #1a1a1a)",
-        fontFamily: "var(--font-body, inherit)",
-        padding: "1rem",
-        borderRadius: "var(--radius, 0)",
-      }}
-    >
-      <h2 style={{ fontFamily: "var(--font-display, inherit)", fontSize: "1.5rem" }}>
-        שלום
-      </h2>
-      <p>
-        זוהי תצוגה מקדימה של מסמך הדוגמה. החלפת סגנון העיצוב בכותרת מחליפה רק את
-        טוקני העיצוב של המסמך — מעטפת היישום נשארת ניטרלית.
-      </p>
-      <p style={{ color: "var(--muted, #6b6b6b)" }}>
-        Token preview: <code>--accent</code> ={" "}
-        <span
-          style={{
-            display: "inline-block",
-            width: "1.5em",
-            height: "1em",
-            verticalAlign: "middle",
-            background: "var(--accent, #1a1a1a)",
-            borderRadius: 2,
-          }}
-        />
-      </p>
-    </article>
   );
 }
