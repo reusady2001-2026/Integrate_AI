@@ -50,9 +50,11 @@ See [`templates/README.md`](templates/README.md) for how the templates connect.
 
 ## 3. Output conventions
 
-- **Language:** Bilingual Hebrew + English. Hebrew is the primary delivery
-  language for this group; produce English on request or alongside. Preserve
-  Hebrew professional terminology (e.g. NOI, FFO, תב"ע, סמנכ"ל) exactly.
+- **Language:** **Hebrew-primary** — the body content of every filled artifact is
+  written in Hebrew. English appears only as: (a) bilingual labels next to Hebrew
+  field names, and (b) preserved technical terms (NOI, FFO, IFRS, FDA, BSC, etc.).
+  Switch to English-primary **only on explicit request**. Hebrew professional
+  terminology (סמנכ"ל, תב"ע, NOI, FFO) is preserved exactly.
 - **Direction:** Hebrew is RTL — respect it in every format.
 - **Formats:** Word (.docx), Excel (.xlsx), PowerPoint (.pptx), PDF, Markdown,
   and Google Workspace. Use the document skills in `skills-library/` (`docx`,

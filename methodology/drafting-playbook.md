@@ -50,6 +50,11 @@ and confidence-tagged; unresearched cells stay `[להשלמה / TO FILL]`.
 ### 8. Deliver
 Hand the draft to the human to tweak. Do **not** commit `work/` (confidential).
 
+## Language (default)
+Filled drafts are **Hebrew-primary** in the body. English appears only as
+bilingual labels and preserved technical terms (NOI, FFO, IFRS, FDA, BSC, etc.).
+Switch to English-primary only on explicit request.
+
 ## Gates (do not skip)
 - Surfaced assumptions before drafting? 
 - Every claim sourced or marked `[להשלמה / TO FILL]`?
