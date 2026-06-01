@@ -2,6 +2,7 @@
 
 import { create } from "zustand";
 import type { Lang } from "./i18n";
+import { translateDoc } from "./translate";
 import {
   emptyKpiBlock,
   emptyKpiDocument,
@@ -14,7 +15,8 @@ import {
 type KpiState = {
   doc: KpiDocument;
   lang: Lang;
-  setLang: (lang: Lang) => void;
+  translating: boolean;
+  switchLang: (to: Lang) => Promise<void>;
   setField: <K extends keyof KpiDocument>(key: K, value: KpiDocument[K]) => void;
   setKpi: (index: number, patch: Partial<KpiBlock>) => void;
   addKpi: () => void;
@@ -26,18 +28,24 @@ type KpiState = {
   reset: () => void;
 };
 
-export const useKpiStore = create<KpiState>((set) => ({
+export const useKpiStore = create<KpiState>((set, get) => ({
   doc: emptyKpiDocument(),
   lang: "he",
-  setLang: (lang) => set({ lang }),
+  translating: false,
+
+  switchLang: async (to) => {
+    const { lang, doc } = get();
+    if (lang === to) return;
+    set({ translating: true });
+    const translated = await translateDoc(doc, lang, to);
+    set({ doc: translated, lang: to, translating: false });
+  },
+
   setField: (key, value) =>
     set((s) => ({ doc: { ...s.doc, [key]: value } })),
   setKpi: (index, patch) =>
     set((s) => ({
-      doc: {
-        ...s.doc,
-        kpis: s.doc.kpis.map((k, i) => (i === index ? { ...k, ...patch } : k)),
-      },
+      doc: { ...s.doc, kpis: s.doc.kpis.map((k, i) => (i === index ? { ...k, ...patch } : k)) },
     })),
   addKpi: () =>
     set((s) => ({ doc: { ...s.doc, kpis: [...s.doc.kpis, emptyKpiBlock()] } })),
@@ -50,10 +58,7 @@ export const useKpiStore = create<KpiState>((set) => ({
     })),
   setScorecardRow: (index, patch) =>
     set((s) => ({
-      doc: {
-        ...s.doc,
-        scorecard: s.doc.scorecard.map((r, i) => (i === index ? { ...r, ...patch } : r)),
-      },
+      doc: { ...s.doc, scorecard: s.doc.scorecard.map((r, i) => (i === index ? { ...r, ...patch } : r)) },
     })),
   addScorecardRow: () =>
     set((s) => ({ doc: { ...s.doc, scorecard: [...s.doc.scorecard, emptyScorecardRow()] } })),
@@ -61,10 +66,7 @@ export const useKpiStore = create<KpiState>((set) => ({
     set((s) => ({
       doc: {
         ...s.doc,
-        scorecard:
-          s.doc.scorecard.length > 1
-            ? s.doc.scorecard.filter((_, i) => i !== index)
-            : s.doc.scorecard,
+        scorecard: s.doc.scorecard.length > 1 ? s.doc.scorecard.filter((_, i) => i !== index) : s.doc.scorecard,
       },
     })),
   loadSample: () => set({ doc: sampleKpiDocument() }),
@@ -89,13 +91,7 @@ function sampleKpiDocument(): KpiDocument {
       },
     ],
     scorecard: [
-      {
-        kpi: "ARR Growth",
-        owner: "CRO",
-        baseline: "12%",
-        target: "14% (T+1)",
-        cadence: "רבעוני",
-      },
+      { kpi: "ARR Growth", owner: "CRO", baseline: "12%", target: "14% (T+1)", cadence: "רבעוני" },
     ],
   };
 }

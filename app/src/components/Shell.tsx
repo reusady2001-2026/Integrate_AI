@@ -32,7 +32,8 @@ export function Shell({
 }) {
   const [ds, setDs] = useState<DesignSystem>("editorial");
   const lang = useKpiStore((s) => s.lang);
-  const setLang = useKpiStore((s) => s.setLang);
+  const translating = useKpiStore((s) => s.translating);
+  const switchLang = useKpiStore((s) => s.switchLang);
   const t = strings[lang];
 
   return (
@@ -57,10 +58,11 @@ export function Shell({
           </label>
           <button
             type="button"
-            onClick={() => setLang(lang === "he" ? "en" : "he")}
-            className="text-xs px-2 py-1 rounded border border-[color:var(--app-border)] hover:bg-neutral-50"
+            onClick={() => switchLang(lang === "he" ? "en" : "he")}
+            disabled={translating}
+            className="text-xs px-2 py-1 rounded border border-[color:var(--app-border)] hover:bg-neutral-50 disabled:opacity-50"
           >
-            {t.langToggle}
+            {translating ? t.translating : t.langToggle}
           </button>
           <button
             type="button"
