@@ -9,7 +9,6 @@ export const KpiBlock = z.object({
   cadence: z.string(),
   baseline: z.string(),
   targets: z.string(),
-  thresholds: z.string(),
 });
 export type KpiBlock = z.infer<typeof KpiBlock>;
 
@@ -19,7 +18,6 @@ export const ScorecardRow = z.object({
   baseline: z.string(),
   target: z.string(),
   cadence: z.string(),
-  status: z.string(),
 });
 export type ScorecardRow = z.infer<typeof ScorecardRow>;
 
@@ -41,7 +39,6 @@ export const emptyKpiBlock = (): KpiBlock => ({
   cadence: "",
   baseline: "",
   targets: "",
-  thresholds: "",
 });
 
 export const emptyScorecardRow = (): ScorecardRow => ({
@@ -50,7 +47,6 @@ export const emptyScorecardRow = (): ScorecardRow => ({
   baseline: "",
   target: "",
   cadence: "",
-  status: "",
 });
 
 export const emptyKpiDocument = (): KpiDocument => ({

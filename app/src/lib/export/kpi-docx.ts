@@ -87,11 +87,6 @@ function textCell(text: string, header = false): TableCell {
   return cell([header ? bold(value) : run(value)]);
 }
 
-function statusCell(text: string): TableCell {
-  if (text.trim()) return cell([run(text)]);
-  return cell([run("🟢 __________ 🟡 __________ 🔴 __________")]);
-}
-
 export async function renderKpiDocx(doc: KpiDocument): Promise<Blob> {
   const children: (Paragraph | Table)[] = [];
 
@@ -166,13 +161,6 @@ export async function renderKpiDocx(doc: KpiDocument): Promise<Blob> {
     children.push(
       inlineField("יעדים: T+1 / T+2 / T+5", k.targets, { sep: ": " }),
     );
-    children.push(
-      inlineField(
-        "ספים — 🟢 ירוק / 🟡 צהוב / 🔴 אדום",
-        k.thresholds,
-        { sep: ": " },
-      ),
-    );
   });
 
   children.push(
@@ -188,7 +176,6 @@ export async function renderKpiDocx(doc: KpiDocument): Promise<Blob> {
       textCell("בסיס / Baseline", true),
       textCell("יעד / Target", true),
       textCell("תדירות / Cadence", true),
-      textCell("סטטוס", true),
     ],
   });
 
@@ -210,7 +197,6 @@ export async function renderKpiDocx(doc: KpiDocument): Promise<Blob> {
           textCell(r.baseline),
           textCell(r.target),
           textCell(r.cadence),
-          statusCell(r.status),
         ],
       }),
   );

@@ -43,7 +43,6 @@ export function KpiTemplate({ doc }: { doc: KpiDocument }) {
           <Field label="תדירות" gloss="Cadence" value={k.cadence} inline />
           <Field label="בסיס היום" gloss="Baseline" value={k.baseline} inline />
           <Field label="יעדים: T+1 / T+2 / T+5" gloss="Targets" value={k.targets} inline />
-          <Field label="ספים — 🟢 ירוק / 🟡 צהוב / 🔴 אדום" gloss="Thresholds" value={k.thresholds} inline />
         </div>
       ))}
 
@@ -63,7 +62,6 @@ export function KpiTemplate({ doc }: { doc: KpiDocument }) {
               <th>בסיס / Baseline</th>
               <th>יעד / Target</th>
               <th>תדירות / Cadence</th>
-              <th>סטטוס</th>
             </tr>
           </thead>
           <tbody>
@@ -74,7 +72,6 @@ export function KpiTemplate({ doc }: { doc: KpiDocument }) {
                 <td>{r.baseline || <FillLine />}</td>
                 <td>{r.target || <FillLine />}</td>
                 <td>{r.cadence || <FillLine />}</td>
-                <td className={styles.statusCell}>{r.status || <FillLine />}</td>
               </tr>
             ))}
           </tbody>

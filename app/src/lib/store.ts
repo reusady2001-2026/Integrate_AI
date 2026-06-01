@@ -81,7 +81,6 @@ function sampleKpiDocument(): KpiDocument {
         cadence: "רבעוני",
         baseline: "12% צמיחה רבעונית (Q2 2026)",
         targets: "T+1: 14% · T+2: 18% · T+5: 22%",
-        thresholds: "🟢 ≥ יעד · 🟡 80%–99% מהיעד · 🔴 < 80% מהיעד",
       },
     ],
     scorecard: [
@@ -91,7 +90,6 @@ function sampleKpiDocument(): KpiDocument {
         baseline: "12%",
         target: "14% (T+1)",
         cadence: "רבעוני",
-        status: "🟡",
       },
     ],
   };

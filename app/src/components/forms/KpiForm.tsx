@@ -136,12 +136,6 @@ export function KpiForm() {
               value={k.targets}
               onChange={(v) => setKpi(i, { targets: v })}
             />
-            <TextArea
-              label="ספים 🟢 / 🟡 / 🔴"
-              gloss="Thresholds"
-              value={k.thresholds}
-              onChange={(v) => setKpi(i, { thresholds: v })}
-            />
           </div>
         ))}
       </FormSection>
@@ -209,13 +203,6 @@ export function KpiForm() {
                 onChange={(v) => setScorecardRow(i, { cadence: v })}
               />
             </div>
-            <TextInput
-              label="סטטוס"
-              gloss="Status"
-              value={r.status}
-              onChange={(v) => setScorecardRow(i, { status: v })}
-              placeholder="🟢 / 🟡 / 🔴"
-            />
           </div>
         ))}
       </FormSection>
