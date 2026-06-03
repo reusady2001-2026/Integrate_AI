@@ -81,6 +81,13 @@ export const newSourceId = (): string =>
   `src_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 5)}`;
 
 export type SeededProjectFile = {
+  /**
+   * Schema version of this seed. When the agent updates the seed file in
+   * the repo (adds sources, rewrites a doc, etc.), bump this number — the
+   * store will detect the version change and re-apply the seed, replacing
+   * the existing copy in localStorage. Default = 1.
+   */
+  version?: number;
   project: Omit<Project, "id" | "createdAt" | "updatedAt" | "docIds" | "seededFrom"> & {
     docIds?: string[];
   };

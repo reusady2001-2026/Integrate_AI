@@ -36,6 +36,7 @@ const JOB_CEO_DOC_ID   = "pd_job_ceo_dor_alon_2026";
 const design = defaultDocDesign();
 
 const seed: SeededProjectFile = {
+  version: 2,
   project: {
     slug: "dor-alon",
     name: { he: "דור אלון אנרגיה בישראל", en: "Dor Alon Energy in Israel" },

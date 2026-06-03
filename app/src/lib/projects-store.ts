@@ -79,18 +79,33 @@ export const useProjectsStore = create<State>((set, get) => ({
     if (get().hydrated) return;
     if (!isBrowser()) { set({ hydrated: true }); return; }
 
-    const projects = safeParse<Project[]>(window.localStorage.getItem(PROJECTS_KEY), []);
-    const docs     = safeParse<Record<string, ProjectDoc>>(window.localStorage.getItem(PROJECT_DOCS_KEY), {});
-    const seedsApplied = safeParse<string[]>(window.localStorage.getItem(SEEDS_APPLIED_KEY), []);
+    let projects = safeParse<Project[]>(window.localStorage.getItem(PROJECTS_KEY), []);
+    const docs   = safeParse<Record<string, ProjectDoc>>(window.localStorage.getItem(PROJECT_DOCS_KEY), {});
 
-    // Apply any seeded projects that have not been applied yet (by slug).
-    const projectMap = new Map(projects.map((p) => [p.slug, p]));
-    const newSeedsApplied = [...seedsApplied];
+    // Seeds-applied tracking. Old format was a string[] (slug list); new
+    // format is {[slug]: version} so we can detect when the agent bumps
+    // the seed and re-apply, overwriting any old copy in localStorage.
+    const rawSeeds = safeParse<unknown>(window.localStorage.getItem(SEEDS_APPLIED_KEY), {});
+    const seedsAppliedMap: Record<string, number> = Array.isArray(rawSeeds)
+      ? Object.fromEntries((rawSeeds as string[]).map((slug) => [slug, 1]))
+      : (rawSeeds as Record<string, number>) ?? {};
+
     let mutated = false;
 
     for (const seed of SEEDED_PROJECTS) {
-      if (newSeedsApplied.includes(seed.project.slug)) continue;
-      if (projectMap.has(seed.project.slug)) continue;
+      const wantedVersion = seed.version ?? 1;
+      const appliedVersion = seedsAppliedMap[seed.project.slug];
+      if (appliedVersion === wantedVersion) continue;
+
+      // If a previous version of this seed exists in localStorage, remove
+      // it (and its docs) before applying the new version. This is
+      // intentionally destructive — user edits made to a seeded project
+      // since the last apply will be replaced.
+      const oldSeeded = projects.find((p) => p.seededFrom === seed.project.slug);
+      if (oldSeeded) {
+        for (const docId of oldSeeded.docIds) delete docs[docId];
+        projects = projects.filter((p) => p !== oldSeeded);
+      }
 
       const now = Date.now();
       const projectId = newProjectId(seed.project.slug);
@@ -109,16 +124,15 @@ export const useProjectsStore = create<State>((set, get) => ({
         updatedAt: now,
       };
       projects.push(project);
-      projectMap.set(project.slug, project);
       for (const d of seededDocs) docs[d.id] = d;
-      newSeedsApplied.push(seed.project.slug);
+      seedsAppliedMap[seed.project.slug] = wantedVersion;
       mutated = true;
     }
 
     if (mutated) {
       writeProjects(projects);
       writeDocs(docs);
-      try { window.localStorage.setItem(SEEDS_APPLIED_KEY, JSON.stringify(newSeedsApplied)); } catch { /* */ }
+      try { window.localStorage.setItem(SEEDS_APPLIED_KEY, JSON.stringify(seedsAppliedMap)); } catch { /* */ }
     }
 
     set({ projects, docs, hydrated: true });
