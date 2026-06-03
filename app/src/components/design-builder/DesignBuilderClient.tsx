@@ -85,7 +85,7 @@ export function DesignBuilderClient() {
   };
 
   return (
-    <div dir={isHe ? "rtl" : "ltr"} style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+    <div dir={isHe ? "rtl" : "ltr"} style={{ height: "100vh", display: "flex", flexDirection: "column", overflow: "hidden" }}>
       <header style={{
         height: 52, display: "flex", alignItems: "center", justifyContent: "space-between",
         padding: "0 1rem", borderBottom: "1px solid var(--app-border)", background: "white",
