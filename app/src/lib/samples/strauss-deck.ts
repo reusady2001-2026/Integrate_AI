@@ -37,19 +37,11 @@ export function sampleStraussDeck(): StrategyDeck {
         ],
       },
 
-      // 3. Who we are - section divider
-      {
-        layout: "section",
-        title: "מי אנחנו",
-        subtitle: "פורטפוליו, נוכחות, מיקום בשוק",
-        bullets: [],
-      },
-
-      // 4. Corporate identity
+      // 3. Corporate identity
       {
         layout: "content",
         title: "זהות תאגידית",
-        subtitle: "",
+        subtitle: "פורטפוליו, נוכחות, מיקום בשוק",
         bullets: [
           "הקמה: 1939 (שטראוס תעשיות חלב), 1969 (עלית). מיזוג: 2004. שמה הנוכחי: שטראוס גרופ מ-2007.",
           "מסחר: TASE — שטראוס גרופ (STRS). חלק ממדדי ת\"א-35 ות\"א-90.",
@@ -89,19 +81,11 @@ export function sampleStraussDeck(): StrategyDeck {
         ],
       },
 
-      // 7. Gaps section
-      {
-        layout: "section",
-        title: "האבחנה האסטרטגית",
-        subtitle: "פערים שדורשים מענה ב-5 השנים הקרובות",
-        bullets: [],
-      },
-
-      // 8. Strategic gaps
+      // 7. Strategic gaps
       {
         layout: "content",
         title: "פערים אסטרטגיים",
-        subtitle: "",
+        subtitle: "האבחנה — פערים שדורשים מענה ב-5 השנים הקרובות",
         bullets: [
           "פער 1 — ריכוזיות גיאוגרפית: 58% מההכנסות בישראל (שוק בוגר, גידול 1–2% בשנה). מקור הצמיחה צריך לבוא מחו\"ל.",
           "פער 2 — תלות בקטגוריית הקפה הברזילאית: ~28% מההכנסות; חשיפה לשערי חליפין ולחקלאות (מחיר Arabica).",
@@ -147,19 +131,11 @@ export function sampleStraussDeck(): StrategyDeck {
         ],
       },
 
-      // 12. Section: targets
-      {
-        layout: "section",
-        title: "יעדים ומדדים",
-        subtitle: "אבני דרך כמותיות ל-2027, 2028, 2030",
-        bullets: [],
-      },
-
-      // 13. Targets
+      // 12. Targets
       {
         layout: "content",
         title: "יעדים כמותיים — 2027 / 2028 / 2030",
-        subtitle: "",
+        subtitle: "אבני דרך כמותיות ל-2027, 2028, 2030",
         bullets: [
           "הכנסות: 10.4 מיליארד ₪ (2027) → 11.1 (2028) → 12.0 מיליארד ₪ (2030).",
           "שולי רווח תפעולי: 9.2% (2027) → 9.8% (2028) → 11.0% (2030).",
