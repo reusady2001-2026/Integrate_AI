@@ -59,7 +59,7 @@ export const strings = {
       positioningHint: "הזרוע או הפונקציה שהתפקיד מוביל, בשורה אחת",
       reportsTo: "כפיפות",
       directReports: "כפופים ישירים",
-      division: "חטיבה",
+      division: "מחלקה",
       date: "תאריך",
       purposeHeading: "ייעוד התפקיד",
       purposeGuidance:
