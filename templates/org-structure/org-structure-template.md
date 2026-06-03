@@ -8,7 +8,7 @@ field labels bold, table header centered. Each executive box -> a Job/Role Defin
 
 # מבנה ארגוני · Organizational Structure
 
-מסמך זה מגדיר את המבנה הארגוני — שכבת הממשל, התרשים ההיררכי, החטיבות, קווי הכפיפות ומטריצת הסמכויות. מלאו את השדות בקו תחתון. כל תפקיד ניהולי כאן אמור לקבל "הגדרת תפקיד" נפרדת.
+מסמך זה מגדיר את המבנה הארגוני — שכבת הממשל, התרשים ההיררכי, המחלקות, קווי הכפיפות ומטריצת הסמכויות. מלאו את השדות בקו תחתון. כל תפקיד ניהולי כאן אמור לקבל "הגדרת תפקיד" נפרדת.
 
 **שם החברה / Company**
 
@@ -60,11 +60,11 @@ field labels bold, table header centered. Each executive box -> a Job/Role Defin
 
 ---
 
-## 4. חטיבות ופונקציות · Divisions & Functions
+## 4. מחלקות ופונקציות · Divisions & Functions
 
-מה למלא: שורה לכל חטיבה/פונקציה — שם החטיבה, התפקיד שמוביל אותה, סוגה (מנוע צמיחה / בסיס תזרים / זרוע תומכת), והמנדט שלה.
+מה למלא: שורה לכל מחלקה/פונקציה — שם המחלקה, התפקיד שמוביל אותה, סוגה (מנוע צמיחה / בסיס תזרים / זרוע תומכת), והמנדט שלה.
 
-| חטיבה / Division | תפקיד מוביל / Leader | סוג (צמיחה/בסיס/תמיכה) | מנדט / Mandate |
+| מחלקה / Division | תפקיד מוביל / Leader | סוג (צמיחה/בסיס/תמיכה) | מנדט / Mandate |
 |---|---|---|---|
 | «FILL» | «FILL» | «FILL» | «FILL» |
 | «FILL» | «FILL» | «FILL» | «FILL» |
@@ -95,9 +95,9 @@ field labels bold, table header centered. Each executive box -> a Job/Role Defin
 
 ## 7. תקן כוח אדם · Headcount Plan  *(אופציונלי / optional)*
 
-מה למלא: כוח אדם נוכחי מול מתוכנן לכל חטיבה, לאורך אופק התכנית.
+מה למלא: כוח אדם נוכחי מול מתוכנן לכל מחלקה, לאורך אופק התכנית.
 
-| חטיבה / Division | נוכחי / Current | יעד / Target | אופק / Horizon |
+| מחלקה / Division | נוכחי / Current | יעד / Target | אופק / Horizon |
 |---|---|---|---|
 | «FILL» | «FILL» | «FILL» | «FILL» |
 | «FILL» | «FILL» | «FILL» | «FILL» |

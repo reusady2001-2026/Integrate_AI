@@ -27,7 +27,7 @@ Sections 1–2 are core; 3–6 optional.
 
 «FILL»
 
-**חטיבה / Division**
+**מחלקה / Division**
 
 «FILL»
 
