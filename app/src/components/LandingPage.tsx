@@ -3,8 +3,10 @@
 import { useEffect } from "react";
 import { useAppStore, BUILTIN_ARTIFACTS, artifactFromSchemaId } from "@/lib/app-store";
 import { useUserSchemasStore } from "@/lib/user-schemas";
+import { useUserDesignsStore, labelText } from "@/lib/user-designs";
 import { useRouter } from "next/navigation";
 import { localizedText } from "@/lib/blocks";
+import { resolveDocTheme, defaultDocDesign } from "@/lib/themes/doc-themes";
 import { strings } from "@/lib/i18n";
 
 export function LandingPage() {
@@ -12,10 +14,13 @@ export function LandingPage() {
   const setLang = useAppStore((s) => s.setLang);
   const openArtifact = useAppStore((s) => s.openArtifact);
   const userSchemas = useUserSchemasStore((s) => s.schemas);
-  const hydrate = useUserSchemasStore((s) => s.hydrate);
+  const hydrateSchemas = useUserSchemasStore((s) => s.hydrate);
   const deleteSchema = useUserSchemasStore((s) => s.deleteSchema);
+  const userDesigns = useUserDesignsStore((s) => s.presets);
+  const hydrateDesigns = useUserDesignsStore((s) => s.hydrate);
+  const removeDesign = useUserDesignsStore((s) => s.removePreset);
   const router = useRouter();
-  useEffect(() => { hydrate(); }, [hydrate]);
+  useEffect(() => { hydrateSchemas(); hydrateDesigns(); }, [hydrateSchemas, hydrateDesigns]);
   const t = strings[lang];
 
   return (
@@ -128,6 +133,64 @@ export function LandingPage() {
                   </div>
                 </div>
               ))}
+            </div>
+          )}
+
+          <div className="mt-12 flex items-center justify-between mb-4">
+            <h2 className="font-display text-2xl font-bold">
+              {lang === "he" ? "העיצובים שלי" : "My designs"}
+            </h2>
+            <button
+              type="button"
+              onClick={() => router.push("/design-builder")}
+              className="text-sm px-3 py-1.5 rounded bg-[color:var(--app-accent)] text-white hover:opacity-90"
+            >
+              {lang === "he" ? "+ צור עיצוב חדש" : "+ Build new design"}
+            </button>
+          </div>
+
+          {userDesigns.length === 0 ? (
+            <p className="text-sm text-[color:var(--app-muted)] p-5 border border-dashed border-[color:var(--app-border)] rounded-lg text-center">
+              {lang === "he"
+                ? "עוד אין עיצובים מותאמים. לחץ \"צור עיצוב חדש\" כדי לעצב את הסגנון הראשון שלך."
+                : "No custom designs yet. Click \"Build new design\" to compose your first style."}
+            </p>
+          ) : (
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+              {userDesigns.map((p) => {
+                const eff = resolveDocTheme(p.design.theme, { ...defaultDocDesign(), ...p.design });
+                return (
+                  <div
+                    key={p.id}
+                    className="relative bg-white rounded-lg border border-[color:var(--app-border)] hover:border-[color:var(--app-accent)] hover:shadow-md transition-all overflow-hidden cursor-pointer"
+                    onClick={() => router.push(`/design-builder?id=${p.id}`)}
+                  >
+                    <div style={{ height: 72, background: eff.surface, position: "relative", borderBottom: "1px solid #f1f5f9" }}>
+                      <div style={{ position: "absolute", top: 10, insetInlineStart: 8, insetInlineEnd: 8, height: 6, background: eff.accent, borderRadius: 2 }} />
+                      <div style={{ position: "absolute", top: 24, insetInlineStart: 8, insetInlineEnd: 22, height: 2, background: eff.fg, opacity: 0.5, borderRadius: 1 }} />
+                      <div style={{ position: "absolute", top: 32, insetInlineStart: 8, insetInlineEnd: 30, height: 2, background: eff.fg, opacity: 0.3, borderRadius: 1 }} />
+                      <div style={{ position: "absolute", top: 40, insetInlineStart: 8, insetInlineEnd: 12, height: 2, background: eff.fg, opacity: 0.3, borderRadius: 1 }} />
+                      <div style={{ position: "absolute", bottom: 8, insetInlineStart: 8, width: 12, height: 12, background: eff.accent2, borderRadius: 2 }} />
+                    </div>
+                    <div className="p-2 text-center text-xs font-bold truncate">
+                      {labelText(p.name, lang) || "—"}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (confirm(lang === "he" ? "למחוק את העיצוב?" : "Delete this design?")) {
+                          removeDesign(p.id);
+                        }
+                      }}
+                      title={lang === "he" ? "מחק עיצוב" : "Delete design"}
+                      className="absolute top-1 inset-inline-end-1 text-xs px-1 rounded bg-white/90 text-[color:var(--app-muted)] hover:text-red-600"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                );
+              })}
             </div>
           )}
         </div>

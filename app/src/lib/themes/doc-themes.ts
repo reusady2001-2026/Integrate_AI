@@ -77,6 +77,40 @@ export type DocCustomPalette = {
 
 export const emptyDocCustomPalette = (): DocCustomPalette => ({ bg: "", accent: "", accent2: "", text: "" });
 
+// ─── Form variants ───────────────────────────────────────────────────
+// Each "form" is a discrete visual treatment for one element type.
+// Empty string ("") means "follow the theme/base default".
+
+export const H1_STYLES = ["", "thinLine", "thickBar", "none", "filled", "centered", "smallCaps"] as const;
+export type H1Style = typeof H1_STYLES[number];
+
+export const H3_STYLES = ["", "italic", "bulleted", "thinUnderline", "accentColor"] as const;
+export type H3Style = typeof H3_STYLES[number];
+
+export const BODY_STYLES = ["", "tight", "loose"] as const;
+export type BodyStyle = typeof BODY_STYLES[number];
+
+export const GUIDANCE_STYLES = ["", "bar", "box", "italic", "accentBar", "corner"] as const;
+export type GuidanceStyle = typeof GUIDANCE_STYLES[number];
+
+export const FIELD_STYLES = ["", "thick", "dashed", "none", "boxed"] as const;
+export type FieldStyle = typeof FIELD_STYLES[number];
+
+export const LIST_STYLES = ["", "diamond", "arrow", "dash", "square", "circle"] as const;
+export type ListStyle = typeof LIST_STYLES[number];
+
+export const GROUP_STYLES = ["", "thick", "shadow", "sideAccent", "grayBg", "accentHeader"] as const;
+export type GroupStyle = typeof GROUP_STYLES[number];
+
+export const DIVIDER_STYLES = ["", "dashed", "double", "thick", "dotted"] as const;
+export type DividerStyle = typeof DIVIDER_STYLES[number];
+
+export const DOC_PADDINGS = ["", "compact", "spacious"] as const;
+export type DocPadding = typeof DOC_PADDINGS[number];
+
+export const DOC_RADII = ["", "sharp", "medium", "large"] as const;
+export type DocRadius = typeof DOC_RADII[number];
+
 export type DocDesign = {
   theme: string;
   paletteOverride: string;
@@ -87,6 +121,18 @@ export type DocDesign = {
   titleScale: number;
   bodyScale: number;
   tableStyle: string;
+  // ─── new form variants (all optional, "" = theme default) ──────────
+  headingStyleOverride?: HeadingStyle | "";
+  h1Style?: H1Style;
+  h3Style?: H3Style;
+  bodyStyle?: BodyStyle;
+  guidanceStyle?: GuidanceStyle;
+  fieldStyle?: FieldStyle;
+  listStyle?: ListStyle;
+  groupStyle?: GroupStyle;
+  dividerStyle?: DividerStyle;
+  docPadding?: DocPadding;
+  docRadius?: DocRadius;
 };
 
 export const defaultDocDesign = (): DocDesign => ({
@@ -99,6 +145,17 @@ export const defaultDocDesign = (): DocDesign => ({
   titleScale: 1,
   bodyScale: 1,
   tableStyle: "classic",
+  headingStyleOverride: "",
+  h1Style: "",
+  h3Style: "",
+  bodyStyle: "",
+  guidanceStyle: "",
+  fieldStyle: "",
+  listStyle: "",
+  groupStyle: "",
+  dividerStyle: "",
+  docPadding: "",
+  docRadius: "",
 });
 
 export type EffectiveDocDesign = {
@@ -115,6 +172,16 @@ export type EffectiveDocDesign = {
   headingStyle: HeadingStyle;
   tableStyle: string;
   dark: boolean;
+  h1Style: H1Style;
+  h3Style: H3Style;
+  bodyStyle: BodyStyle;
+  guidanceStyle: GuidanceStyle;
+  fieldStyle: FieldStyle;
+  listStyle: ListStyle;
+  groupStyle: GroupStyle;
+  dividerStyle: DividerStyle;
+  docPadding: DocPadding;
+  docRadius: DocRadius;
 };
 
 function shiftHex(hex: string, delta: number): string {
@@ -166,14 +233,63 @@ export function resolveDocTheme(themeId: string, design: DocDesign): EffectiveDo
     fontDisplay: design.titleFont || DEFAULT_FONT_DISPLAY,
     fontBody:    design.bodyFont  || DEFAULT_FONT_BODY,
     fontSize:    design.fontSize,
-    headingStyle: theme.headingStyle,
+    headingStyle: (design.headingStyleOverride || theme.headingStyle) as HeadingStyle,
     tableStyle:  design.tableStyle,
     dark,
+    h1Style:        design.h1Style        ?? "",
+    h3Style:        design.h3Style        ?? "",
+    bodyStyle:      design.bodyStyle      ?? "",
+    guidanceStyle:  design.guidanceStyle  ?? "",
+    fieldStyle:     design.fieldStyle     ?? "",
+    listStyle:      design.listStyle      ?? "",
+    groupStyle:     design.groupStyle     ?? "",
+    dividerStyle:   design.dividerStyle   ?? "",
+    docPadding:     design.docPadding     ?? "",
+    docRadius:      design.docRadius      ?? "",
   };
 }
 
 export function getDocTheme(id: string): DocTheme {
   return DOC_THEMES.find((t) => t.id === id) ?? DOC_THEMES[0];
+}
+
+/**
+ * Build the className string for the <article> root, plus the inline CSS
+ * variable bag, so every template renders forms identically. Variants set
+ * to "" are skipped (theme/base default styling applies).
+ */
+export function buildDocPresentation(
+  eff: EffectiveDocDesign,
+  styles: Record<string, string>,
+): { className: string; style: Record<string, string | number> } {
+  const cls = [
+    styles.doc,
+    styles[`hs_${eff.headingStyle}`],
+    styles[`table_${eff.tableStyle}`],
+    eff.h1Style       && styles[`h1_${eff.h1Style}`],
+    eff.h3Style       && styles[`h3_${eff.h3Style}`],
+    eff.bodyStyle     && styles[`body_${eff.bodyStyle}`],
+    eff.guidanceStyle && styles[`guidance_${eff.guidanceStyle}`],
+    eff.fieldStyle    && styles[`field_${eff.fieldStyle}`],
+    eff.listStyle     && styles[`list_${eff.listStyle}`],
+    eff.groupStyle    && styles[`group_${eff.groupStyle}`],
+    eff.dividerStyle  && styles[`divider_${eff.dividerStyle}`],
+    eff.docPadding    && styles[`pad_${eff.docPadding}`],
+    eff.docRadius     && styles[`radius_${eff.docRadius}`],
+  ].filter(Boolean).join(" ");
+  const style = {
+    "--doc-font-body": eff.fontBody,
+    "--doc-font-display": eff.fontDisplay,
+    "--doc-accent": eff.accent,
+    "--doc-accent2": eff.accent2,
+    "--doc-surface": eff.surface,
+    "--doc-fg": eff.fg,
+    "--doc-muted": eff.muted,
+    "--doc-border": eff.border,
+    "--doc-border-soft": eff.borderSoft,
+    fontSize: `${eff.fontSize}pt`,
+  };
+  return { className: cls, style };
 }
 
 export { PALETTES, getPalette };

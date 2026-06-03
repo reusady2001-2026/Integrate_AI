@@ -4,7 +4,7 @@ import { type CSSProperties } from "react";
 import { strings } from "@/lib/i18n";
 import { useAppStore } from "@/lib/app-store";
 import { useJobStore } from "@/lib/job-store";
-import { resolveDocTheme } from "@/lib/themes/doc-themes";
+import { resolveDocTheme, buildDocPresentation } from "@/lib/themes/doc-themes";
 import { Editable } from "@/components/Editable";
 import styles from "../kpis/Template.module.css";
 
@@ -22,23 +22,10 @@ export function JobTemplate() {
   } = useJobStore();
 
   const eff = resolveDocTheme(design.theme, design);
-  const tableClass = styles[`table_${eff.tableStyle}` as keyof typeof styles] ?? "";
-  const hsClass = styles[`hs_${eff.headingStyle}` as keyof typeof styles] ?? styles.hs_classic ?? "";
-  const docStyle = {
-    "--doc-font-body": eff.fontBody,
-    "--doc-font-display": eff.fontDisplay,
-    "--doc-accent": eff.accent,
-    "--doc-accent2": eff.accent2,
-    "--doc-surface": eff.surface,
-    "--doc-fg": eff.fg,
-    "--doc-muted": eff.muted,
-    "--doc-border": eff.border,
-    "--doc-border-soft": eff.borderSoft,
-    fontSize: `${eff.fontSize}pt`,
-  } as CSSProperties;
+  const { className: docClasses, style: docStyle } = buildDocPresentation(eff, styles);
 
   return (
-    <article className={`${styles.doc} ${hsClass} ${tableClass}`} lang={lang} dir={t.dir} style={docStyle}>
+    <article className={docClasses} lang={lang} dir={t.dir} style={docStyle as CSSProperties}>
       <h1 className={styles.h1}>{tj.docTitle}</h1>
 
       <EditField label={tj.title} value={doc.title} onChange={(v) => setField("title", v)} />

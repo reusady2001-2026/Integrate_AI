@@ -391,3 +391,136 @@
   .tableCtrlCol { display: none !important; }
 }
 .table_elegant .table tbody tr:nth-child(even) td { background: color-mix(in oklab, var(--doc-surface), var(--doc-fg) 3%); }
+
+/* ══════════════════════════════════════════════════════════════════
+   Design-builder form variants. Each modifier class is applied to the
+   <article> root; compound selectors below target the relevant elements
+   inside the doc. Empty/omitted values fall back to the base styling
+   defined further up in this file.
+   ══════════════════════════════════════════════════════════════════ */
+
+/* ── H1 (document title) variants ────────────────────────────────── */
+.h1_thinLine   .h1 { border-bottom: 1px solid var(--doc-border); }
+.h1_thickBar   .h1 { border-bottom: 5px solid var(--doc-accent); padding-bottom: 0.6rem; }
+.h1_none       .h1 { border-bottom: 0; padding-bottom: 0; }
+.h1_filled     .h1 {
+  background: var(--doc-accent);
+  color: var(--doc-surface);
+  padding: 0.55rem 1rem;
+  border-bottom: 0;
+  margin-inline: -1.75rem;
+  margin-block-start: -0.25rem;
+}
+.h1_centered  .h1 { text-align: center; }
+.h1_smallCaps .h1 {
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 1.5rem;
+  font-weight: 800;
+}
+
+/* ── H3 variants ─────────────────────────────────────────────────── */
+.h3_italic        .h3 { font-style: italic; font-weight: 600; }
+.h3_bulleted      .h3::before { content: "● "; color: var(--doc-accent); margin-inline-end: 0.3rem; }
+.h3_thinUnderline .h3 { border-bottom: 1px solid var(--doc-border-soft); padding-bottom: 0.25rem; }
+.h3_accentColor   .h3 { color: var(--doc-accent); }
+
+/* ── Body density ────────────────────────────────────────────────── */
+.body_tight.doc { line-height: 1.35; }
+.body_tight .field, .body_tight .fieldInline { margin-bottom: 0.45rem; }
+.body_loose.doc { line-height: 1.9; }
+.body_loose .field, .body_loose .fieldInline { margin-bottom: 1.2rem; }
+
+/* ── Guidance treatments ─────────────────────────────────────────── */
+.guidance_bar       .guidance { background: transparent; padding-inline-start: 0.75rem; }
+.guidance_box       .guidance {
+  border-inline-start: 0;
+  background: color-mix(in oklab, var(--doc-surface), var(--doc-fg) 4%);
+  padding: 0.5rem 0.75rem;
+  border-radius: 4px;
+}
+.guidance_italic    .guidance {
+  border-inline-start: 0;
+  background: transparent;
+  font-style: italic;
+  padding: 0;
+}
+.guidance_accentBar .guidance {
+  border-inline-start: 3px solid var(--doc-accent);
+  background: color-mix(in oklab, var(--doc-surface), var(--doc-accent) 4%);
+}
+.guidance_corner    .guidance {
+  border-inline-start: 0;
+  border-top: 2px solid var(--doc-accent);
+  background: transparent;
+  padding: 0.4rem 0 0;
+  border-radius: 0;
+}
+
+/* ── Field underline treatments ──────────────────────────────────── */
+.field_thick  .value,
+.field_thick  .valueMulti  { border-bottom: 2px solid var(--doc-border); }
+.field_dashed .value,
+.field_dashed .valueMulti  { border-bottom: 1px dashed var(--doc-border); }
+.field_none   .value,
+.field_none   .valueMulti  { border-bottom: 0; }
+.field_boxed  .value,
+.field_boxed  .valueMulti  {
+  border: 1px solid var(--doc-border-soft);
+  border-radius: 3px;
+  padding: 0.25rem 0.5rem;
+  background: color-mix(in oklab, var(--doc-surface), var(--doc-fg) 2%);
+}
+
+/* ── List bullet styles ──────────────────────────────────────────── */
+.list_diamond ul { list-style: none; padding-inline-start: 0.4rem; }
+.list_diamond ul li::before { content: "◆ "; color: var(--doc-accent); margin-inline-end: 0.3rem; }
+.list_arrow   ul { list-style: none; padding-inline-start: 0.4rem; }
+.list_arrow   ul li::before { content: "→ "; color: var(--doc-accent); margin-inline-end: 0.3rem; }
+.list_dash    ul { list-style: none; padding-inline-start: 0.4rem; }
+.list_dash    ul li::before { content: "— "; color: var(--doc-muted); margin-inline-end: 0.3rem; }
+.list_square  ul { list-style: square; }
+.list_square  ul li::marker { color: var(--doc-accent); }
+.list_circle  ul { list-style: circle; }
+.list_circle  ul li::marker { color: var(--doc-accent); }
+
+/* ── Group / card variants (the .kpiBlock element) ───────────────── */
+.group_thick       .kpiBlock { border: 2px solid var(--doc-border); }
+.group_shadow      .kpiBlock {
+  border: 1px solid var(--doc-border-soft);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+}
+.group_sideAccent  .kpiBlock {
+  border: 1px solid var(--doc-border-soft);
+  border-inline-start: 4px solid var(--doc-accent);
+}
+.group_grayBg      .kpiBlock {
+  border: 0;
+  background: color-mix(in oklab, var(--doc-surface), var(--doc-fg) 4%);
+}
+.group_accentHeader .kpiBlock {
+  border: 1px solid var(--doc-border-soft);
+  padding-top: 0;
+}
+.group_accentHeader .kpiBlock .kpiBlockHeader {
+  background: var(--doc-accent);
+  color: var(--doc-surface);
+  padding: 0.35rem 0.75rem;
+  margin-inline: -1rem;
+  margin-block-start: 0;
+  margin-bottom: 0.75rem;
+}
+.group_accentHeader .kpiBlock .kpiIndex { color: var(--doc-surface); }
+
+/* ── Divider styles ──────────────────────────────────────────────── */
+.divider_dashed .rule { border-top-style: dashed; }
+.divider_double .rule { border-top: 0; border-bottom: 0; border-block: 3px double var(--doc-border); height: 7px; }
+.divider_thick  .rule { border-top: 3px solid var(--doc-accent); }
+.divider_dotted .rule { border-top-style: dotted; border-top-width: 2px; }
+
+/* ── Doc-level padding / radius ─────────────────────────────────── */
+.pad_compact.doc   { padding: 1rem 1.25rem; }
+.pad_spacious.doc  { padding: 2.25rem 2.5rem; }
+.radius_sharp.doc  { border-radius: 0; }
+.radius_medium.doc { border-radius: 8px; }
+.radius_large.doc  { border-radius: 16px; }
