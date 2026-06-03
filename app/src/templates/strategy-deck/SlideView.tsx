@@ -63,13 +63,15 @@ export function SlideView(props: SlideViewProps) {
   const isRtl = t.dir === "rtl";
   const eff = resolveTheme(theme, doc);
   const isCoverOrSection = slide.layout === "cover" || slide.layout === "section";
-  const bg = isCoverOrSection ? eff.palette.coverBg : eff.palette.bg;
   const text = isCoverOrSection ? eff.palette.coverText : eff.palette.text;
 
   const containerStyle: CSSProperties = {
     width: SLIDE_W,
     height: SLIDE_H,
-    background: bg,
+    background: isCoverOrSection
+      ? `${eff.palette.coverGradient}, ${eff.palette.coverBg}`
+      : `${eff.palette.bgGradient}, ${eff.palette.bg}`,
+    backgroundColor: isCoverOrSection ? eff.palette.coverBg : eff.palette.bg,
     color: text,
     fontFamily: eff.font.body,
     position: "relative",
@@ -101,11 +103,84 @@ export function SlideView(props: SlideViewProps) {
 
   return (
     <div style={containerStyle}>
+      {isCoverOrSection && <CoverDepth ctx={ctx} />}
+      {!isCoverOrSection && <ContentDepth ctx={ctx} />}
       {slide.layout === "cover" && renderCover(ctx)}
       {slide.layout === "section" && renderSection(ctx)}
       {slide.layout === "quote" && renderQuote(ctx)}
       {slide.layout === "content" && renderContent(ctx)}
     </div>
+  );
+}
+
+// ─────────────────────── Depth / decoration layers ───────────────────────
+
+// Soft layered orbs + glow behind cover content. Renders behind everything.
+function CoverDepth({ ctx }: { ctx: RenderCtx }) {
+  const { eff, isRtl } = ctx;
+  const isDark = eff.palette.dark;
+  // Two soft orbs (opposite corners) + a wide diagonal sheen
+  return (
+    <>
+      <div style={{
+        position: "absolute",
+        [isRtl ? "left" : "right"]: -160, top: -160,
+        width: 540, height: 540, borderRadius: "50%",
+        background: `radial-gradient(circle, ${eff.palette.glow} 0%, transparent 65%)`,
+        pointerEvents: "none",
+      }} />
+      <div style={{
+        position: "absolute",
+        [isRtl ? "right" : "left"]: -120, bottom: -180,
+        width: 460, height: 460, borderRadius: "50%",
+        background: `radial-gradient(circle, ${eff.accent}${isDark ? "33" : "1c"} 0%, transparent 70%)`,
+        pointerEvents: "none",
+      }} />
+      <div style={{
+        position: "absolute", inset: 0,
+        background: isDark
+          ? "linear-gradient(135deg, rgba(255,255,255,0.04) 0%, transparent 40%, rgba(0,0,0,0.18) 100%)"
+          : "linear-gradient(135deg, rgba(255,255,255,0.06) 0%, transparent 40%, rgba(0,0,0,0.10) 100%)",
+        pointerEvents: "none",
+      }} />
+    </>
+  );
+}
+
+// Subtle soft accent blob in a corner of content slides (for depth).
+function ContentDepth({ ctx }: { ctx: RenderCtx }) {
+  const { eff, isRtl } = ctx;
+  return (
+    <div style={{
+      position: "absolute",
+      [isRtl ? "left" : "right"]: -200, bottom: -200,
+      width: 480, height: 480, borderRadius: "50%",
+      background: `radial-gradient(circle, ${eff.palette.glow} 0%, transparent 65%)`,
+      pointerEvents: "none",
+      opacity: 0.7,
+    }} />
+  );
+}
+
+// Gradient accent bar. Use anywhere a flat eff.accent bar was used for decoration.
+function GradientBar({ ctx, style }: { ctx: RenderCtx; style: CSSProperties }) {
+  return (
+    <div style={{
+      ...style,
+      background: ctx.eff.palette.accentGradient,
+    }} />
+  );
+}
+
+// A rounded glowing dot — used as default bullet marker for richer look.
+function GlowDot({ ctx, size = 9 }: { ctx: RenderCtx; size?: number }) {
+  return (
+    <span style={{
+      width: size, height: size, borderRadius: "50%",
+      background: ctx.eff.palette.accentGradient,
+      boxShadow: `0 0 0 3px ${ctx.eff.palette.glow}`,
+      display: "block",
+    }} />
   );
 }
 
@@ -222,7 +297,7 @@ function CoverLeftBar(ctx: RenderCtx) {
   const { isRtl, eff } = ctx;
   return (
     <>
-      <div style={{ position: "absolute", top: 0, bottom: 0, [isRtl ? "right" : "left"]: 0, width: 14, background: eff.accent }} />
+      <div style={{ position: "absolute", top: 0, bottom: 0, [isRtl ? "right" : "left"]: 0, width: 14, background: eff.palette.accentGradient, boxShadow: `0 0 24px ${eff.palette.glow}` }} />
       <CoverMeta ctx={ctx} position="top" />
       <div style={{ position: "absolute", top: "50%", transform: "translateY(-55%)", insetInlineStart: 64, insetInlineEnd: 48 }}>
         {CoverTitleBlock(ctx)}
@@ -244,7 +319,7 @@ function CoverCentered(ctx: RenderCtx) {
           weight={ctx.eff.font.titleWeight ?? 800}
           style={{ color: ctx.eff.palette.coverText, lineHeight: 1.1, marginBottom: 24, textAlign: "center" }}
         />
-        <div style={{ width: 80, height: 3, background: ctx.eff.accent, margin: "0 auto 24px" }} />
+        <div style={{ width: 80, height: 3, background: ctx.eff.palette.accentGradient, margin: "0 auto 24px", borderRadius: 2 }} />
         <Text
           value={ctx.slide.subtitle} ctx={ctx}
           onCh={(v) => ctx.handlers.onChange?.({ subtitle: v })} placeholder={ctx.t.coverSubtitle}
@@ -262,7 +337,7 @@ function CoverSplit(ctx: RenderCtx) {
   return (
     <>
       {/* colored half */}
-      <div style={{ position: "absolute", top: 0, bottom: 0, [isRtl ? "right" : "left"]: 0, width: "44%", background: eff.accent, opacity: 0.92 }} />
+      <div style={{ position: "absolute", top: 0, bottom: 0, [isRtl ? "right" : "left"]: 0, width: "44%", background: eff.palette.accentGradient, boxShadow: `inset 0 0 80px ${eff.palette.glow}` }} />
       {/* title in colored half */}
       <div style={{ position: "absolute", top: "50%", transform: "translateY(-50%)", [isRtl ? "right" : "left"]: 48, width: "36%" }}>
         <Text
@@ -293,7 +368,7 @@ function CoverFramed(ctx: RenderCtx) {
   const { eff } = ctx;
   return (
     <>
-      <div style={{ position: "absolute", inset: 24, border: `2px solid ${eff.accent}` }} />
+      <div style={{ position: "absolute", inset: 24, border: `2px solid transparent`, borderImage: `${eff.palette.accentGradient} 1`, boxShadow: `inset 0 0 80px ${eff.palette.glow}` }} />
       <div style={{ position: "absolute", top: 56, [ctx.isRtl ? "right" : "left"]: 64, fontSize: 13, color: eff.palette.coverText, opacity: 0.6, letterSpacing: "0.1em", textTransform: "uppercase" }}>
         {ctx.company}
       </div>
@@ -327,7 +402,7 @@ function CoverMinimalBottom(ctx: RenderCtx) {
   return (
     <>
       <div style={{ position: "absolute", bottom: 90, [isRtl ? "right" : "left"]: 64, [isRtl ? "left" : "right"]: 64 }}>
-        <div style={{ width: 40, height: 2, background: eff.accent, marginBottom: 24 }} />
+        <div style={{ width: 56, height: 3, background: eff.palette.accentGradient, marginBottom: 24, borderRadius: 2 }} />
         <Text
           value={ctx.slide.title} ctx={ctx}
           onCh={(v) => ctx.handlers.onChange?.({ title: v })} placeholder={ctx.t.coverTitle}
@@ -384,8 +459,7 @@ function CoverCircle(ctx: RenderCtx) {
         [isRtl ? "left" : "right"]: -180, top: -180,
         width: 540, height: 540,
         borderRadius: "50%",
-        background: eff.accent,
-        opacity: 0.25,
+        background: `radial-gradient(circle at 30% 30%, ${eff.accent}66 0%, ${eff.accent}22 50%, transparent 75%)`,
       }} />
       <div style={{
         position: "absolute",
@@ -393,7 +467,8 @@ function CoverCircle(ctx: RenderCtx) {
         width: 360, height: 360,
         borderRadius: "50%",
         border: `3px solid ${eff.accent}`,
-        opacity: 0.4,
+        opacity: 0.55,
+        boxShadow: `0 0 60px ${eff.palette.glow}`,
       }} />
       <CoverMeta ctx={ctx} position="top" />
       <div style={{ position: "absolute", top: "50%", transform: "translateY(-55%)", insetInlineStart: 64, insetInlineEnd: 64 }}>
@@ -408,9 +483,9 @@ function CoverStripes(ctx: RenderCtx) {
   const { eff, isRtl } = ctx;
   return (
     <>
-      <div style={{ position: "absolute", top: 0, bottom: 0, [isRtl ? "right" : "left"]: 0, width: 6, background: eff.accent }} />
-      <div style={{ position: "absolute", top: 0, bottom: 0, [isRtl ? "right" : "left"]: 16, width: 3, background: eff.accent, opacity: 0.6 }} />
-      <div style={{ position: "absolute", top: 0, bottom: 0, [isRtl ? "right" : "left"]: 26, width: 1, background: eff.accent, opacity: 0.4 }} />
+      <div style={{ position: "absolute", top: 0, bottom: 0, [isRtl ? "right" : "left"]: 0, width: 8, background: eff.palette.accentGradient, boxShadow: `0 0 24px ${eff.palette.glow}` }} />
+      <div style={{ position: "absolute", top: 0, bottom: 0, [isRtl ? "right" : "left"]: 18, width: 3, background: eff.palette.accentGradient, opacity: 0.7 }} />
+      <div style={{ position: "absolute", top: 0, bottom: 0, [isRtl ? "right" : "left"]: 28, width: 1, background: eff.palette.accentGradient, opacity: 0.45 }} />
       <CoverMeta ctx={ctx} position="top" />
       <div style={{ position: "absolute", top: "50%", transform: "translateY(-55%)", [isRtl ? "right" : "left"]: 80, insetInlineEnd: 48 }}>
         {CoverTitleBlock(ctx)}
@@ -424,8 +499,8 @@ function CoverHorizon(ctx: RenderCtx) {
   const { eff } = ctx;
   return (
     <>
-      <div style={{ position: "absolute", insetInlineStart: 64, insetInlineEnd: 64, top: 100, height: 1, background: eff.accent, opacity: 0.7 }} />
-      <div style={{ position: "absolute", insetInlineStart: 64, insetInlineEnd: 64, bottom: 100, height: 1, background: eff.accent, opacity: 0.4 }} />
+      <div style={{ position: "absolute", insetInlineStart: 64, insetInlineEnd: 64, top: 100, height: 2, background: eff.palette.accentGradient, opacity: 0.85, borderRadius: 1 }} />
+      <div style={{ position: "absolute", insetInlineStart: 64, insetInlineEnd: 64, bottom: 100, height: 1, background: eff.palette.accentGradient, opacity: 0.55 }} />
       <CoverMeta ctx={ctx} position="top" />
       <div style={{ position: "absolute", top: "50%", transform: "translateY(-50%)", insetInlineStart: 64, insetInlineEnd: 64 }}>
         {CoverTitleBlock(ctx)}
@@ -439,8 +514,8 @@ function CoverDuotone(ctx: RenderCtx) {
   const { eff } = ctx;
   return (
     <>
-      <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "55%", background: eff.palette.coverBg }} />
-      <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "45%", background: eff.accent }} />
+      <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "55%", background: eff.palette.coverGradient }} />
+      <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "45%", background: eff.palette.accentGradient, boxShadow: `inset 0 60px 80px ${eff.palette.glow}` }} />
       <div style={{ position: "absolute", top: "55%", transform: "translateY(-100%)", insetInlineStart: 64, insetInlineEnd: 64 }}>
         <Text
           value={ctx.slide.title} ctx={ctx}
@@ -495,16 +570,16 @@ function CoverCard(ctx: RenderCtx) {
   const { eff } = ctx;
   return (
     <>
-      <div style={{ position: "absolute", inset: 0, background: eff.palette.coverBg }} />
       <div style={{
         position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)",
         width: "72%", maxWidth: 680,
-        padding: "48px 56px",
+        padding: "52px 56px",
         background: eff.palette.bg,
         color: eff.palette.text,
-        boxShadow: "0 12px 60px rgba(0,0,0,0.35)",
-        borderTop: `4px solid ${eff.accent}`,
+        boxShadow: `0 24px 80px rgba(0,0,0,0.45), 0 0 0 1px ${eff.palette.cardBorder}, 0 0 60px ${eff.palette.glow}`,
+        borderRadius: 4,
       }}>
+        <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 5, background: eff.palette.accentGradient, borderTopLeftRadius: 4, borderTopRightRadius: 4 }} />
         <div style={{ fontSize: 12, opacity: 0.55, letterSpacing: "0.1em", marginBottom: 20, textTransform: "uppercase", color: eff.palette.text }}>
           {ctx.company}
         </div>
@@ -530,7 +605,7 @@ function CoverLabel(ctx: RenderCtx) {
   const { eff } = ctx;
   return (
     <>
-      <div style={{ position: "absolute", top: 96, insetInlineStart: 64, insetInlineEnd: 64, height: 32, background: eff.accent, display: "flex", alignItems: "center", paddingInline: 16, fontSize: 13, color: "#fff", letterSpacing: "0.08em", textTransform: "uppercase" }}>
+      <div style={{ position: "absolute", top: 96, insetInlineStart: 64, insetInlineEnd: 64, height: 34, background: eff.palette.accentGradient, display: "flex", alignItems: "center", paddingInline: 16, fontSize: 13, color: "#fff", letterSpacing: "0.08em", textTransform: "uppercase", boxShadow: `0 4px 24px ${eff.palette.glow}`, borderRadius: 2 }}>
           {ctx.company}
         </div>
       <div style={{ position: "absolute", top: 180, insetInlineStart: 64, insetInlineEnd: 64 }}>
@@ -545,11 +620,17 @@ function CoverGeometric(ctx: RenderCtx) {
   const { eff, isRtl } = ctx;
   return (
     <>
-      <svg width="280" height="280" style={{ position: "absolute", top: -60, [isRtl ? "left" : "right"]: -60, opacity: 0.85 }}>
-        <polygon points="280,0 280,280 0,280" fill={eff.accent} />
+      <svg width="320" height="320" style={{ position: "absolute", top: -60, [isRtl ? "left" : "right"]: -60, opacity: 0.95, filter: `drop-shadow(0 8px 32px ${eff.palette.glow})` }}>
+        <defs>
+          <linearGradient id={`grad-cg-${isRtl ? "r" : "l"}`} x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor={eff.accent} stopOpacity="1" />
+            <stop offset="100%" stopColor={eff.palette.accent2} stopOpacity="0.7" />
+          </linearGradient>
+        </defs>
+        <polygon points="320,0 320,320 0,320" fill={`url(#grad-cg-${isRtl ? "r" : "l"})`} />
       </svg>
-      <svg width="160" height="160" style={{ position: "absolute", bottom: -40, [isRtl ? "right" : "left"]: -40, opacity: 0.5 }}>
-        <circle cx="80" cy="80" r="80" fill={eff.accent} />
+      <svg width="200" height="200" style={{ position: "absolute", bottom: -50, [isRtl ? "right" : "left"]: -50, opacity: 0.45 }}>
+        <circle cx="100" cy="100" r="100" fill={eff.accent} />
       </svg>
       <CoverMeta ctx={ctx} position="top" />
       <div style={{ position: "absolute", top: "50%", transform: "translateY(-50%)", insetInlineStart: 64, insetInlineEnd: 64 }}>
@@ -566,7 +647,7 @@ function CoverUnderline(ctx: RenderCtx) {
     <>
       <CoverMeta ctx={ctx} position="top" />
       <div style={{ position: "absolute", top: "50%", transform: "translateY(-55%)", insetInlineStart: 64, insetInlineEnd: 64 }}>
-        <span style={{ display: "inline-block", borderBottom: `4px solid ${eff.accent}`, paddingBottom: 12, marginBottom: 24 }}>
+        <span style={{ display: "inline-block", paddingBottom: 14, marginBottom: 24, position: "relative", borderImage: `${eff.palette.accentGradient} 1`, borderBottomWidth: 4, borderBottomStyle: "solid" }}>
           <Text
             value={ctx.slide.title} ctx={ctx}
             onCh={(v) => ctx.handlers.onChange?.({ title: v })} placeholder={ctx.t.coverTitle}
@@ -623,8 +704,8 @@ function renderSection(ctx: RenderCtx) {
   // Section uses centered cover-like layout with strong accent
   return (
     <>
-      <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 6, background: eff.accent }} />
-      <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 6, background: eff.accent }} />
+      <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 6, background: eff.palette.accentGradient, boxShadow: `0 6px 24px ${eff.palette.glow}` }} />
+      <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 6, background: eff.palette.accentGradient, boxShadow: `0 -6px 24px ${eff.palette.glow}` }} />
       <div style={{ position: "absolute", top: "50%", left: "10%", right: "10%", transform: "translateY(-50%)", textAlign: "center" }}>
         <div style={{ fontSize: 14, color: eff.accent, letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 28 }}>
           {ctx.company}
@@ -671,7 +752,7 @@ function renderQuote(ctx: RenderCtx) {
           weight={ctx.eff.font.titleWeight ?? 600}
           style={{ color: eff.palette.text, fontStyle: "italic", lineHeight: 1.55, marginBottom: 32, textAlign: "center" }}
         />
-        <div style={{ width: 60, height: 2, background: eff.accent, margin: "0 auto 20px" }} />
+        <div style={{ width: 72, height: 3, background: eff.palette.accentGradient, margin: "0 auto 20px", borderRadius: 2 }} />
         <Text
           value={ctx.slide.subtitle} ctx={ctx}
           onCh={(v) => ctx.handlers.onChange?.({ subtitle: v })} placeholder={ctx.t.quoteAttribution}
@@ -738,7 +819,7 @@ function BulletList(ctx: RenderCtx, marker?: Marker, opts?: {
   gap?: number;
   itemStyle?: CSSProperties;
 }) {
-  const { isRtl, eff } = ctx;
+  const { eff } = ctx;
   const fontSize = (opts?.fontSize ?? 19) * ctx.eff.bodyScale;
   const gap = opts?.gap ?? 14;
   return (
@@ -756,9 +837,7 @@ function BulletList(ctx: RenderCtx, marker?: Marker, opts?: {
           }}
         >
           <span style={{ flexShrink: 0, marginTop: marker ? 0 : "0.5em" }}>
-            {marker ? marker(bi) : (
-              <span style={{ width: 7, height: 7, borderRadius: "50%", background: eff.accent, display: "block" }} />
-            )}
+            {marker ? marker(bi) : <GlowDot ctx={ctx} />}
           </span>
           <div style={{ flex: 1, fontSize, lineHeight: 1.5, color: eff.palette.text }}>
             {ctx.interactive ? (
@@ -813,7 +892,7 @@ function ContentClassic(ctx: RenderCtx) {
   const { eff } = ctx;
   return (
     <>
-      <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 4, background: eff.accent }} />
+      <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 5, background: eff.palette.accentGradient, boxShadow: `0 4px 18px ${eff.palette.glow}` }} />
       <div style={{ position: "absolute", top: 36, insetInlineStart: 56, insetInlineEnd: 56 }}>
         {TitleBar(ctx, { underline: true })}
         {Subtitle(ctx)}
@@ -829,7 +908,7 @@ function ContentSideBand(ctx: RenderCtx) {
   const { eff, isRtl } = ctx;
   return (
     <>
-      <div style={{ position: "absolute", top: 0, bottom: 0, [isRtl ? "right" : "left"]: 0, width: 80, background: eff.accent, opacity: 0.96 }} />
+      <div style={{ position: "absolute", top: 0, bottom: 0, [isRtl ? "right" : "left"]: 0, width: 86, background: eff.palette.accentGradient, boxShadow: `inset 0 0 60px ${eff.palette.glow}` }} />
       <div style={{ position: "absolute", top: 56, [isRtl ? "right" : "left"]: 120, [isRtl ? "left" : "right"]: 56 }}>
         {TitleBar(ctx, { fontSize: 28 })}
         {Subtitle(ctx)}
@@ -845,11 +924,11 @@ function ContentHeaderBlock(ctx: RenderCtx) {
   const { eff } = ctx;
   return (
     <>
-      <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 130, background: eff.palette.coverBg, color: eff.palette.coverText, padding: "32px 56px", boxSizing: "border-box" }}>
+      <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 130, background: eff.palette.coverGradient, color: eff.palette.coverText, padding: "32px 56px", boxSizing: "border-box", boxShadow: `0 8px 32px ${eff.palette.glow}` }}>
         {TitleBar(ctx, { fontSize: 28, color: eff.palette.coverText })}
         {Subtitle(ctx, eff.palette.coverText + "cc")}
       </div>
-      <div style={{ position: "absolute", top: 130, height: 5, left: 0, right: 0, background: eff.accent }} />
+      <div style={{ position: "absolute", top: 130, height: 6, left: 0, right: 0, background: eff.palette.accentGradient }} />
       <div style={{ position: "absolute", top: 170, insetInlineStart: 56, insetInlineEnd: 56, bottom: 36 }}>
         {BulletList(ctx)}
       </div>
@@ -861,8 +940,8 @@ function ContentHalfColor(ctx: RenderCtx) {
   const { eff, isRtl } = ctx;
   return (
     <>
-      <div style={{ position: "absolute", top: 0, bottom: 0, [isRtl ? "right" : "left"]: 0, width: "38%", background: eff.palette.coverBg, padding: 40, boxSizing: "border-box", display: "flex", flexDirection: "column", justifyContent: "center" }}>
-        <div style={{ width: 32, height: 2, background: eff.accent, marginBottom: 20 }} />
+      <div style={{ position: "absolute", top: 0, bottom: 0, [isRtl ? "right" : "left"]: 0, width: "38%", background: eff.palette.coverGradient, padding: 40, boxSizing: "border-box", display: "flex", flexDirection: "column", justifyContent: "center", boxShadow: `inset 0 0 80px ${eff.palette.glow}` }}>
+        <div style={{ width: 44, height: 3, background: eff.palette.accentGradient, marginBottom: 20, borderRadius: 2 }} />
         {TitleBar(ctx, { fontSize: 28, color: eff.palette.coverText })}
         {Subtitle(ctx, eff.palette.coverText + "cc")}
       </div>
@@ -885,13 +964,14 @@ function ContentNumbered(ctx: RenderCtx) {
         {BulletList(ctx, (i) => (
           <span style={{
             display: "inline-flex",
-            width: 32, height: 32,
+            width: 34, height: 34,
             borderRadius: "50%",
-            background: eff.accent,
-            color: eff.palette.dark ? "#fff" : (eff.accent === eff.palette.text ? "#fff" : "#fff"),
+            background: eff.palette.accentGradient,
+            color: "#fff",
             alignItems: "center", justifyContent: "center",
             fontSize: 14, fontWeight: 700,
             fontFamily: eff.font.display,
+            boxShadow: `0 4px 14px ${eff.palette.glow}`,
           }}>{i + 1}</span>
         ), { fontSize: 18, gap: 18 })}
       </div>
@@ -907,7 +987,7 @@ function ContentTwoColumn(ctx: RenderCtx) {
   const right = bullets.slice(mid);
   return (
     <>
-      <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 4, background: eff.accent }} />
+      <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 5, background: eff.palette.accentGradient, boxShadow: `0 4px 18px ${eff.palette.glow}` }} />
       <div style={{ position: "absolute", top: 36, insetInlineStart: 56, insetInlineEnd: 56 }}>
         {TitleBar(ctx, { underline: true })}
         {Subtitle(ctx)}
@@ -921,14 +1001,14 @@ function ContentTwoColumn(ctx: RenderCtx) {
 }
 
 function ColumnList({ ctx, items, startIndex }: { ctx: RenderCtx; items: string[]; startIndex: number }) {
-  const { eff, isRtl } = ctx;
+  const { eff } = ctx;
   return (
     <div>
       {items.map((b, j) => {
         const bi = startIndex + j;
         return (
           <div key={bi} style={{ display: "flex", alignItems: "flex-start", gap: 10, marginBottom: 12, flexDirection: "row" }}>
-            <span style={{ width: 6, height: 6, borderRadius: "50%", background: eff.accent, flexShrink: 0, marginTop: "0.55em" }} />
+            <span style={{ width: 7, height: 7, borderRadius: "50%", background: eff.palette.accentGradient, boxShadow: `0 0 0 2px ${eff.palette.glow}`, flexShrink: 0, marginTop: "0.55em" }} />
             <div style={{ flex: 1, fontSize: 16 * ctx.eff.bodyScale, lineHeight: 1.5, color: eff.palette.text }}>
               {ctx.interactive ? (
                 <Editable
@@ -982,7 +1062,7 @@ function ContentFramed(ctx: RenderCtx) {
   const { eff } = ctx;
   return (
     <>
-      <div style={{ position: "absolute", inset: 24, border: `2px solid ${eff.accent}` }} />
+      <div style={{ position: "absolute", inset: 24, border: `2px solid transparent`, borderImage: `${eff.palette.accentGradient} 1` }} />
       <div style={{ position: "absolute", top: 56, insetInlineStart: 76, insetInlineEnd: 76 }}>
         {TitleBar(ctx, { fontSize: 28 })}
         {Subtitle(ctx)}
@@ -1005,7 +1085,7 @@ function ContentFooterBand(ctx: RenderCtx) {
       <div style={{ position: "absolute", top: 140, insetInlineStart: 56, insetInlineEnd: 56, bottom: 80 }}>
         {BulletList(ctx)}
       </div>
-      <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 56, background: eff.accent, color: "#fff", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 32px", fontSize: 13, letterSpacing: "0.06em" }}>
+      <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 60, background: eff.palette.accentGradient, color: "#fff", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 32px", fontSize: 13, letterSpacing: "0.06em", boxShadow: `0 -4px 18px ${eff.palette.glow}` }}>
         <span>{ctx.company}</span>
         <span>{ctx.date}</span>
       </div>
@@ -1019,7 +1099,7 @@ function ContentMinimalLine(ctx: RenderCtx) {
     <>
       <div style={{ position: "absolute", top: 64, insetInlineStart: 64, insetInlineEnd: 64 }}>
         {TitleBar(ctx, { fontSize: 28 })}
-        <div style={{ width: 48, height: 1, background: eff.accent, marginTop: 16, marginBottom: 10 }} />
+        <div style={{ width: 56, height: 2, background: eff.palette.accentGradient, marginTop: 16, marginBottom: 10, borderRadius: 1 }} />
         {Subtitle(ctx)}
       </div>
       <div style={{ position: "absolute", top: 180, insetInlineStart: 64, insetInlineEnd: 64, bottom: 60 }}>
@@ -1071,7 +1151,7 @@ function ContentCircleBullets(ctx: RenderCtx) {
 }
 
 function ContentStripeCards(ctx: RenderCtx) {
-  const { eff, isRtl } = ctx;
+  const { eff } = ctx;
   return (
     <>
       <div style={{ position: "absolute", top: 36, insetInlineStart: 56, insetInlineEnd: 56 }}>
@@ -1085,10 +1165,13 @@ function ContentStripeCards(ctx: RenderCtx) {
             alignItems: "stretch",
             marginBottom: 10,
             flexDirection: "row",
-            background: eff.palette.bgAlt,
+            background: eff.palette.cardBg,
+            border: `1px solid ${eff.palette.cardBorder}`,
+            borderRadius: 6,
             overflow: "hidden",
+            boxShadow: `0 2px 12px ${eff.palette.glow}`,
           }}>
-            <div style={{ width: 5, background: eff.accent, flexShrink: 0 }} />
+            <div style={{ width: 6, background: eff.palette.accentGradient, flexShrink: 0 }} />
             <div style={{ flex: 1, padding: "12px 18px", fontSize: 17 * ctx.eff.bodyScale, lineHeight: 1.5, color: eff.palette.text, fontFamily: eff.font.body }}>
               {ctx.interactive ? (
                 <Editable value={b} onChange={(v) => ctx.handlers.onBulletChange?.(bi, v)} placeholder={ctx.t.bullets} style={{ display: "block", color: "inherit", fontFamily: eff.font.body }} />
@@ -1135,7 +1218,7 @@ function ContentLeftRule(ctx: RenderCtx) {
   const { eff, isRtl } = ctx;
   return (
     <>
-      <div style={{ position: "absolute", top: 64, bottom: 64, [isRtl ? "right" : "left"]: 56, width: 3, background: eff.accent }} />
+      <div style={{ position: "absolute", top: 64, bottom: 64, [isRtl ? "right" : "left"]: 56, width: 4, background: eff.palette.accentGradient, borderRadius: 2, boxShadow: `0 0 18px ${eff.palette.glow}` }} />
       <div style={{ position: "absolute", top: 64, [isRtl ? "right" : "left"]: 80, [isRtl ? "left" : "right"]: 56 }}>
         {TitleBar(ctx, { fontSize: 28 })}
         {Subtitle(ctx)}
@@ -1148,7 +1231,7 @@ function ContentLeftRule(ctx: RenderCtx) {
 }
 
 function ContentCardStack(ctx: RenderCtx) {
-  const { eff, isRtl } = ctx;
+  const { eff } = ctx;
   return (
     <>
       <div style={{ position: "absolute", top: 36, insetInlineStart: 56, insetInlineEnd: 56 }}>
@@ -1158,10 +1241,15 @@ function ContentCardStack(ctx: RenderCtx) {
       <div style={{ position: "absolute", top: 130, insetInlineStart: 56, insetInlineEnd: 56, bottom: 36, display: "flex", flexDirection: "column", gap: 8 }}>
         {ctx.slide.bullets.map((b, bi) => (
           <div key={bi} style={{
-            display: "flex", alignItems: "center", gap: 14, padding: "12px 16px",
-            background: eff.palette.bgAlt, borderTop: `2px solid ${eff.accent}`,
+            display: "flex", alignItems: "center", gap: 14, padding: "14px 18px",
+            background: eff.palette.cardBg,
+            border: `1px solid ${eff.palette.cardBorder}`,
+            borderRadius: 8,
+            position: "relative",
             flexDirection: "row",
+            boxShadow: `0 3px 14px ${eff.palette.glow}`,
           }}>
+            <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: eff.palette.accentGradient, borderTopLeftRadius: 8, borderTopRightRadius: 8 }} />
             <span style={{ fontSize: 22, fontWeight: 700, fontFamily: eff.font.display, color: eff.accent, minWidth: 24 }}>{String(bi + 1).padStart(2, "0")}</span>
             <div style={{ flex: 1, fontSize: 16 * ctx.eff.bodyScale, lineHeight: 1.5, color: eff.palette.text, fontFamily: eff.font.body }}>
               {ctx.interactive ? (
