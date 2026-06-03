@@ -11,6 +11,7 @@ import {
   type JobDocument,
   type ResponsibilityArea,
 } from "./schemas/job-description";
+import { sampleStraussJob } from "./samples/strauss-samples";
 
 type JobState = {
   doc: JobDocument;
@@ -109,7 +110,7 @@ export const useJobStore = create<JobState>((set, get) => ({
       doc: { ...s.doc, enabled: { ...s.doc.enabled, [key]: !s.doc.enabled[key] } },
     })),
 
-  loadSample: () => set({ doc: sampleJob() }),
+  loadSample: () => set({ doc: sampleStraussJob() }),
   reset: () => set({ doc: emptyJobDocument() }),
   translate: async (from, to) => {
     const translated = await translateJobDoc(get().doc, from, to);

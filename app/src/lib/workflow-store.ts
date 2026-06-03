@@ -4,6 +4,7 @@ import { create } from "zustand";
 import type { Lang } from "./i18n";
 import { translateAnyDoc } from "./translate";
 import { emptyRaciRow, emptyStep, emptyWorkflow, type RaciRow, type Step, type Workflow } from "./schemas/workflow";
+import { sampleStraussWorkflow } from "./samples/strauss-samples";
 
 type S = Workflow;
 type State = {
@@ -44,7 +45,7 @@ export const useWorkflowStore = create<State>((set, get) => ({
   setRaci: (i, p) => set((s) => ({ doc: { ...s.doc, raci: setRow(s.doc.raci, i, p) } })),
   addRaci: () => set((s) => ({ doc: { ...s.doc, raci: [...s.doc.raci, emptyRaciRow()] } })),
   removeRaci: (i) => set((s) => ({ doc: { ...s.doc, raci: removeAt(s.doc.raci, i) } })),
-  loadSample: () => set({ doc: sampleWorkflow() }),
+  loadSample: () => set({ doc: sampleStraussWorkflow() }),
   reset: () => set({ doc: emptyWorkflow() }),
   translate: async (from, to) => {
     set({ doc: await translateAnyDoc(get().doc, from, to) });

@@ -5,13 +5,11 @@ import { useAppStore, type Artifact } from "@/lib/app-store";
 import { useStrategyDeckStore } from "@/lib/strategy-deck-store";
 import { strings } from "@/lib/i18n";
 import type { Lang } from "@/lib/i18n";
-import { DECK_THEMES } from "@/lib/themes/deck-themes";
+import { DECK_THEMES, PALETTES } from "@/lib/themes/deck-themes";
 import type { SlideLayout } from "@/lib/schemas/strategy-deck";
-import { SlideView } from "./SlideView";
+import { SlideView, SLIDE_W, SLIDE_H } from "./SlideView";
 import styles from "./DeckEditor.module.css";
 
-const SLIDE_W = 960;
-const SLIDE_H = 540;
 const THUMB_W = 172;
 const THUMB_SCALE = THUMB_W / SLIDE_W;
 
@@ -24,7 +22,11 @@ export function DeckEditor() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [canvasScale, setCanvasScale] = useState(1);
   const [translating, setTranslating] = useState(false);
+  const [themePickerOpen, setThemePickerOpen] = useState(false);
+  const [formatOpen, setFormatOpen] = useState(false);
   const canvasRef = useRef<HTMLDivElement>(null);
+  const themePickerRef = useRef<HTMLDivElement>(null);
+  const formatPanelRef = useRef<HTMLDivElement>(null);
 
   const lang = useAppStore((s) => s.lang);
   const setLang = useAppStore((s) => s.setLang);
@@ -37,10 +39,9 @@ export function DeckEditor() {
   const doc = useStrategyDeckStore((s) => s.doc);
 
   const selectedTheme = DECK_THEMES.find((th) => th.id === doc.theme) ?? DECK_THEMES[0];
-  const slide = doc.slides[Math.min(currentSlide, doc.slides.length - 1)] ?? doc.slides[0];
   const slideIdx = Math.min(currentSlide, doc.slides.length - 1);
+  const slide = doc.slides[slideIdx] ?? doc.slides[0];
 
-  // Clamp current slide when slides are removed
   useEffect(() => {
     if (currentSlide >= doc.slides.length) {
       setCurrentSlide(Math.max(0, doc.slides.length - 1));
@@ -58,6 +59,25 @@ export function DeckEditor() {
     return () => obs.disconnect();
   }, []);
 
+  // Click-outside handlers for the popovers
+  useEffect(() => {
+    if (!themePickerOpen) return;
+    const onDown = (e: MouseEvent) => {
+      if (!themePickerRef.current?.contains(e.target as Node)) setThemePickerOpen(false);
+    };
+    document.addEventListener("mousedown", onDown);
+    return () => document.removeEventListener("mousedown", onDown);
+  }, [themePickerOpen]);
+
+  useEffect(() => {
+    if (!formatOpen) return;
+    const onDown = (e: MouseEvent) => {
+      if (!formatPanelRef.current?.contains(e.target as Node)) setFormatOpen(false);
+    };
+    document.addEventListener("mousedown", onDown);
+    return () => document.removeEventListener("mousedown", onDown);
+  }, [formatOpen]);
+
   const switchLang = useCallback(
     async (to: Lang) => {
       if (lang === to) return;
@@ -71,7 +91,7 @@ export function DeckEditor() {
 
   const handleAddSlide = () => {
     st.addSlide("content");
-    setCurrentSlide(doc.slides.length); // new slide will be at current length (before add)
+    setCurrentSlide(doc.slides.length);
   };
 
   const handleRemoveSlide = (i: number) => {
@@ -88,75 +108,136 @@ export function DeckEditor() {
 
   return (
     <>
-      {/* ─── Main Editor UI ─── */}
       <div className={styles.root}>
         {/* Header */}
         <header className={styles.header}>
           <div className={styles.headerLeft}>
-            <button
-              type="button"
-              onClick={goHome}
-              className="text-xs px-2 py-1 rounded hover:bg-neutral-100 text-[color:var(--app-muted)]"
-            >
+            <button type="button" onClick={goHome}
+              className="text-xs px-2 py-1 rounded hover:bg-neutral-100 text-[color:var(--app-muted)]">
               ← {t.home.title}
             </button>
             <span className={styles.divider}>|</span>
-            <select
-              value={artifact}
+            <select value={artifact}
               onChange={(e) => openArtifact(e.target.value as Artifact)}
               className="font-display text-base bg-transparent border-0 outline-none cursor-pointer hover:opacity-70"
-              aria-label="artifact"
-            >
+              aria-label="artifact">
               {ARTIFACTS_FOR_DROPDOWN.map((a) => (
                 <option key={a} value={a}>{t.artifacts[a].title}</option>
               ))}
             </select>
             <span className={styles.divider}>|</span>
-            <button type="button" onClick={st.loadSample} className="btn-secondary text-xs px-2 py-1 rounded hover:bg-neutral-100">
-              {t.loadSample}
-            </button>
-            <button type="button" onClick={st.reset} className="btn-secondary text-xs px-2 py-1 rounded hover:bg-neutral-100">
-              {t.reset}
-            </button>
+            <button type="button" onClick={st.loadSample}
+              className="text-xs px-2 py-1 rounded hover:bg-neutral-100">{t.loadSample}</button>
+            <button type="button" onClick={st.reset}
+              className="text-xs px-2 py-1 rounded hover:bg-neutral-100">{t.reset}</button>
           </div>
 
           <div className={styles.headerRight}>
-            <label className="flex items-center gap-2 text-xs text-[color:var(--app-muted)]">
-              <span>{t.deck.themePicker}</span>
-              <select
-                value={doc.theme}
-                onChange={(e) => st.setTheme(e.target.value)}
-                className="text-xs bg-white border border-[color:var(--app-border)] rounded px-2 py-1"
-              >
-                {DECK_THEMES.map((th) => (
-                  <option key={th.id} value={th.id}>
-                    {lang === "he" ? th.name_he : th.name_en}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <button
-              type="button"
-              onClick={() => switchLang(lang === "he" ? "en" : "he")}
-              disabled={translating}
-              className="text-xs px-2 py-1 rounded border border-[color:var(--app-border)] hover:bg-neutral-50 disabled:opacity-50"
-            >
+            {/* Theme picker — visual gallery */}
+            <div ref={themePickerRef} style={{ position: "relative" }}>
+              <button type="button" onClick={() => setThemePickerOpen((o) => !o)}
+                className="text-xs px-2 py-1 rounded border border-[color:var(--app-border)] hover:bg-neutral-50">
+                {t.deck.themePicker} ({lang === "he" ? selectedTheme.name_he : selectedTheme.name_en})
+              </button>
+              {themePickerOpen && (
+                <div className={styles.themeGallery} dir={t.dir}>
+                  <div className={styles.themeGalleryHeader}>{t.deck.themePicker}</div>
+                  <div className={styles.themeGrid}>
+                    {DECK_THEMES.map((th) => {
+                      const p = PALETTES[th.palette];
+                      const isSelected = th.id === doc.theme;
+                      return (
+                        <button
+                          key={th.id}
+                          type="button"
+                          onClick={() => { st.setTheme(th.id); setThemePickerOpen(false); }}
+                          className={`${styles.themeCard} ${isSelected ? styles.themeCardSelected : ""}`}
+                          title={lang === "he" ? th.name_he : th.name_en}
+                        >
+                          <div className={styles.themeMiniWrap}>
+                            <div className={styles.themeMiniInner} style={{ transform: `scale(${112 / SLIDE_W})` }}>
+                              <SlideView
+                                slide={{ layout: "content", title: lang === "he" ? "כותרת לדוגמה" : "Sample Title", subtitle: "", bullets: [lang === "he" ? "נקודה ראשונה" : "First point", lang === "he" ? "נקודה שנייה" : "Second point", lang === "he" ? "נקודה שלישית" : "Third point"] }}
+                                theme={th}
+                                doc={doc}
+                                interactive={false}
+                              />
+                            </div>
+                          </div>
+                          <div className={styles.themeCardName}>{lang === "he" ? th.name_he : th.name_en}</div>
+                          <div className={styles.themeSwatches}>
+                            <span style={{ background: p.coverBg }} />
+                            <span style={{ background: p.bg, border: "1px solid #ccc" }} />
+                            <span style={{ background: p.accent }} />
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Per-deck formatting overrides */}
+            <div ref={formatPanelRef} style={{ position: "relative" }}>
+              <button type="button" onClick={() => setFormatOpen((o) => !o)}
+                className="text-xs px-2 py-1 rounded border border-[color:var(--app-border)] hover:bg-neutral-50">
+                {t.deck.format}
+              </button>
+              {formatOpen && (
+                <div className={styles.formatPanel} dir={t.dir}>
+                  <div className={styles.formatPanelTitle}>{t.deck.format}</div>
+                  <div className={styles.formatPanelHint}>{t.deck.formatHint}</div>
+
+                  <Row label={t.deck.titleFont}>
+                    <FontSelect value={doc.formatting.titleFont} onChange={(v) => st.setFormatting({ titleFont: v })} />
+                  </Row>
+                  <Row label={t.deck.bodyFont}>
+                    <FontSelect value={doc.formatting.bodyFont} onChange={(v) => st.setFormatting({ bodyFont: v })} />
+                  </Row>
+                  <Row label={t.deck.accentColor}>
+                    <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+                      <input type="color"
+                        value={doc.formatting.accentColor || PALETTES[selectedTheme.palette].accent}
+                        onChange={(e) => st.setFormatting({ accentColor: e.target.value })}
+                        style={{ width: 40, height: 28, border: "1px solid #ccc", borderRadius: 4, cursor: "pointer" }}
+                      />
+                      <button type="button"
+                        onClick={() => st.setFormatting({ accentColor: "" })}
+                        style={{ fontSize: 11, padding: "4px 8px", border: "1px solid #ddd", borderRadius: 4, background: "white", cursor: "pointer" }}
+                      >{t.deck.useTheme}</button>
+                    </div>
+                  </Row>
+                  <Row label={`${t.deck.titleSize} — ×${doc.formatting.titleScale.toFixed(2)}`}>
+                    <input type="range" min={0.7} max={1.4} step={0.05}
+                      value={doc.formatting.titleScale}
+                      onChange={(e) => st.setFormatting({ titleScale: Number(e.target.value) })}
+                      style={{ width: "100%" }}
+                    />
+                  </Row>
+                  <Row label={`${t.deck.bodySize} — ×${doc.formatting.bodyScale.toFixed(2)}`}>
+                    <input type="range" min={0.7} max={1.4} step={0.05}
+                      value={doc.formatting.bodyScale}
+                      onChange={(e) => st.setFormatting({ bodyScale: Number(e.target.value) })}
+                      style={{ width: "100%" }}
+                    />
+                  </Row>
+                  <button type="button" onClick={st.resetFormatting}
+                    className={styles.formatResetBtn}>
+                    {t.deck.resetFormat}
+                  </button>
+                </div>
+              )}
+            </div>
+
+            <button type="button" onClick={() => switchLang(lang === "he" ? "en" : "he")} disabled={translating}
+              className="text-xs px-2 py-1 rounded border border-[color:var(--app-border)] hover:bg-neutral-50 disabled:opacity-50">
               {translating ? t.translating : t.langToggle}
             </button>
-            <button
-              type="button"
-              onClick={handleExportPptx}
-              className="text-xs px-3 py-1.5 rounded bg-[color:var(--app-accent)] text-white"
-            >
-              {t.deck.exportPptx}
-            </button>
-            <button
-              type="button"
-              onClick={handleExportPdf}
-              className="text-xs px-3 py-1.5 rounded border border-[color:var(--app-border)] hover:bg-neutral-50"
-            >
-              {t.deck.exportPdf}
-            </button>
+            <button type="button" onClick={handleExportPptx}
+              className="text-xs px-3 py-1.5 rounded bg-[color:var(--app-accent)] text-white">{t.deck.exportPptx}</button>
+            <button type="button" onClick={handleExportPdf}
+              className="text-xs px-3 py-1.5 rounded border border-[color:var(--app-border)] hover:bg-neutral-50">{t.deck.exportPdf}</button>
           </div>
         </header>
 
@@ -168,17 +249,9 @@ export function DeckEditor() {
               <div key={i} className={styles.thumbItem} onClick={() => setCurrentSlide(i)}>
                 <div className={styles.thumbIndex}>{i + 1}</div>
                 <div className={`${styles.thumbFrame} ${i === slideIdx ? styles.selected : ""}`}>
-                  <div
-                    className={styles.thumbInner}
-                    style={{ transform: `scale(${THUMB_SCALE})`, width: SLIDE_W, height: SLIDE_H }}
-                  >
-                    <SlideView
-                      slide={sl}
-                      theme={selectedTheme}
-                      company={doc.company}
-                      date={doc.date}
-                      interactive={false}
-                    />
+                  <div className={styles.thumbInner}
+                    style={{ transform: `scale(${THUMB_SCALE})`, width: SLIDE_W, height: SLIDE_H }}>
+                    <SlideView slide={sl} theme={selectedTheme} doc={doc} interactive={false} />
                   </div>
                 </div>
               </div>
@@ -190,17 +263,13 @@ export function DeckEditor() {
 
           {/* Canvas + controls */}
           <div className={styles.canvasArea}>
-            {/* Main slide canvas */}
             <div ref={canvasRef} className={styles.canvasOuter}>
-              <div
-                className={styles.canvasInner}
-                style={{ transform: `scale(${canvasScale})`, width: SLIDE_W, height: SLIDE_H }}
-              >
+              <div className={styles.canvasInner}
+                style={{ transform: `scale(${canvasScale})`, width: SLIDE_W, height: SLIDE_H }}>
                 <SlideView
                   slide={slide}
                   theme={selectedTheme}
-                  company={doc.company}
-                  date={doc.date}
+                  doc={doc}
                   interactive
                   onChange={(patch) => st.setSlide(slideIdx, patch)}
                   onBulletChange={(bi, v) => st.setBullet(slideIdx, bi, v)}
@@ -210,93 +279,85 @@ export function DeckEditor() {
               </div>
             </div>
 
-            {/* Controls bar */}
             <div className={styles.controls} dir={t.dir}>
-              {/* Nav */}
-              <button
-                type="button"
-                className={styles.navBtn}
-                disabled={slideIdx === 0}
-                onClick={() => setCurrentSlide(slideIdx - 1)}
-              >
-                {t.dir === "rtl" ? "→" : "←"}
-              </button>
-              <span className={styles.slideCounter}>
-                {t.deck.slideCounter(slideIdx + 1, doc.slides.length)}
-              </span>
-              <button
-                type="button"
-                className={styles.navBtn}
-                disabled={slideIdx === doc.slides.length - 1}
-                onClick={() => setCurrentSlide(slideIdx + 1)}
-              >
-                {t.dir === "rtl" ? "←" : "→"}
-              </button>
+              <button type="button" className={styles.navBtn} disabled={slideIdx === 0}
+                onClick={() => setCurrentSlide(slideIdx - 1)}>{t.dir === "rtl" ? "→" : "←"}</button>
+              <span className={styles.slideCounter}>{t.deck.slideCounter(slideIdx + 1, doc.slides.length)}</span>
+              <button type="button" className={styles.navBtn} disabled={slideIdx === doc.slides.length - 1}
+                onClick={() => setCurrentSlide(slideIdx + 1)}>{t.dir === "rtl" ? "←" : "→"}</button>
 
               <div className={styles.controlsDivider} />
 
-              {/* Layout picker */}
               {LAYOUTS.map((layout) => {
-                const label = {
-                  cover: t.deck.layoutCover,
-                  content: t.deck.layoutContent,
-                  section: t.deck.layoutSection,
-                  quote: t.deck.layoutQuote,
-                }[layout];
+                const label = { cover: t.deck.layoutCover, content: t.deck.layoutContent, section: t.deck.layoutSection, quote: t.deck.layoutQuote }[layout];
                 return (
-                  <button
-                    key={layout}
-                    type="button"
+                  <button key={layout} type="button"
                     className={`${styles.layoutBtn} ${slide.layout === layout ? styles.layoutBtnActive : ""}`}
-                    onClick={() => st.setSlide(slideIdx, { layout })}
-                  >
-                    {label}
-                  </button>
+                    onClick={() => st.setSlide(slideIdx, { layout })}>{label}</button>
                 );
               })}
 
               <div className={styles.controlsDivider} />
 
-              {/* Delete slide */}
+              <button type="button" className={styles.layoutBtn}
+                onClick={() => { st.duplicateSlide(slideIdx); setCurrentSlide(slideIdx + 1); }}>
+                {t.deck.duplicateSlide}
+              </button>
               {doc.slides.length > 1 && (
-                <button
-                  type="button"
-                  className={styles.deleteSlideBtn}
-                  onClick={() => handleRemoveSlide(slideIdx)}
-                >
-                  × {t.deck.removeSlide}
-                </button>
+                <button type="button" className={styles.deleteSlideBtn}
+                  onClick={() => handleRemoveSlide(slideIdx)}>× {t.deck.removeSlide}</button>
               )}
             </div>
           </div>
         </div>
       </div>
 
-      {/* ─── Print-only container (all slides) ─── */}
+      {/* Print-only container */}
       <div className={styles.printOnly}>
         {doc.slides.map((sl, i) => (
           <div key={i} className={styles.printPage}>
             <div className={styles.printSlide}>
-              <div
-                className={styles.printSlideInner}
-                style={{
-                  width: SLIDE_W,
-                  height: SLIDE_H,
-                  transform: "scale(var(--print-scale, 1))",
-                }}
-              >
-                <SlideView
-                  slide={sl}
-                  theme={selectedTheme}
-                  company={doc.company}
-                  date={doc.date}
-                  interactive={false}
-                />
+              <div className={styles.printSlideInner}
+                style={{ width: SLIDE_W, height: SLIDE_H, transform: "scale(var(--print-scale, 1))" }}>
+                <SlideView slide={sl} theme={selectedTheme} doc={doc} interactive={false} />
               </div>
             </div>
           </div>
         ))}
       </div>
     </>
+  );
+}
+
+// ─── Helpers for the formatting panel ────────────────────────
+
+function Row({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <label style={{ display: "block", marginBottom: 12 }}>
+      <span style={{ display: "block", fontSize: 11, fontWeight: 700, marginBottom: 6, color: "#374151" }}>{label}</span>
+      {children}
+    </label>
+  );
+}
+
+const FONT_OPTIONS: { id: string; label: string; css: string }[] = [
+  { id: "",                                  label: "ברירת מחדל / Theme default", css: "" },
+  { id: "Georgia, 'David Libre', serif",     label: "Georgia / David",             css: "Georgia, 'David Libre', serif" },
+  { id: "'Frank Ruhl Libre', Georgia, serif",label: "Frank Ruhl Libre",            css: "'Frank Ruhl Libre', Georgia, serif" },
+  { id: "'David Libre', Georgia, serif",     label: "David Libre",                 css: "'David Libre', Georgia, serif" },
+  { id: "'Heebo', Arial, sans-serif",        label: "Heebo",                       css: "'Heebo', Arial, sans-serif" },
+  { id: "'Helvetica Neue', Arial, sans-serif", label: "Helvetica / Modern",        css: "'Helvetica Neue', Arial, sans-serif" },
+  { id: "Arial, sans-serif",                 label: "Arial",                       css: "Arial, sans-serif" },
+  { id: "'Times New Roman', serif",          label: "Times New Roman",             css: "'Times New Roman', serif" },
+];
+
+function FontSelect({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  return (
+    <select value={value} onChange={(e) => onChange(e.target.value)}
+      style={{ width: "100%", padding: "5px 8px", fontSize: 12, border: "1px solid #d1d5db", borderRadius: 4, background: "white" }}>
+      {FONT_OPTIONS.map((o) => (
+        <option key={o.id} value={o.id} style={{ fontFamily: o.css || undefined }}>{o.label}</option>
+      ))}
+    </select>
   );
 }

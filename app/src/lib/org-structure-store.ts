@@ -7,6 +7,7 @@ import {
   emptyAuthorityRow, emptyDivision, emptyGovernanceRow, emptyOrgStructure,
   type AuthorityRow, type Division, type GovernanceRow, type OrgStructure,
 } from "./schemas/org-structure";
+import { sampleStraussOrg } from "./samples/strauss-samples";
 
 type S = OrgStructure;
 type State = {
@@ -47,7 +48,7 @@ export const useOrgStructureStore = create<State>((set, get) => ({
   setAuthority: (i, p) => set((s) => ({ doc: { ...s.doc, authority: setRow(s.doc.authority, i, p) } })),
   addAuthority: () => set((s) => ({ doc: { ...s.doc, authority: [...s.doc.authority, emptyAuthorityRow()] } })),
   removeAuthority: (i) => set((s) => ({ doc: { ...s.doc, authority: removeAt(s.doc.authority, i) } })),
-  loadSample: () => set({ doc: sampleOrg() }),
+  loadSample: () => set({ doc: sampleStraussOrg() }),
   reset: () => set({ doc: emptyOrgStructure() }),
   translate: async (from, to) => {
     set({ doc: await translateAnyDoc(get().doc, from, to) });

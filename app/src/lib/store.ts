@@ -11,6 +11,7 @@ import {
   type KpiDocument,
   type ScorecardRow,
 } from "./schemas/kpis";
+import { sampleStraussKpi } from "./samples/strauss-samples";
 
 type KpiState = {
   doc: KpiDocument;
@@ -57,7 +58,7 @@ export const useKpiStore = create<KpiState>((set, get) => ({
         scorecard: s.doc.scorecard.length > 1 ? s.doc.scorecard.filter((_, i) => i !== index) : s.doc.scorecard,
       },
     })),
-  loadSample: () => set({ doc: sampleKpiDocument() }),
+  loadSample: () => set({ doc: sampleStraussKpi() }),
   reset: () => set({ doc: emptyKpiDocument() }),
   translate: async (from, to) => {
     const translated = await translateDoc(get().doc, from, to);

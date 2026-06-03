@@ -233,6 +233,142 @@
   background: #fef2f2;
 }
 
+/* ─── Theme gallery popover ─── */
+.themeGallery {
+  position: absolute;
+  top: calc(100% + 6px);
+  inset-inline-end: 0;
+  width: 720px;
+  max-height: 70vh;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+  z-index: 100;
+  padding: 16px;
+}
+
+.themeGalleryHeader {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.themeGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 10px;
+}
+
+.themeCard {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  padding: 6px;
+  background: white;
+  border: 2px solid #e5e7eb;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: border-color 0.12s, transform 0.12s;
+  text-align: start;
+}
+
+.themeCard:hover:not(.themeCardSelected) {
+  border-color: #93c5fd;
+  transform: translateY(-1px);
+}
+
+.themeCardSelected {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+}
+
+.themeMiniWrap {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  position: relative;
+  overflow: hidden;
+  border-radius: 3px;
+  background: #f5f5f5;
+}
+
+.themeMiniInner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: top left;
+}
+
+.themeCardName {
+  font-size: 11px;
+  color: #1f2937;
+  font-weight: 600;
+  margin-top: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.themeSwatches {
+  display: flex;
+  gap: 3px;
+  margin-top: 4px;
+}
+
+.themeSwatches span {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+}
+
+/* ─── Format panel popover ─── */
+.formatPanel {
+  position: absolute;
+  top: calc(100% + 6px);
+  inset-inline-end: 0;
+  width: 280px;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+  z-index: 100;
+  padding: 14px;
+}
+
+.formatPanelTitle {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 4px;
+}
+
+.formatPanelHint {
+  font-size: 11px;
+  color: #6b7280;
+  margin-bottom: 12px;
+  line-height: 1.4;
+}
+
+.formatResetBtn {
+  width: 100%;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  padding: 6px 10px;
+  font-size: 12px;
+  color: #4b5563;
+  cursor: pointer;
+  margin-top: 4px;
+}
+
+.formatResetBtn:hover {
+  background: #f9fafb;
+}
+
 /* ─── Print styles ─── */
 .printOnly {
   display: none;

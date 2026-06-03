@@ -9,6 +9,7 @@ import {
   type BaseRow, type FinanceRow, type GrowthEngine, type PortfolioRow, type RiskRow,
   type StrategyDocument,
 } from "./schemas/strategy-document";
+import { sampleStraussStrategy } from "./samples/strauss-samples";
 
 type S = StrategyDocument;
 type State = {
@@ -74,7 +75,7 @@ export const useStrategyDocStore = create<State>((set, get) => ({
   setRisk: (i, p) => set((s) => ({ doc: { ...s.doc, risks: setRow(s.doc.risks, i, p) } })),
   addRisk: () => set((s) => ({ doc: { ...s.doc, risks: [...s.doc.risks, emptyRiskRow()] } })),
   removeRisk: (i) => set((s) => ({ doc: { ...s.doc, risks: removeAt(s.doc.risks, i) } })),
-  loadSample: () => set({ doc: sampleStrategy() }),
+  loadSample: () => set({ doc: sampleStraussStrategy() }),
   reset: () => set({ doc: emptyStrategyDocument() }),
   translate: async (from, to) => {
     const translated = await translateAnyDoc(get().doc, from, to);
