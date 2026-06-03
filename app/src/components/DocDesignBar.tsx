@@ -357,13 +357,12 @@ function useClickOutside(ref: React.RefObject<HTMLDivElement | null>, active: bo
   }, [active, ref, onClose]);
 }
 
-const popoverStyle = (isHe: boolean): CSSProperties => ({
+// html[dir=rtl] is always set in layout.tsx — use a logical property
+// so the popover anchors to the inline-end edge in any direction.
+const popoverStyle = (_isHe: boolean): CSSProperties => ({
   position: "absolute",
   top: "calc(100% + 4px)",
-  // In RTL the buttons sit on the LEFT side of the screen; anchor the
-  // popover's left edge so it grows rightward. In LTR anchor the right
-  // edge so it grows leftward (doesn't overflow right side of screen).
-  ...(isHe ? { left: 0 } : { right: 0 }),
+  insetInlineEnd: 0,
   width: 420,
   maxHeight: "calc(100vh - 80px)",
   overflowY: "auto",
