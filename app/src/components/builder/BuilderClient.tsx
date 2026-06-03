@@ -114,7 +114,7 @@ export function BuilderClient() {
         </div>
       </header>
 
-      <main style={{ flex: 1, padding: "1.5rem", overflowY: "auto", background: "#fafafa" }}>
+      <main style={{ flex: 1, padding: "1.5rem", overflowY: "auto", background: "transparent" }}>
         <div style={{ maxWidth: 900, margin: "0 auto" }}>
           {/* Schema name */}
           <section style={card}>

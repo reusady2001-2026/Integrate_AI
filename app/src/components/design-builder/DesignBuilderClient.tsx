@@ -108,7 +108,7 @@ export function DesignBuilderClient() {
 
       <main style={{ flex: 1, display: "flex", overflow: "hidden" }}>
         {/* Live preview */}
-        <section style={{ flex: 1, overflowY: "auto", padding: "1.5rem", background: "#f4f4f6" }}>
+        <section style={{ flex: 1, overflowY: "auto", padding: "1.5rem", background: "transparent" }}>
           <DesignPreview design={design} lang={lang} />
         </section>
 
