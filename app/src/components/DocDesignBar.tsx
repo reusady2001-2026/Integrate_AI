@@ -64,7 +64,7 @@ export function DocDesignBar({
         </button>
 
         {themeOpen && (
-          <div style={popoverStyle(isHe)} dir={isHe ? "rtl" : "ltr"}>
+          <div style={popoverStyle(isHe)}><div style={{ padding: 14 }} dir={isHe ? "rtl" : "ltr"}>
             <div style={popoverHeader}>{isHe ? "עיצוב מסמך" : "Document theme"}</div>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 8, maxHeight: 420, overflowY: "auto" }}>
               {DOC_THEMES.map((th) => {
@@ -95,7 +95,7 @@ export function DocDesignBar({
                 );
               })}
             </div>
-          </div>
+          </div></div>
         )}
       </div>
 
@@ -115,7 +115,7 @@ export function DocDesignBar({
         </button>
 
         {paletteOpen && (
-          <div style={popoverStyle(isHe)} dir={isHe ? "rtl" : "ltr"}>
+          <div style={popoverStyle(isHe)}><div style={{ padding: 14 }} dir={isHe ? "rtl" : "ltr"}>
             <div style={popoverHeader}>{isHe ? "פלטת צבעים" : "Colour palette"}</div>
 
             <div style={sectionLabel}>{isHe ? "ערכת צבעים בסיסית" : "Base colour set"}</div>
@@ -155,7 +155,7 @@ export function DocDesignBar({
               style={{ marginTop: 12, width: "100%", padding: "6px 0", fontSize: 11, border: "1px solid #d1d5db", borderRadius: 5, cursor: "pointer", background: "white", color: "#6b7280" }}>
               {isHe ? "איפוס כל העיצוב" : "Reset all design"}
             </button>
-          </div>
+          </div></div>
         )}
       </div>
 
@@ -170,7 +170,7 @@ export function DocDesignBar({
         </button>
 
         {formatOpen && (
-          <div style={{ ...popoverStyle(isHe), width: 320 }} dir={isHe ? "rtl" : "ltr"}>
+          <div style={{ ...popoverStyle(isHe), width: 320 }}><div style={{ padding: 14 }} dir={isHe ? "rtl" : "ltr"}>
             <div style={popoverHeader}>{isHe ? "פורמטציה" : "Formatting"}</div>
 
             <FmtRow label={isHe ? "גופן כותרות" : "Heading font"}>
@@ -221,7 +221,7 @@ export function DocDesignBar({
               style={{ width: "100%", padding: "5px 0", fontSize: 11, border: "1px solid #d1d5db", borderRadius: 5, cursor: "pointer", background: "white", color: "#6b7280" }}>
               {isHe ? "איפוס פורמט" : "Reset format"}
             </button>
-          </div>
+          </div></div>
         )}
       </div>
     </>
@@ -357,12 +357,17 @@ function useClickOutside(ref: React.RefObject<HTMLDivElement | null>, active: bo
   }, [active, ref, onClose]);
 }
 
-// html[dir=rtl] is always set in layout.tsx — use a logical property
-// so the popover anchors to the inline-end edge in any direction.
+// html[dir=rtl] is always set in layout.tsx, so the design buttons always
+// sit on the visual LEFT of the screen. Always anchor the popover's left
+// edge so it grows rightward and stays in-viewport.
+// IMPORTANT: do NOT put the dir attribute on this element — if dir="ltr"
+// is on the same element as inset-inline-end, the browser resolves that
+// logical property as "right" (LTR end), sending the panel off-screen.
+// The dir attribute belongs on the inner content wrapper instead.
 const popoverStyle = (_isHe: boolean): CSSProperties => ({
   position: "absolute",
   top: "calc(100% + 4px)",
-  insetInlineEnd: 0,
+  left: 0,
   width: 420,
   maxHeight: "calc(100vh - 80px)",
   overflowY: "auto",
@@ -370,7 +375,6 @@ const popoverStyle = (_isHe: boolean): CSSProperties => ({
   border: "1px solid #e2e8f0",
   borderRadius: 8,
   boxShadow: "0 8px 24px rgba(0,0,0,0.12)",
-  padding: 14,
   zIndex: 100,
 });
 
