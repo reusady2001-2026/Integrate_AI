@@ -6,20 +6,18 @@ import { LandingPage } from "@/components/LandingPage";
 import { KpiTemplate } from "@/templates/kpis/Template";
 import { JobTemplate } from "@/templates/job-description/Template";
 import { StrategyDocumentTemplate } from "@/templates/strategy-document/Template";
-import { StrategyDeckTemplate } from "@/templates/strategy-deck/Template";
+import { DeckEditor } from "@/templates/strategy-deck/DeckEditor";
 import { OrgStructureTemplate } from "@/templates/org-structure/Template";
 import { WorkflowTemplate } from "@/templates/workflows/Template";
 import { useKpiStore } from "@/lib/store";
 import { useJobStore } from "@/lib/job-store";
 import { useStrategyDocStore } from "@/lib/strategy-doc-store";
-import { useStrategyDeckStore } from "@/lib/strategy-deck-store";
 import { useOrgStructureStore } from "@/lib/org-structure-store";
 import { useWorkflowStore } from "@/lib/workflow-store";
 import { useAppStore } from "@/lib/app-store";
 import { renderKpiDocx } from "@/lib/export/kpi-docx";
 import { renderJobDocx } from "@/lib/export/job-docx";
 import { renderStrategyDocDocx } from "@/lib/export/strategy-doc-docx";
-import { renderStrategyDeckDocx } from "@/lib/export/strategy-deck-docx";
 import { renderOrgStructureDocx } from "@/lib/export/org-structure-docx";
 import { renderWorkflowDocx } from "@/lib/export/workflow-docx";
 
@@ -31,7 +29,6 @@ export default function HomePage() {
   const kpiDoc = useKpiStore((s) => s.doc);
   const jobDoc = useJobStore((s) => s.doc);
   const sdocDoc = useStrategyDocStore((s) => s.doc);
-  const sdeckDoc = useStrategyDeckStore((s) => s.doc);
   const orgDoc = useOrgStructureStore((s) => s.doc);
   const wfDoc = useWorkflowStore((s) => s.doc);
 
@@ -49,15 +46,14 @@ export default function HomePage() {
       case "strategy-document":
         blob = await renderStrategyDocDocx(sdocDoc, lang, formatting);
         name = sdocDoc.company || "untitled"; prefix = "strategy"; break;
-      case "strategy-deck":
-        blob = await renderStrategyDeckDocx(sdeckDoc, lang, formatting);
-        name = sdeckDoc.company || "untitled"; prefix = "deck"; break;
       case "org-structure":
         blob = await renderOrgStructureDocx(orgDoc, lang, formatting);
         name = orgDoc.company || "untitled"; prefix = "org"; break;
       case "workflow":
         blob = await renderWorkflowDocx(wfDoc, lang, formatting);
         name = wfDoc.name || "untitled"; prefix = "workflow"; break;
+      default:
+        return;
     }
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -67,16 +63,18 @@ export default function HomePage() {
     a.click();
     a.remove();
     URL.revokeObjectURL(url);
-  }, [artifact, kpiDoc, jobDoc, sdocDoc, sdeckDoc, orgDoc, wfDoc, lang, formatting]);
+  }, [artifact, kpiDoc, jobDoc, sdocDoc, orgDoc, wfDoc, lang, formatting]);
 
   if (view === "home") return <LandingPage />;
+
+  // Strategy deck has its own full-page editor
+  if (artifact === "strategy-deck") return <DeckEditor />;
 
   const template = (() => {
     switch (artifact) {
       case "kpi": return <KpiTemplate />;
       case "job-description": return <JobTemplate />;
       case "strategy-document": return <StrategyDocumentTemplate />;
-      case "strategy-deck": return <StrategyDeckTemplate />;
       case "org-structure": return <OrgStructureTemplate />;
       case "workflow": return <WorkflowTemplate />;
     }

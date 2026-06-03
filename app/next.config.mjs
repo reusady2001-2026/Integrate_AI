@@ -10,6 +10,34 @@ const nextConfig = {
   trailingSlash: true,
   images: { unoptimized: true },
   reactStrictMode: true,
+  webpack: (config, { isServer, webpack }) => {
+    if (!isServer) {
+      // pptxgenjs uses node: protocol imports; strip the prefix so fallback can catch them
+      config.plugins.push(
+        new webpack.NormalModuleReplacementPlugin(/^node:/, (res) => {
+          res.request = res.request.replace(/^node:/, "");
+        }),
+      );
+      config.resolve = config.resolve ?? {};
+      config.resolve.fallback = {
+        ...(config.resolve.fallback ?? {}),
+        fs: false,
+        path: false,
+        stream: false,
+        http: false,
+        https: false,
+        url: false,
+        crypto: false,
+        os: false,
+        buffer: false,
+        zlib: false,
+        net: false,
+        tls: false,
+        child_process: false,
+      };
+    }
+    return config;
+  },
 };
 
 export default nextConfig;
