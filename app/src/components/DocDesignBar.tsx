@@ -66,7 +66,7 @@ export function DocDesignBar({
         {themeOpen && (
           <div style={popoverStyle(isHe)} dir={isHe ? "rtl" : "ltr"}>
             <div style={popoverHeader}>{isHe ? "עיצוב מסמך" : "Document theme"}</div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8, maxHeight: 420, overflowY: "auto" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 8, maxHeight: 420, overflowY: "auto" }}>
               {DOC_THEMES.map((th) => {
                 const isSelected = th.id === design.theme;
                 const thEff = resolveDocTheme(th.id, { ...defaultDocDesign(), theme: th.id });
@@ -115,11 +115,11 @@ export function DocDesignBar({
         </button>
 
         {paletteOpen && (
-          <div style={{ ...popoverStyle(isHe), width: 360 }} dir={isHe ? "rtl" : "ltr"}>
+          <div style={popoverStyle(isHe)} dir={isHe ? "rtl" : "ltr"}>
             <div style={popoverHeader}>{isHe ? "פלטת צבעים" : "Colour palette"}</div>
 
             <div style={sectionLabel}>{isHe ? "ערכת צבעים בסיסית" : "Base colour set"}</div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 5, marginBottom: 14 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 5, marginBottom: 14 }}>
               <button type="button"
                 onClick={() => setDocPaletteOverride("")}
                 style={{ ...palettePresetBtn, border: !design.paletteOverride ? "2px solid var(--app-accent)" : "1px solid #d1d5db", background: !design.paletteOverride ? "#f0f7ff" : "white" }}>
@@ -170,7 +170,7 @@ export function DocDesignBar({
         </button>
 
         {formatOpen && (
-          <div style={{ ...popoverStyle(isHe), width: 280 }} dir={isHe ? "rtl" : "ltr"}>
+          <div style={{ ...popoverStyle(isHe), width: 320 }} dir={isHe ? "rtl" : "ltr"}>
             <div style={popoverHeader}>{isHe ? "פורמטציה" : "Formatting"}</div>
 
             <FmtRow label={isHe ? "גופן כותרות" : "Heading font"}>
@@ -357,11 +357,13 @@ function useClickOutside(ref: React.RefObject<HTMLDivElement | null>, active: bo
   }, [active, ref, onClose]);
 }
 
-const popoverStyle = (isHe: boolean): CSSProperties => ({
+const popoverStyle = (_isHe: boolean): CSSProperties => ({
   position: "absolute",
   top: "calc(100% + 4px)",
-  [isHe ? "insetInlineStart" : "insetInlineEnd"]: 0,
-  width: 460,
+  right: 0,
+  width: 420,
+  maxHeight: "calc(100vh - 80px)",
+  overflowY: "auto",
   background: "white",
   border: "1px solid #e2e8f0",
   borderRadius: 8,
