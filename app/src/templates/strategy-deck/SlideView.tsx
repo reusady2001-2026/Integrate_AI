@@ -751,7 +751,7 @@ function BulletList(ctx: RenderCtx, marker?: Marker, opts?: {
             alignItems: "flex-start",
             gap: 14,
             marginBottom: gap,
-            flexDirection: isRtl ? "row-reverse" : "row",
+            flexDirection: "row",
             ...opts?.itemStyle,
           }}
         >
@@ -927,7 +927,7 @@ function ColumnList({ ctx, items, startIndex }: { ctx: RenderCtx; items: string[
       {items.map((b, j) => {
         const bi = startIndex + j;
         return (
-          <div key={bi} style={{ display: "flex", alignItems: "flex-start", gap: 10, marginBottom: 12, flexDirection: isRtl ? "row-reverse" : "row" }}>
+          <div key={bi} style={{ display: "flex", alignItems: "flex-start", gap: 10, marginBottom: 12, flexDirection: "row" }}>
             <span style={{ width: 6, height: 6, borderRadius: "50%", background: eff.accent, flexShrink: 0, marginTop: "0.55em" }} />
             <div style={{ flex: 1, fontSize: 16 * ctx.eff.bodyScale, lineHeight: 1.5, color: eff.palette.text }}>
               {ctx.interactive ? (
@@ -1084,7 +1084,7 @@ function ContentStripeCards(ctx: RenderCtx) {
             display: "flex",
             alignItems: "stretch",
             marginBottom: 10,
-            flexDirection: isRtl ? "row-reverse" : "row",
+            flexDirection: "row",
             background: eff.palette.bgAlt,
             overflow: "hidden",
           }}>
@@ -1160,7 +1160,7 @@ function ContentCardStack(ctx: RenderCtx) {
           <div key={bi} style={{
             display: "flex", alignItems: "center", gap: 14, padding: "12px 16px",
             background: eff.palette.bgAlt, borderTop: `2px solid ${eff.accent}`,
-            flexDirection: isRtl ? "row-reverse" : "row",
+            flexDirection: "row",
           }}>
             <span style={{ fontSize: 22, fontWeight: 700, fontFamily: eff.font.display, color: eff.accent, minWidth: 24 }}>{String(bi + 1).padStart(2, "0")}</span>
             <div style={{ flex: 1, fontSize: 16 * ctx.eff.bodyScale, lineHeight: 1.5, color: eff.palette.text, fontFamily: eff.font.body }}>
