@@ -4,13 +4,24 @@ import { create } from "zustand";
 import type { Lang } from "./i18n";
 import { defaultFormatting, type Formatting } from "./formatting";
 
-export type Artifact =
+export type BuiltinArtifact =
   | "kpi"
   | "job-description"
   | "strategy-document"
   | "strategy-deck"
   | "org-structure"
   | "workflow";
+
+export type CustomArtifact = `custom:${string}`;
+export type Artifact = BuiltinArtifact | CustomArtifact;
+
+export const BUILTIN_ARTIFACTS: BuiltinArtifact[] = [
+  "kpi", "job-description", "strategy-document", "strategy-deck", "org-structure", "workflow",
+];
+
+export const isCustomArtifact = (a: string): a is CustomArtifact => a.startsWith("custom:");
+export const customSchemaIdFrom = (a: CustomArtifact): string => a.slice("custom:".length);
+export const artifactFromSchemaId = (id: string): CustomArtifact => `custom:${id}`;
 
 export type View = "home" | "editor";
 

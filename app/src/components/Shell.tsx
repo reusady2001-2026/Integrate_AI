@@ -1,24 +1,21 @@
 "use client";
 
-import { type ReactNode } from "react";
-import { useAppStore, type Artifact } from "@/lib/app-store";
+import { useEffect, type ReactNode } from "react";
+import {
+  useAppStore, BUILTIN_ARTIFACTS, isCustomArtifact, customSchemaIdFrom,
+  type Artifact,
+} from "@/lib/app-store";
 import { useKpiStore } from "@/lib/store";
 import { useJobStore } from "@/lib/job-store";
 import { useStrategyDocStore } from "@/lib/strategy-doc-store";
 import { useStrategyDeckStore } from "@/lib/strategy-deck-store";
 import { useOrgStructureStore } from "@/lib/org-structure-store";
 import { useWorkflowStore } from "@/lib/workflow-store";
+import { useUserSchemasStore } from "@/lib/user-schemas";
+import { useCustomDocStore } from "@/lib/custom-doc-store";
+import { localizedText } from "@/lib/blocks";
 import { strings, type Lang } from "@/lib/i18n";
 import { DocDesignBar, type DocDesignProps } from "./DocDesignBar";
-
-const ARTIFACTS: Artifact[] = [
-  "kpi",
-  "job-description",
-  "strategy-document",
-  "strategy-deck",
-  "org-structure",
-  "workflow",
-];
 
 export function Shell({
   preview,
@@ -43,17 +40,39 @@ export function Shell({
   const org = useOrgStructureStore();
   const wf = useWorkflowStore();
 
-  const stores = { kpi, "job-description": job, "strategy-document": sdoc, "strategy-deck": sdeck, "org-structure": org, workflow: wf };
-  const current = stores[artifact];
+  const userSchemas = useUserSchemasStore((s) => s.schemas);
+  const hydrateSchemas = useUserSchemasStore((s) => s.hydrate);
+  useEffect(() => { hydrateSchemas(); }, [hydrateSchemas]);
+
+  const customSchemaId = isCustomArtifact(artifact) ? customSchemaIdFrom(artifact) : null;
+  const customSchema = customSchemaId ? userSchemas.find((s) => s.id === customSchemaId) : null;
+  const customDoc = useCustomDocStore((s) => (customSchemaId ? s.byId[customSchemaId] : undefined));
+  const customStore = useCustomDocStore();
+
+  const builtinStores = { kpi, "job-description": job, "strategy-document": sdoc, "strategy-deck": sdeck, "org-structure": org, workflow: wf };
+
+  const current = isCustomArtifact(artifact)
+    ? {
+        loadSample: () => {/* custom docs have no canned sample */},
+        reset: () => { if (customSchema) customStore.reset(customSchema); },
+      }
+    : builtinStores[artifact];
 
   // Build DocDesignBar props from the current artifact's store
   const docDesignProps: DocDesignProps | null = (() => {
+    if (customSchemaId && customDoc) {
+      return {
+        design:               customDoc.design,
+        setDocTheme:          (id) => customStore.setDocTheme(customSchemaId, id),
+        setDocPaletteOverride:(id) => customStore.setDocPaletteOverride(customSchemaId, id),
+        setDocCustomPalette:  (p)  => customStore.setDocCustomPalette(customSchemaId, p),
+        resetDocDesign:       ()   => customStore.resetDocDesign(customSchemaId),
+        setDocFormatting:     (p)  => customStore.setDocFormatting(customSchemaId, p),
+        lang,
+      };
+    }
     const storeMap = {
-      kpi:                kpi,
-      "job-description":  job,
-      "strategy-document": sdoc,
-      "org-structure":    org,
-      workflow:           wf,
+      kpi, "job-description": job, "strategy-document": sdoc, "org-structure": org, workflow: wf,
     };
     const s = storeMap[artifact as keyof typeof storeMap];
     if (!s) return null;
@@ -71,7 +90,7 @@ export function Shell({
   const switchLang = async (to: Lang) => {
     if (lang === to) return;
     setTranslating(true);
-    await Promise.all(Object.values(stores).map((s) => s.translate(lang, to)));
+    await Promise.all(Object.values(builtinStores).map((s) => s.translate(lang, to)));
     setLang(to);
     setTranslating(false);
   };
@@ -95,9 +114,18 @@ export function Shell({
             className="font-display text-base bg-transparent border-0 outline-none cursor-pointer hover:opacity-70"
             aria-label="artifact"
           >
-            {ARTIFACTS.map((a) => (
+            {BUILTIN_ARTIFACTS.map((a) => (
               <option key={a} value={a}>{t.artifacts[a].title}</option>
             ))}
+            {userSchemas.length > 0 && (
+              <optgroup label={lang === "he" ? "המסמכים שלי" : "My documents"}>
+                {userSchemas.map((s) => (
+                  <option key={s.id} value={`custom:${s.id}`}>
+                    {localizedText(s.name, lang) || (lang === "he" ? "ללא שם" : "Untitled")}
+                  </option>
+                ))}
+              </optgroup>
+            )}
           </select>
           <span className="text-[color:var(--app-border)]">|</span>
           <button type="button" onClick={current.loadSample} className="btn-secondary">{t.loadSample}</button>

@@ -9,12 +9,13 @@ import { StrategyDocumentTemplate } from "@/templates/strategy-document/Template
 import { DeckEditor } from "@/templates/strategy-deck/DeckEditor";
 import { OrgStructureTemplate } from "@/templates/org-structure/Template";
 import { WorkflowTemplate } from "@/templates/workflows/Template";
+import { CustomDocTemplate } from "@/templates/custom/Template";
 import { useKpiStore } from "@/lib/store";
 import { useJobStore } from "@/lib/job-store";
 import { useStrategyDocStore } from "@/lib/strategy-doc-store";
 import { useOrgStructureStore } from "@/lib/org-structure-store";
 import { useWorkflowStore } from "@/lib/workflow-store";
-import { useAppStore } from "@/lib/app-store";
+import { useAppStore, isCustomArtifact, customSchemaIdFrom } from "@/lib/app-store";
 import { renderKpiDocx } from "@/lib/export/kpi-docx";
 import { renderJobDocx } from "@/lib/export/job-docx";
 import { renderStrategyDocDocx } from "@/lib/export/strategy-doc-docx";
@@ -69,6 +70,10 @@ export default function HomePage() {
 
   // Strategy deck has its own full-page editor
   if (artifact === "strategy-deck") return <DeckEditor />;
+
+  if (isCustomArtifact(artifact)) {
+    return <Shell preview={<CustomDocTemplate schemaId={customSchemaIdFrom(artifact)} />} />;
+  }
 
   const template = (() => {
     switch (artifact) {

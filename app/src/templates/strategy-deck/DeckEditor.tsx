@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
-import { useAppStore, type Artifact } from "@/lib/app-store";
+import { useAppStore, BUILTIN_ARTIFACTS, type Artifact, type BuiltinArtifact } from "@/lib/app-store";
 import { useStrategyDeckStore } from "@/lib/strategy-deck-store";
 import { strings } from "@/lib/i18n";
 import type { Lang } from "@/lib/i18n";
@@ -14,9 +14,7 @@ const THUMB_W = 172;
 const THUMB_SCALE = THUMB_W / SLIDE_W;
 
 const LAYOUTS: SlideLayout[] = ["cover", "content", "section", "quote"];
-const ARTIFACTS_FOR_DROPDOWN: Artifact[] = [
-  "kpi", "job-description", "strategy-document", "strategy-deck", "org-structure", "workflow",
-];
+const ARTIFACTS_FOR_DROPDOWN: BuiltinArtifact[] = BUILTIN_ARTIFACTS;
 
 export function DeckEditor() {
   const [currentSlide, setCurrentSlide] = useState(0);
