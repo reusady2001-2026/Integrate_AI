@@ -1,10 +1,14 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
-import { useAppStore } from "@/lib/app-store";
+import { useAppStore, type Artifact } from "@/lib/app-store";
 import { useKpiStore } from "@/lib/store";
 import { useJobStore } from "@/lib/job-store";
-import { strings } from "@/lib/i18n";
+import { useStrategyDocStore } from "@/lib/strategy-doc-store";
+import { useStrategyDeckStore } from "@/lib/strategy-deck-store";
+import { useOrgStructureStore } from "@/lib/org-structure-store";
+import { useWorkflowStore } from "@/lib/workflow-store";
+import { strings, type Lang } from "@/lib/i18n";
 import { FormattingPanel } from "./FormattingPanel";
 
 export type DesignSystem =
@@ -22,6 +26,15 @@ const SYSTEM_LABELS: Record<DesignSystem, string> = {
   "warm-editorial": "Warm Editorial",
 };
 
+const ARTIFACTS: Artifact[] = [
+  "kpi",
+  "job-description",
+  "strategy-document",
+  "strategy-deck",
+  "org-structure",
+  "workflow",
+];
+
 export function Shell({
   preview,
   onExport,
@@ -31,54 +44,62 @@ export function Shell({
 }) {
   const [ds, setDs] = useState<DesignSystem>("editorial");
   const artifact = useAppStore((s) => s.artifact);
-  const setArtifact = useAppStore((s) => s.setArtifact);
+  const openArtifact = useAppStore((s) => s.openArtifact);
+  const goHome = useAppStore((s) => s.goHome);
   const lang = useAppStore((s) => s.lang);
   const setLang = useAppStore((s) => s.setLang);
   const translating = useAppStore((s) => s.translating);
   const setTranslating = useAppStore((s) => s.setTranslating);
   const t = strings[lang];
 
-  const kpiTranslate = useKpiStore((s) => s.translate);
-  const kpiLoadSample = useKpiStore((s) => s.loadSample);
-  const kpiReset = useKpiStore((s) => s.reset);
-  const jobTranslate = useJobStore((s) => s.translate);
-  const jobLoadSample = useJobStore((s) => s.loadSample);
-  const jobReset = useJobStore((s) => s.reset);
+  const kpi = useKpiStore();
+  const job = useJobStore();
+  const sdoc = useStrategyDocStore();
+  const sdeck = useStrategyDeckStore();
+  const org = useOrgStructureStore();
+  const wf = useWorkflowStore();
 
-  const loadSample = artifact === "kpi" ? kpiLoadSample : jobLoadSample;
-  const reset = artifact === "kpi" ? kpiReset : jobReset;
+  const stores = { kpi, "job-description": job, "strategy-document": sdoc, "strategy-deck": sdeck, "org-structure": org, workflow: wf };
+  const current = stores[artifact];
 
-  const switchLang = async (to: "he" | "en") => {
+  const switchLang = async (to: Lang) => {
     if (lang === to) return;
     setTranslating(true);
-    await Promise.all([kpiTranslate(lang, to), jobTranslate(lang, to)]);
+    await Promise.all(Object.values(stores).map((s) => s.translate(lang, to)));
     setLang(to);
     setTranslating(false);
   };
-
-  const artifactTitle =
-    artifact === "kpi" ? t.artifactKpi : t.job.docTitle;
 
   return (
     <div className="min-h-screen flex flex-col">
       <header className="h-12 flex items-center justify-between px-4 border-b border-[color:var(--app-border)] bg-white">
         <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={goHome}
+            className="text-xs px-2 py-1 rounded hover:bg-neutral-100 text-[color:var(--app-muted)]"
+            title={t.home.back}
+          >
+            ← {t.home.title}
+          </button>
+          <span className="text-[color:var(--app-border)]">|</span>
           <select
             value={artifact}
-            onChange={(e) => setArtifact(e.target.value as "kpi" | "job-description")}
+            onChange={(e) => openArtifact(e.target.value as Artifact)}
             className="font-display text-base bg-transparent border-0 outline-none cursor-pointer hover:opacity-70"
             aria-label="artifact"
           >
-            <option value="kpi">{t.artifactKpi}</option>
-            <option value="job-description">{t.artifactJob}</option>
+            {ARTIFACTS.map((a) => (
+              <option key={a} value={a}>{t.artifacts[a].title}</option>
+            ))}
           </select>
           <span className="text-[color:var(--app-border)]">|</span>
-          <button type="button" onClick={loadSample} className="btn-secondary">{t.loadSample}</button>
-          <button type="button" onClick={reset} className="btn-secondary">{t.reset}</button>
+          <button type="button" onClick={current.loadSample} className="btn-secondary">{t.loadSample}</button>
+          <button type="button" onClick={current.reset} className="btn-secondary">{t.reset}</button>
         </div>
         <div className="flex items-center gap-3">
           <label className="flex items-center gap-2 text-xs text-[color:var(--app-muted)]">
-            <span>סגנון עיצוב</span>
+            <span>{lang === "he" ? "סגנון עיצוב" : "Design"}</span>
             <select
               value={ds}
               onChange={(e) => setDs(e.target.value as DesignSystem)}

@@ -39,3 +39,7 @@ export async function translateDoc(doc: KpiDocument, from: Lang, to: Lang): Prom
 export async function translateJobDoc(doc: JobDocument, from: Lang, to: Lang): Promise<JobDocument> {
   return walk(doc, from, to);
 }
+
+export async function translateAnyDoc<T>(doc: T, from: Lang, to: Lang): Promise<T> {
+  return walk(doc, from, to);
+}
