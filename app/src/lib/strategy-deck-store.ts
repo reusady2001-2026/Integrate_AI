@@ -49,7 +49,19 @@ const emptyDeck = (): StrategyDeck => ({
   paletteOverride: "",
   customPalette: emptyCustomPalette(),
   formatting: defaultDeckFormatting(),
-  slides: [emptySlide("cover"), emptySlide("content")],
+  slides: [
+    emptySlide("cover"),
+    { ...emptySlide("content"), title: "תקציר מנהלים" },
+    { ...emptySlide("content"), title: "מי אנחנו" },
+    { ...emptySlide("content"), title: "האבחנה האסטרטגית" },
+    { ...emptySlide("content"), title: "עקרון הוויתורים" },
+    { ...emptySlide("content"), title: "מנועי הצמיחה" },
+    { ...emptySlide("content"), title: "ניהול בסיס התזרים" },
+    { ...emptySlide("content"), title: "עדיפויות שנה ראשונה" },
+    { ...emptySlide("content"), title: "יעדים ו-KPIs" },
+    { ...emptySlide("content"), title: "ניהול סיכונים" },
+    { ...emptySlide("content"), title: "סיכום" },
+  ],
 });
 
 export const useStrategyDeckStore = create<State>((set, get) => ({

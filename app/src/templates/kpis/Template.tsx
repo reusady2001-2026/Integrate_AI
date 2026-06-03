@@ -13,10 +13,7 @@ export function KpiTemplate() {
   const t = strings[lang];
   const doc = useKpiStore((s) => s.doc);
   const design = useKpiStore((s) => s.design);
-  const {
-    setField, setKpi, addKpi, removeKpi,
-    setScorecardRow, addScorecardRow, removeScorecardRow,
-  } = useKpiStore();
+  const { setField, setKpi, addKpi, removeKpi } = useKpiStore();
 
   const eff = resolveDocTheme(design.theme, design);
   const tableClass = styles[`table_${eff.tableStyle}` as keyof typeof styles] ?? "";
@@ -76,26 +73,21 @@ export function KpiTemplate() {
               <th>{t.colBaseline}</th>
               <th>{t.colTarget}</th>
               <th>{t.colCadence}</th>
-              <th className={styles.tableCtrlCol}></th>
             </tr>
           </thead>
           <tbody>
-            {doc.scorecard.map((r, i) => (
+            {doc.kpis.map((k, i) => (
               <tr key={i}>
-                <td><Editable value={r.kpi} onChange={(v) => setScorecardRow(i, { kpi: v })} /></td>
-                <td><Editable value={r.owner} onChange={(v) => setScorecardRow(i, { owner: v })} /></td>
-                <td><Editable value={r.baseline} onChange={(v) => setScorecardRow(i, { baseline: v })} /></td>
-                <td><Editable value={r.target} onChange={(v) => setScorecardRow(i, { target: v })} /></td>
-                <td><Editable value={r.cadence} onChange={(v) => setScorecardRow(i, { cadence: v })} /></td>
-                <td className={styles.tableCtrlCol}>
-                  <button type="button" onClick={() => removeScorecardRow(i)} className={styles.removeBtn} title={t.remove}>×</button>
-                </td>
+                <td>{k.name || "—"}</td>
+                <td>{k.owner || "—"}</td>
+                <td>{k.baseline || "—"}</td>
+                <td>{k.targets || "—"}</td>
+                <td>{k.cadence || "—"}</td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
-      <button type="button" onClick={addScorecardRow} className={styles.addBtn}>{t.addRow}</button>
     </article>
   );
 }
