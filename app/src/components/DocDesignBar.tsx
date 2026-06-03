@@ -13,6 +13,7 @@ import {
   type PaletteId,
 } from "@/lib/themes/doc-themes";
 import { TABLE_STYLE_DEFS, type TableStyle, type TableStyleDef } from "@/lib/formatting";
+import { useUserDesignsStore, labelText, type LocalizedLabel } from "@/lib/user-designs";
 
 export interface DocDesignProps {
   design: DocDesign;
@@ -51,6 +52,73 @@ export function DocDesignBar({
   const basePaletteId = (design.paletteOverride || currentTheme.palette) as PaletteId;
   const basePalette = getPalette(basePaletteId);
 
+  const userPresets = useUserDesignsStore((s) => s.presets);
+  const hydrateUserPresets = useUserDesignsStore((s) => s.hydrate);
+  const addUserPreset = useUserDesignsStore((s) => s.addPreset);
+  const removeUserPreset = useUserDesignsStore((s) => s.removePreset);
+  const exportUserPresets = useUserDesignsStore((s) => s.exportJson);
+  const importUserPresets = useUserDesignsStore((s) => s.importJson);
+
+  useEffect(() => { hydrateUserPresets(); }, [hydrateUserPresets]);
+
+  const [savingName, setSavingName] = useState(false);
+  const [savingNameHe, setSavingNameHe] = useState("");
+  const [savingNameEn, setSavingNameEn] = useState("");
+  const [savingShowOther, setSavingShowOther] = useState(false);
+
+  const commitSavePreset = () => {
+    const label: LocalizedLabel = isHe
+      ? { he: savingNameHe.trim() || undefined, en: savingNameEn.trim() || undefined }
+      : { en: savingNameHe.trim() || undefined, he: savingNameEn.trim() || undefined };
+    if (!label.he && !label.en) return;
+    addUserPreset(label, design);
+    setSavingName(false);
+    setSavingNameHe("");
+    setSavingNameEn("");
+    setSavingShowOther(false);
+  };
+
+  const applyPreset = (p: { design: DocDesign }) => {
+    setDocTheme(p.design.theme);
+    setDocPaletteOverride(p.design.paletteOverride);
+    (Object.keys(p.design.customPalette) as (keyof DocCustomPalette)[]).forEach((k) =>
+      setDocCustomPalette({ [k]: p.design.customPalette[k] }),
+    );
+    setDocFormatting({
+      titleFont: p.design.titleFont,
+      bodyFont: p.design.bodyFont,
+      fontSize: p.design.fontSize,
+      titleScale: p.design.titleScale,
+      bodyScale: p.design.bodyScale,
+      tableStyle: p.design.tableStyle,
+    });
+  };
+
+  const handleExport = () => {
+    if (typeof window === "undefined") return;
+    const blob = new Blob([exportUserPresets()], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `user-designs-${new Date().toISOString().slice(0, 10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleImport = () => {
+    if (typeof window === "undefined") return;
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "application/json,.json";
+    input.onchange = async () => {
+      const file = input.files?.[0];
+      if (!file) return;
+      const text = await file.text();
+      importUserPresets(text);
+    };
+    input.click();
+  };
+
   return (
     <>
       {/* ── Theme picker ── */}
@@ -65,7 +133,91 @@ export function DocDesignBar({
 
         {themeOpen && (
           <div style={popoverStyle(isHe)}><div style={{ padding: 14 }} dir={isHe ? "rtl" : "ltr"}>
-            <div style={popoverHeader}>{isHe ? "עיצוב מסמך" : "Document theme"}</div>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+              <div style={{ ...popoverHeader, marginBottom: 0 }}>{isHe ? "עיצוב מסמך" : "Document theme"}</div>
+              <div style={{ display: "flex", gap: 4 }}>
+                <button type="button" onClick={() => setSavingName((o) => !o)}
+                  style={miniActionBtn} title={isHe ? "שמור עיצוב נוכחי כפריסט" : "Save current as preset"}>
+                  {isHe ? "+ שמור" : "+ Save"}
+                </button>
+                <button type="button" onClick={handleExport} style={miniActionBtn} title={isHe ? "ייצוא JSON" : "Export JSON"}>↓</button>
+                <button type="button" onClick={handleImport} style={miniActionBtn} title={isHe ? "ייבוא JSON" : "Import JSON"}>↑</button>
+              </div>
+            </div>
+
+            {savingName && (
+              <div style={{ marginBottom: 12, padding: 10, border: "1px solid #e5e7eb", borderRadius: 6, background: "#fafbfc" }}>
+                <div style={{ fontSize: 10, fontWeight: 700, color: "#374151", marginBottom: 5 }}>
+                  {isHe ? "שמור עיצוב נוכחי כפריסט" : "Save current design as preset"}
+                </div>
+                <input type="text" autoFocus value={savingNameHe} onChange={(e) => setSavingNameHe(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === "Enter") commitSavePreset(); if (e.key === "Escape") setSavingName(false); }}
+                  placeholder={isHe ? "שם העיצוב" : "Design name"}
+                  style={{ width: "100%", padding: "5px 8px", fontSize: 11, border: "1px solid #d1d5db", borderRadius: 4, marginBottom: 5 }} />
+                {!savingShowOther ? (
+                  <button type="button" onClick={() => setSavingShowOther(true)}
+                    style={{ background: "none", border: "none", color: "var(--app-accent)", fontSize: 10, cursor: "pointer", padding: 0, marginBottom: 5 }}>
+                    {isHe ? "+ הוסף תרגום (אנגלית)" : "+ Add translation (Hebrew)"}
+                  </button>
+                ) : (
+                  <input type="text" value={savingNameEn} onChange={(e) => setSavingNameEn(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === "Enter") commitSavePreset(); if (e.key === "Escape") setSavingName(false); }}
+                    placeholder={isHe ? "Design name (English)" : "שם העיצוב (עברית)"}
+                    style={{ width: "100%", padding: "5px 8px", fontSize: 11, border: "1px solid #d1d5db", borderRadius: 4, marginBottom: 5 }} />
+                )}
+                <div style={{ display: "flex", gap: 5 }}>
+                  <button type="button" onClick={commitSavePreset}
+                    style={{ flex: 1, padding: "4px 0", fontSize: 11, border: "1px solid var(--app-accent)", borderRadius: 4, background: "var(--app-accent)", color: "white", cursor: "pointer" }}>
+                    {isHe ? "שמור" : "Save"}
+                  </button>
+                  <button type="button" onClick={() => { setSavingName(false); setSavingNameHe(""); setSavingNameEn(""); setSavingShowOther(false); }}
+                    style={{ flex: 1, padding: "4px 0", fontSize: 11, border: "1px solid #d1d5db", borderRadius: 4, background: "white", color: "#6b7280", cursor: "pointer" }}>
+                    {isHe ? "ביטול" : "Cancel"}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {userPresets.length > 0 && (
+              <>
+                <div style={sectionLabel}>{isHe ? "העיצובים שלי" : "My designs"}</div>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 8, marginBottom: 12 }}>
+                  {userPresets.map((p) => {
+                    const pEff = resolveDocTheme(p.design.theme, p.design);
+                    const pTheme = DOC_THEMES.find((t) => t.id === p.design.theme);
+                    return (
+                      <div key={p.id} style={{ position: "relative" }}>
+                        <button type="button"
+                          onClick={() => { applyPreset(p); setThemeOpen(false); }}
+                          title={labelText(p.name, lang)}
+                          style={{
+                            border: "1px solid #e5e7eb", borderRadius: 6, cursor: "pointer",
+                            background: "transparent", padding: 0, overflow: "hidden",
+                            display: "flex", flexDirection: "column", width: "100%",
+                          }}>
+                          <DocThemeMiniPreview eff={pEff} headingStyle={pTheme?.headingStyle ?? "classic"} />
+                          <div style={{ fontSize: 9, padding: "3px 4px", textAlign: "center", color: "#374151", lineHeight: 1.3, background: "white" }}>
+                            {labelText(p.name, lang) || "—"}
+                          </div>
+                        </button>
+                        <button type="button"
+                          onClick={(e) => { e.stopPropagation(); removeUserPreset(p.id); }}
+                          title={isHe ? "מחק" : "Delete"}
+                          style={{
+                            position: "absolute", top: 2, insetInlineEnd: 2,
+                            width: 16, height: 16, borderRadius: "50%",
+                            background: "rgba(255,255,255,0.95)", border: "1px solid #e5e7eb",
+                            cursor: "pointer", padding: 0, fontSize: 11, lineHeight: 1,
+                            color: "#9ca3af",
+                          }}>×</button>
+                      </div>
+                    );
+                  })}
+                </div>
+                <div style={sectionLabel}>{isHe ? "עיצובים מוכנים" : "Built-in themes"}</div>
+              </>
+            )}
+
             <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 8, maxHeight: 420, overflowY: "auto" }}>
               {DOC_THEMES.map((th) => {
                 const isSelected = th.id === design.theme;
@@ -449,6 +601,17 @@ const sectionLabel: CSSProperties = {
   fontWeight: 700,
   color: "#374151",
   marginBottom: 6,
+};
+
+const miniActionBtn: CSSProperties = {
+  padding: "3px 7px",
+  fontSize: 10,
+  borderRadius: 4,
+  border: "1px solid #d1d5db",
+  background: "white",
+  color: "#374151",
+  cursor: "pointer",
+  lineHeight: 1.3,
 };
 
 const palettePresetBtn: CSSProperties = {
