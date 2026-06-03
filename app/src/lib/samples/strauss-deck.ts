@@ -13,6 +13,7 @@ export function sampleStraussDeck(): StrategyDeck {
     headlineTarget: "הכנסות 12 מיליארד ₪ ב-2030; שולי רווח תפעולי 11%; מימוש פוטנציאל הקפה הגלובלי",
     date: "1 ביוני 2026",
     theme: "navy-magazine",
+    paletteOverride: "",
     formatting: defaultDeckFormatting(),
     slides: [
       // 1. Cover

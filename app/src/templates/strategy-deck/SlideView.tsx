@@ -28,7 +28,8 @@ type Effective = {
 };
 
 export function resolveTheme(theme: DeckTheme, doc: StrategyDeck): Effective {
-  const palette = getPalette(theme.palette);
+  const paletteId = (doc.paletteOverride || theme.palette) as Parameters<typeof getPalette>[0];
+  const palette = getPalette(paletteId);
   const baseFont = getFont(theme.font);
   const fmt = doc.formatting;
   const font: FontPair = {

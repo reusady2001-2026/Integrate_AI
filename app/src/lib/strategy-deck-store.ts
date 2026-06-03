@@ -18,6 +18,7 @@ type State = {
   doc: S;
   setField: <K extends keyof S>(key: K, value: S[K]) => void;
   setTheme: (id: string) => void;
+  setPaletteOverride: (id: string) => void;
   setFormatting: (patch: Partial<DeckFormatting>) => void;
   resetFormatting: () => void;
   setSlide: (i: number, patch: Partial<Slide>) => void;
@@ -41,6 +42,7 @@ const emptyDeck = (): StrategyDeck => ({
   headlineTarget: "",
   date: "",
   theme: "navy-classic",
+  paletteOverride: "",
   formatting: defaultDeckFormatting(),
   slides: [emptySlide("cover"), emptySlide("content")],
 });
@@ -49,6 +51,7 @@ export const useStrategyDeckStore = create<State>((set, get) => ({
   doc: emptyDeck(),
   setField: (k, v) => set((s) => ({ doc: { ...s.doc, [k]: v } })),
   setTheme: (id) => set((s) => ({ doc: { ...s.doc, theme: id } })),
+  setPaletteOverride: (id) => set((s) => ({ doc: { ...s.doc, paletteOverride: id } })),
   setFormatting: (patch) =>
     set((s) => ({ doc: { ...s.doc, formatting: { ...s.doc.formatting, ...patch } } })),
   resetFormatting: () => set((s) => ({ doc: { ...s.doc, formatting: defaultDeckFormatting() } })),

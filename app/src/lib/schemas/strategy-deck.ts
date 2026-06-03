@@ -29,6 +29,7 @@ export const StrategyDeck = z.object({
   headlineTarget: z.string().default(""),
   date: z.string().default(""),
   theme: z.string().default("navy-classic"),
+  paletteOverride: z.string().default(""), // PaletteId — overrides theme.palette when set
   formatting: DeckFormatting.default(() => ({
     titleFont: "", bodyFont: "", accentColor: "", titleScale: 1, bodyScale: 1,
   })),

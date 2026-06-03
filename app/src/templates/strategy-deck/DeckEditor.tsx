@@ -5,7 +5,7 @@ import { useAppStore, type Artifact } from "@/lib/app-store";
 import { useStrategyDeckStore } from "@/lib/strategy-deck-store";
 import { strings } from "@/lib/i18n";
 import type { Lang } from "@/lib/i18n";
-import { DECK_THEMES, PALETTES } from "@/lib/themes/deck-themes";
+import { DECK_THEMES, PALETTES, type PaletteId } from "@/lib/themes/deck-themes";
 import type { SlideLayout } from "@/lib/schemas/strategy-deck";
 import { SlideView, SLIDE_W, SLIDE_H } from "./SlideView";
 import styles from "./DeckEditor.module.css";
@@ -23,9 +23,11 @@ export function DeckEditor() {
   const [canvasScale, setCanvasScale] = useState(1);
   const [translating, setTranslating] = useState(false);
   const [themePickerOpen, setThemePickerOpen] = useState(false);
+  const [palettePickerOpen, setPalettePickerOpen] = useState(false);
   const [formatOpen, setFormatOpen] = useState(false);
   const canvasRef = useRef<HTMLDivElement>(null);
   const themePickerRef = useRef<HTMLDivElement>(null);
+  const palettePickerRef = useRef<HTMLDivElement>(null);
   const formatPanelRef = useRef<HTMLDivElement>(null);
 
   const lang = useAppStore((s) => s.lang);
@@ -68,6 +70,15 @@ export function DeckEditor() {
     document.addEventListener("mousedown", onDown);
     return () => document.removeEventListener("mousedown", onDown);
   }, [themePickerOpen]);
+
+  useEffect(() => {
+    if (!palettePickerOpen) return;
+    const onDown = (e: MouseEvent) => {
+      if (!palettePickerRef.current?.contains(e.target as Node)) setPalettePickerOpen(false);
+    };
+    document.addEventListener("mousedown", onDown);
+    return () => document.removeEventListener("mousedown", onDown);
+  }, [palettePickerOpen]);
 
   useEffect(() => {
     if (!formatOpen) return;
@@ -170,6 +181,90 @@ export function DeckEditor() {
                             <span style={{ background: p.bg, border: "1px solid #ccc" }} />
                             <span style={{ background: p.accent }} />
                           </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Palette override picker */}
+            <div ref={palettePickerRef} style={{ position: "relative" }}>
+              <button type="button" onClick={() => setPalettePickerOpen((o) => !o)}
+                className="text-xs px-2 py-1 rounded border border-[color:var(--app-border)] hover:bg-neutral-50"
+                style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                <span style={{
+                  display: "inline-block", width: 14, height: 14, borderRadius: "50%",
+                  background: doc.paletteOverride
+                    ? PALETTES[doc.paletteOverride as PaletteId]?.accent
+                    : PALETTES[selectedTheme.palette].accent,
+                  border: "1px solid rgba(0,0,0,0.15)",
+                  flexShrink: 0,
+                }} />
+                {lang === "he" ? "פלטה" : "Palette"}
+                {doc.paletteOverride ? " ✓" : ""}
+              </button>
+              {palettePickerOpen && (
+                <div className={styles.themeGallery} dir={t.dir} style={{ width: 340 }}>
+                  <div className={styles.themeGalleryHeader}>{lang === "he" ? "בחר פלטת צבעים" : "Choose colour palette"}</div>
+                  <div style={{ marginBottom: 8 }}>
+                    <button type="button"
+                      onClick={() => { st.setPaletteOverride(""); setPalettePickerOpen(false); }}
+                      style={{
+                        width: "100%", padding: "6px 12px", fontSize: 11, textAlign: "start",
+                        background: !doc.paletteOverride ? "var(--app-accent)" : "transparent",
+                        color: !doc.paletteOverride ? "#fff" : "inherit",
+                        border: "1px solid var(--app-border)", borderRadius: 4, cursor: "pointer",
+                      }}>
+                      {lang === "he" ? "ברירת מחדל (לפי עיצוב)" : "Default (from design)"}
+                    </button>
+                  </div>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
+                    {(Object.keys(PALETTES) as PaletteId[]).map((pid) => {
+                      const p = PALETTES[pid];
+                      const isActive = doc.paletteOverride === pid;
+                      const names: Record<PaletteId, { he: string; en: string }> = {
+                        "corporate-navy":   { he: "Navy תאגידי",     en: "Corporate Navy" },
+                        "midnight-violet":  { he: "סגול לילה",       en: "Midnight Violet" },
+                        "deep-forest":      { he: "יער עמוק",        en: "Deep Forest" },
+                        "wine":             { he: "יין",             en: "Wine" },
+                        "obsidian":         { he: "אבסידיאן",        en: "Obsidian" },
+                        "tech-cyan":        { he: "ציאן טכנולוגי",   en: "Tech Cyan" },
+                        "muted-slate":      { he: "סלייט אפור",      en: "Muted Slate" },
+                        "soft-cream":       { he: "קרם רך",          en: "Soft Cream" },
+                        "minimal-paper":    { he: "נייר מינימלי",    en: "Minimal Paper" },
+                        "warm-terracotta":  { he: "טראקוטה חמה",     en: "Warm Terracotta" },
+                        "fresh-green":      { he: "ירוק טרי",        en: "Fresh Green" },
+                        "blush":            { he: "ורוד-סומק",       en: "Blush" },
+                        "monochrome":       { he: "מונוכרום",        en: "Monochrome" },
+                        "earth":            { he: "אדמה",            en: "Earth" },
+                        "arctic":           { he: "ארקטי",           en: "Arctic" },
+                        "sunset":           { he: "שקיעה",           en: "Sunset" },
+                      };
+                      return (
+                        <button key={pid} type="button"
+                          onClick={() => { st.setPaletteOverride(pid); setPalettePickerOpen(false); }}
+                          style={{
+                            display: "flex", alignItems: "center", gap: 8, padding: "7px 10px",
+                            border: isActive ? "2px solid var(--app-accent)" : "1px solid var(--app-border)",
+                            borderRadius: 6, cursor: "pointer",
+                            background: isActive ? "rgba(var(--app-accent-rgb),0.06)" : "white",
+                            textAlign: "start",
+                          }}>
+                          {/* mini gradient swatch */}
+                          <div style={{
+                            width: 36, height: 26, borderRadius: 4, flexShrink: 0, overflow: "hidden",
+                            border: "1px solid rgba(0,0,0,0.08)",
+                          }}>
+                            <div style={{ width: "100%", height: "55%", background: p.coverGradient }} />
+                            <div style={{ width: "100%", height: "45%", background: p.bgGradient, display: "flex", alignItems: "center", justifyContent: "flex-end", paddingRight: 3 }}>
+                              <span style={{ width: 6, height: 6, borderRadius: "50%", background: p.accent, display: "block" }} />
+                            </div>
+                          </div>
+                          <span style={{ fontSize: 11, lineHeight: 1.3 }}>
+                            {lang === "he" ? names[pid].he : names[pid].en}
+                          </span>
                         </button>
                       );
                     })}

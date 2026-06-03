@@ -36,7 +36,8 @@ export async function renderDeckPptx(doc: StrategyDeck, lang: Lang): Promise<voi
   prs.title = doc.planTitle || doc.company || "Strategy Deck";
 
   const theme = DECK_THEMES.find((t) => t.id === doc.theme) ?? DECK_THEMES[0];
-  const palette = PALETTES[theme.palette];
+  const paletteId = (doc.paletteOverride || theme.palette) as keyof typeof PALETTES;
+  const palette = PALETTES[paletteId];
   const baseFont = FONT_PAIRS[theme.font];
   const font: FontPair = { ...baseFont };
   const fmt = doc.formatting;
