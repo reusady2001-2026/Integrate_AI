@@ -132,11 +132,9 @@ export async function renderJobDocx(
   children.push(inlineField(tj.date, doc.date));
 
   children.push(heading(tj.purposeHeading, HeadingLevel.HEADING_2, h2Hp));
-  children.push(guidance(tj.purposeGuidance));
   children.push(paragraph(doc.purpose));
 
   children.push(heading(tj.areasHeading, HeadingLevel.HEADING_2, h2Hp));
-  children.push(guidance(tj.areasGuidance));
 
   doc.areas.forEach((a, i) => {
     if (doc.areas.length > 1) {
@@ -167,7 +165,6 @@ export async function renderJobDocx(
 
   if (doc.enabled.interfaces) {
     children.push(heading(tj.interfacesHeading, HeadingLevel.HEADING_2, h2Hp));
-    children.push(guidance(tj.interfacesGuidance));
 
     const cell = (text: string, header: boolean, even: boolean) => {
       const value = text.trim() ? text : FILL_LINE;
@@ -212,20 +209,17 @@ export async function renderJobDocx(
 
   if (doc.enabled.successMetrics) {
     children.push(heading(tj.metricsHeading, HeadingLevel.HEADING_2, h2Hp));
-    children.push(guidance(tj.metricsGuidance));
     children.push(paragraph(doc.successMetrics));
   }
 
   if (doc.enabled.qualifications) {
     children.push(heading(tj.qualificationsHeading, HeadingLevel.HEADING_2, h2Hp));
-    children.push(guidance(tj.qualificationsGuidance));
     children.push(inlineField(tj.required, doc.required));
     children.push(inlineField(tj.advantage, doc.advantage));
   }
 
   if (doc.enabled.authority) {
     children.push(heading(tj.authorityHeading, HeadingLevel.HEADING_2, h2Hp));
-    children.push(guidance(tj.authorityGuidance));
     children.push(inlineField(tj.decides, doc.decides));
     children.push(inlineField(tj.recommends, doc.recommends));
     children.push(inlineField(tj.escalates, doc.escalates));

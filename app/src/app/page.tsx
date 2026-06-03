@@ -2,8 +2,6 @@
 
 import { useCallback } from "react";
 import { Shell } from "@/components/Shell";
-import { KpiForm } from "@/components/forms/KpiForm";
-import { JobForm } from "@/components/forms/JobForm";
 import { KpiTemplate } from "@/templates/kpis/Template";
 import { JobTemplate } from "@/templates/job-description/Template";
 import { useKpiStore } from "@/lib/store";
@@ -38,8 +36,7 @@ export default function HomePage() {
 
   return (
     <Shell
-      form={artifact === "kpi" ? <KpiForm /> : <JobForm />}
-      preview={artifact === "kpi" ? <KpiTemplate doc={kpiDoc} /> : <JobTemplate doc={jobDoc} />}
+      preview={artifact === "kpi" ? <KpiTemplate /> : <JobTemplate />}
       onExport={onExport}
     />
   );

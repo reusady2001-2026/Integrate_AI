@@ -23,11 +23,9 @@ const SYSTEM_LABELS: Record<DesignSystem, string> = {
 };
 
 export function Shell({
-  form,
   preview,
   onExport,
 }: {
-  form: ReactNode;
   preview: ReactNode;
   onExport?: () => void;
 }) {
@@ -41,7 +39,14 @@ export function Shell({
   const t = strings[lang];
 
   const kpiTranslate = useKpiStore((s) => s.translate);
+  const kpiLoadSample = useKpiStore((s) => s.loadSample);
+  const kpiReset = useKpiStore((s) => s.reset);
   const jobTranslate = useJobStore((s) => s.translate);
+  const jobLoadSample = useJobStore((s) => s.loadSample);
+  const jobReset = useJobStore((s) => s.reset);
+
+  const loadSample = artifact === "kpi" ? kpiLoadSample : jobLoadSample;
+  const reset = artifact === "kpi" ? kpiReset : jobReset;
 
   const switchLang = async (to: "he" | "en") => {
     if (lang === to) return;
@@ -67,7 +72,9 @@ export function Shell({
             <option value="kpi">{t.artifactKpi}</option>
             <option value="job-description">{t.artifactJob}</option>
           </select>
-          <span className="text-xs text-[color:var(--app-muted)]">{artifactTitle}</span>
+          <span className="text-[color:var(--app-border)]">|</span>
+          <button type="button" onClick={loadSample} className="btn-secondary">{t.loadSample}</button>
+          <button type="button" onClick={reset} className="btn-secondary">{t.reset}</button>
         </div>
         <div className="flex items-center gap-3">
           <label className="flex items-center gap-2 text-xs text-[color:var(--app-muted)]">
@@ -105,13 +112,8 @@ export function Shell({
         </div>
       </header>
 
-      <div className="flex-1 grid grid-cols-[minmax(0,360px)_minmax(0,1fr)] min-h-0">
-        <aside className="border-l border-[color:var(--app-border)] bg-white overflow-y-auto p-4">
-          {form}
-        </aside>
-        <section data-ds={ds} className="preview-surface overflow-y-auto p-8">
-          <div className="mx-auto max-w-3xl">{preview}</div>
-        </section>
+      <div data-ds={ds} className="flex-1 preview-surface overflow-y-auto p-8">
+        <div className="mx-auto max-w-3xl">{preview}</div>
       </div>
     </div>
   );

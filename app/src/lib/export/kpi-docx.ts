@@ -147,7 +147,6 @@ export async function renderKpiDocx(
   children.push(b.inlineField(dateLabel, doc.date, rtl));
 
   children.push(b.heading(t.kpiDefsHeading, HeadingLevel.HEADING_2, b.h2Hp, rtl));
-  children.push(b.guidance(t.kpiDefsGuidance, rtl));
   children.push(b.heading(t.kpisSubheading, HeadingLevel.HEADING_3, b.h3Hp, rtl));
 
   doc.kpis.forEach((k) => {
@@ -173,7 +172,6 @@ export async function renderKpiDocx(
   });
 
   children.push(b.heading(t.scorecardHeading, HeadingLevel.HEADING_2, b.h2Hp, rtl));
-  children.push(b.guidance(t.scorecardGuidance, rtl));
 
   function cell(text: string, header: boolean, even: boolean): TableCell {
     const value = text.trim() ? text : FILL_LINE;

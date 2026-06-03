@@ -263,4 +263,77 @@
 .table_elegant .table th,
 .table_elegant .table td { border-bottom: 1px solid var(--doc-border-soft); }
 .table_elegant .table th { border-bottom: 1.5px solid var(--doc-accent); background: transparent; }
+
+/* ── WYSIWYG document controls (hidden in print) ── */
+.kpiBlockHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.25rem;
+}
+.addBtn {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.78em;
+  padding: 0.2rem 0.65rem;
+  margin: 0.4rem 0;
+  border: 1px dashed var(--doc-border, #d8d4cc);
+  border-radius: 3px;
+  color: var(--doc-muted, #6b6b6b);
+  cursor: pointer;
+  background: transparent;
+  transition: border-color 0.1s, color 0.1s, border-style 0.1s;
+}
+.addBtn:hover {
+  border-style: solid;
+  border-color: var(--doc-accent, #1a1a1a);
+  color: var(--doc-accent, #1a1a1a);
+}
+.addSectionBtn {
+  display: block;
+  width: 100%;
+  text-align: start;
+  font-size: 0.85em;
+  padding: 0.5rem 0.75rem;
+  margin: 1.5rem 0 0.5rem;
+  border: 1px dashed var(--doc-border, #d8d4cc);
+  border-radius: 4px;
+  color: var(--doc-muted, #6b6b6b);
+  background: transparent;
+  cursor: pointer;
+  transition: border-color 0.1s, color 0.1s, border-style 0.1s;
+}
+.addSectionBtn:hover {
+  border-style: solid;
+  border-color: var(--doc-accent, #1a1a1a);
+  color: var(--doc-accent, #1a1a1a);
+}
+.removeBtn {
+  padding: 0 0.3rem;
+  line-height: 1.4;
+  color: var(--doc-muted, #6b6b6b);
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  font-size: 1.1em;
+  opacity: 0.45;
+  transition: opacity 0.1s, color 0.1s;
+  flex-shrink: 0;
+}
+.removeBtn:hover {
+  color: #b91c1c;
+  opacity: 1;
+}
+.tableCtrlCol {
+  width: 1.5rem !important;
+  padding: 0 0.2rem !important;
+  border: 0 !important;
+  background: transparent !important;
+  text-align: center !important;
+  vertical-align: middle !important;
+}
+@media print {
+  .addBtn, .addSectionBtn, .removeBtn { display: none !important; }
+  .tableCtrlCol { display: none !important; }
+}
 .table_elegant .table tbody tr:nth-child(even) td { background: color-mix(in oklab, var(--doc-surface), var(--doc-fg) 3%); }
