@@ -5,11 +5,12 @@
 @import "../styles/design-systems.generated.css";
 
 :root {
-  --app-bg: #f7f7f5;
-  --app-fg: #1a1a1a;
-  --app-muted: #6b6b6b;
-  --app-border: #e3e3df;
-  --app-accent: #1a1a1a;
+  --app-bg: #eff6ff;
+  --app-bg-gradient: linear-gradient(180deg, #bfdbfe 0%, #dbeafe 35%, #ffffff 100%);
+  --app-fg: #0f172a;
+  --app-muted: #64748b;
+  --app-border: #cbd5e1;
+  --app-accent: #2563eb;
 }
 
 html,
@@ -20,6 +21,9 @@ body {
 
 body {
   font-family: var(--font-ui), "Heebo", system-ui, sans-serif;
+  background-image: var(--app-bg-gradient);
+  background-attachment: fixed;
+  background-repeat: no-repeat;
 }
 
 /* The preview pane is the document — scoped surface where vendored
