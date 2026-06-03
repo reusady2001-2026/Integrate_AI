@@ -31,6 +31,10 @@ type AppState = {
   lang: Lang;
   translating: boolean;
   formatting: Formatting;
+  /** When an editor session is bound to a project doc, "save" updates that doc. */
+  activeProjectDocId: string | null;
+  /** When an editor session was started from a project (blank, not yet bound), saving creates a new doc inside this project. */
+  currentProjectId: string | null;
   setView: (v: View) => void;
   setArtifact: (a: Artifact) => void;
   openArtifact: (a: Artifact) => void;
@@ -39,6 +43,7 @@ type AppState = {
   setTranslating: (v: boolean) => void;
   setFormatting: (patch: Partial<Formatting>) => void;
   resetFormatting: () => void;
+  clearProjectBinding: () => void;
 };
 
 export const useAppStore = create<AppState>((set) => ({
@@ -47,12 +52,15 @@ export const useAppStore = create<AppState>((set) => ({
   lang: "he",
   translating: false,
   formatting: defaultFormatting(),
+  activeProjectDocId: null,
+  currentProjectId: null,
   setView: (view) => set({ view }),
   setArtifact: (artifact) => set({ artifact }),
-  openArtifact: (artifact) => set({ artifact, view: "editor" }),
-  goHome: () => set({ view: "home" }),
+  openArtifact: (artifact) => set({ artifact, view: "editor", activeProjectDocId: null, currentProjectId: null }),
+  goHome: () => set({ view: "home", activeProjectDocId: null, currentProjectId: null }),
   setLang: (lang) => set({ lang }),
   setTranslating: (translating) => set({ translating }),
   setFormatting: (patch) => set((s) => ({ formatting: { ...s.formatting, ...patch } })),
   resetFormatting: () => set({ formatting: defaultFormatting() }),
+  clearProjectBinding: () => set({ activeProjectDocId: null, currentProjectId: null }),
 }));

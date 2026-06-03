@@ -16,6 +16,7 @@ import { useCustomDocStore } from "@/lib/custom-doc-store";
 import { localizedText } from "@/lib/blocks";
 import { strings, type Lang } from "@/lib/i18n";
 import { DocDesignBar, type DocDesignProps } from "./DocDesignBar";
+import { SaveToProjectButton } from "./SaveToProjectButton";
 
 export function Shell({
   preview,
@@ -133,6 +134,7 @@ export function Shell({
         </div>
         <div className="flex items-center gap-3">
           {docDesignProps && <DocDesignBar {...docDesignProps} />}
+          <SaveToProjectButton />
           <button
             type="button"
             onClick={() => switchLang(lang === "he" ? "en" : "he")}

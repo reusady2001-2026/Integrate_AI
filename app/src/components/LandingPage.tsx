@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useAppStore, BUILTIN_ARTIFACTS, artifactFromSchemaId } from "@/lib/app-store";
 import { useUserSchemasStore } from "@/lib/user-schemas";
-import { useUserDesignsStore, labelText } from "@/lib/user-designs";
+import { useUserDesignsStore, labelText, type LocalizedLabel } from "@/lib/user-designs";
+import { useProjectsStore } from "@/lib/projects-store";
 import { useRouter } from "next/navigation";
 import { localizedText } from "@/lib/blocks";
 import { resolveDocTheme, defaultDocDesign } from "@/lib/themes/doc-themes";
@@ -19,9 +20,27 @@ export function LandingPage() {
   const userDesigns = useUserDesignsStore((s) => s.presets);
   const hydrateDesigns = useUserDesignsStore((s) => s.hydrate);
   const removeDesign = useUserDesignsStore((s) => s.removePreset);
+  const projects = useProjectsStore((s) => s.projects);
+  const hydrateProjects = useProjectsStore((s) => s.hydrate);
+  const createProject = useProjectsStore((s) => s.createProject);
   const router = useRouter();
-  useEffect(() => { hydrateSchemas(); hydrateDesigns(); }, [hydrateSchemas, hydrateDesigns]);
+  useEffect(() => { hydrateSchemas(); hydrateDesigns(); hydrateProjects(); }, [hydrateSchemas, hydrateDesigns, hydrateProjects]);
   const t = strings[lang];
+
+  const [creatingProject, setCreatingProject] = useState(false);
+  const [newProjectName, setNewProjectName] = useState("");
+  const isHe = lang === "he";
+
+  const startNewProject = () => {
+    const name = newProjectName.trim();
+    if (!name) return;
+    const slug = name.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9\-]/g, "").slice(0, 32) || `prj-${Date.now()}`;
+    const labelName: LocalizedLabel = isHe ? { he: name } : { en: name };
+    const p = createProject(labelName, slug);
+    setCreatingProject(false);
+    setNewProjectName("");
+    router.push(`/project?id=${p.id}`);
+  };
 
   return (
     <div className="min-h-screen flex flex-col" dir={t.dir}>
@@ -39,8 +58,87 @@ export function LandingPage() {
       <main className="flex-1 px-6 py-12 overflow-y-auto">
         <div className="max-w-5xl mx-auto">
           <h1 className="font-display text-4xl font-bold mb-3">{t.home.title}</h1>
-          <p className="text-[color:var(--app-muted)] mb-2 text-lg">{t.home.subtitle}</p>
-          <p className="text-[color:var(--app-muted)] mb-8 text-sm">{t.home.pickArtifact}</p>
+          <p className="text-[color:var(--app-muted)] mb-8 text-lg">{t.home.subtitle}</p>
+
+          {/* ── Projects (company workspaces) ─────────────────────── */}
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="font-display text-2xl font-bold">
+              {isHe ? "פרויקטים (חברות)" : "Projects (companies)"}
+            </h2>
+            <button
+              type="button"
+              onClick={() => setCreatingProject((o) => !o)}
+              className="text-sm px-3 py-1.5 rounded bg-[color:var(--app-accent)] text-white hover:opacity-90"
+            >
+              {isHe ? "+ פרויקט חדש" : "+ New project"}
+            </button>
+          </div>
+
+          {creatingProject && (
+            <div className="mb-6 p-4 bg-white rounded-lg border border-[color:var(--app-border)] flex gap-2 items-center">
+              <input
+                type="text"
+                autoFocus
+                value={newProjectName}
+                onChange={(e) => setNewProjectName(e.target.value)}
+                onKeyDown={(e) => { if (e.key === "Enter") startNewProject(); if (e.key === "Escape") setCreatingProject(false); }}
+                placeholder={isHe ? "שם החברה" : "Company name"}
+                className="flex-1 px-3 py-1.5 text-sm border border-[color:var(--app-border)] rounded"
+              />
+              <button type="button" onClick={startNewProject}
+                className="text-sm px-3 py-1.5 rounded bg-[color:var(--app-accent)] text-white">
+                {isHe ? "צור" : "Create"}
+              </button>
+              <button type="button" onClick={() => { setCreatingProject(false); setNewProjectName(""); }}
+                className="text-sm px-3 py-1.5 rounded border border-[color:var(--app-border)] text-[color:var(--app-muted)]">
+                {isHe ? "ביטול" : "Cancel"}
+              </button>
+            </div>
+          )}
+
+          {projects.length === 0 ? (
+            <p className="mb-12 text-sm text-[color:var(--app-muted)] p-5 border border-dashed border-[color:var(--app-border)] rounded-lg text-center bg-white/60">
+              {isHe
+                ? "אין עוד פרויקטים. צור פרויקט חדש לחברה ספציפית — הסוכן יוכל לחבר אליה דוחות, מצגות, ולגדור אליה את המסמכים שייוצרו."
+                : "No projects yet. Create one for a specific company — the agent will attach its filings, decks, and the generated documents."}
+            </p>
+          ) : (
+            <div className="mb-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {projects.map((p) => (
+                <button
+                  key={p.id}
+                  type="button"
+                  onClick={() => router.push(`/project?id=${p.id}`)}
+                  className="text-start p-5 bg-white rounded-lg border border-[color:var(--app-border)] hover:border-[color:var(--app-accent)] hover:shadow-md transition-all"
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="font-display text-lg font-bold">
+                      {labelText(p.name, lang) || (isHe ? "ללא שם" : "Untitled")}
+                    </div>
+                    {p.ticker && (
+                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-[color:var(--app-bg)] text-[color:var(--app-muted)] font-mono">
+                        {p.ticker}
+                      </span>
+                    )}
+                  </div>
+                  {p.description && (
+                    <p className="text-sm text-[color:var(--app-muted)] leading-relaxed mb-3 line-clamp-2">
+                      {labelText(p.description, lang)}
+                    </p>
+                  )}
+                  <div className="flex items-center justify-between text-xs text-[color:var(--app-muted)]">
+                    <span>{p.docIds.length} {isHe ? "מסמכים" : "docs"}</span>
+                    <span>{p.sources.length} {isHe ? "מקורות" : "sources"}</span>
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
+
+          <h2 className="font-display text-2xl font-bold mb-4">
+            {isHe ? "תבניות מסמכים" : "Document templates"}
+          </h2>
+          <p className="text-[color:var(--app-muted)] mb-4 text-sm">{t.home.pickArtifact}</p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {BUILTIN_ARTIFACTS.map((a) => {
