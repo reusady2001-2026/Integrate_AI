@@ -12,7 +12,7 @@ import {
   type DocDesign,
   type PaletteId,
 } from "@/lib/themes/doc-themes";
-import { TABLE_STYLE_DEFS, type TableStyle } from "@/lib/formatting";
+import { TABLE_STYLE_DEFS, type TableStyle, type TableStyleDef } from "@/lib/formatting";
 
 export interface DocDesignProps {
   design: DocDesign;
@@ -196,20 +196,24 @@ export function DocDesignBar({
               <span style={{ display: "block", fontSize: 11, fontWeight: 700, marginBottom: 6, color: "#374151" }}>
                 {isHe ? "סגנון טבלה" : "Table style"}
               </span>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 4 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 5 }}>
                 {(Object.keys(TABLE_STYLE_DEFS) as TableStyle[]).map((ts) => {
                   const def = TABLE_STYLE_DEFS[ts];
                   const isActive = design.tableStyle === ts;
                   return (
                     <button key={ts} type="button"
                       onClick={() => setDocFormatting({ tableStyle: ts })}
+                      title={isHe ? def.nameHe : def.nameEn}
                       style={{
-                        padding: "4px 6px", fontSize: 10, textAlign: "start",
-                        border: isActive ? "1.5px solid var(--app-accent)" : "1px solid #e5e7eb",
-                        borderRadius: 4, cursor: "pointer",
-                        background: isActive ? "#f0f7ff" : "white", color: "#374151",
+                        border: isActive ? "2px solid var(--app-accent)" : "1px solid #e5e7eb",
+                        borderRadius: 5, cursor: "pointer",
+                        background: "transparent", padding: 0,
+                        overflow: "hidden", display: "flex", flexDirection: "column",
                       }}>
-                      {isHe ? def.nameHe : def.nameEn}
+                      <TableStyleMiniPreview def={def} eff={eff} />
+                      <div style={{ fontSize: 8, padding: "2px 3px 3px", textAlign: "center", color: "#374151", lineHeight: 1.3, background: "white", width: "100%" }}>
+                        {isHe ? def.nameHe : def.nameEn}
+                      </div>
                     </button>
                   );
                 })}
@@ -274,6 +278,61 @@ function DocThemeMiniPreview({ eff, headingStyle }: {
 
       {/* Accent dot */}
       <div style={{ position: "absolute", bottom: 6, insetInlineEnd: 8, width: 6, height: 6, borderRadius: "50%", background: eff.accent2, opacity: 0.8 }} />
+    </div>
+  );
+}
+
+// ─── Table style mini preview ─────────────────────────────────────────
+
+function blendHex(base: string, over: string, alpha: number): string {
+  const parse = (h: string): [number, number, number] => {
+    const c = h.replace("#", "");
+    const s = c.length === 3 ? [c[0]+c[0], c[1]+c[1], c[2]+c[2]] : [c.slice(0,2), c.slice(2,4), c.slice(4,6)];
+    return s.map((x) => parseInt(x, 16)) as [number, number, number];
+  };
+  try {
+    const [br, bg, bb] = parse(base);
+    const [or, og, ob] = parse(over);
+    return `#${Math.round(br+(or-br)*alpha).toString(16).padStart(2,"0")}${Math.round(bg+(og-bg)*alpha).toString(16).padStart(2,"0")}${Math.round(bb+(ob-bb)*alpha).toString(16).padStart(2,"0")}`;
+  } catch { return base; }
+}
+
+function TableStyleMiniPreview({ def, eff }: {
+  def: TableStyleDef;
+  eff: ReturnType<typeof resolveDocTheme>;
+}) {
+  const headerBg = { white: eff.surface, light: blendHex(eff.surface, eff.fg, 0.08), medium: blendHex(eff.surface, eff.fg, 0.15), accent: eff.accent, dark: eff.fg }[def.headerBg];
+  const headerFgColor = def.headerFg === "white" ? eff.surface : eff.fg;
+  const altBg = { none: eff.surface, light: blendHex(eff.surface, eff.fg, 0.04), "accent-light": blendHex(eff.surface, eff.accent, 0.07) }[def.altBg];
+  const innerHColor = def.innerH === "none" ? "" : def.innerH === "thin" ? eff.borderSoft : eff.border;
+  const innerVColor = def.innerV === "none" ? "" : def.innerV === "thin" ? eff.borderSoft : eff.border;
+  const innerHBorder = innerHColor ? `1px solid ${innerHColor}` : "none";
+  const innerVBorder = innerVColor ? `1px solid ${innerVColor}` : "none";
+  const headerBottom = def.headerBottomBold ? `2px solid ${eff.accent}` : innerHColor ? `1px solid ${innerHColor}` : "none";
+  const outerBorder = def.outerBorder === "none" ? undefined
+    : def.outerBorder === "thin" ? `1px solid ${eff.borderSoft}`
+    : def.outerBorder === "normal" ? `1px solid ${eff.border}`
+    : `2px solid ${eff.accent}`;
+  const rowBg = (r: number) => def.altRows && r % 2 === 1 ? altBg : eff.surface;
+
+  return (
+    <div style={{ background: eff.surface, overflow: "hidden", border: outerBorder }}>
+      <div style={{ display: "flex", height: 13, background: headerBg, borderBottom: headerBottom }}>
+        {[0, 1, 2].map((c) => (
+          <div key={c} style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", borderRight: c < 2 ? innerVBorder : "none" }}>
+            <div style={{ height: 2, width: "50%", background: headerFgColor, opacity: 0.65, borderRadius: 1 }} />
+          </div>
+        ))}
+      </div>
+      {[0, 1, 2].map((r) => (
+        <div key={r} style={{ display: "flex", height: 10, background: rowBg(r), borderBottom: r < 2 ? innerHBorder : "none" }}>
+          {[0, 1, 2].map((c) => (
+            <div key={c} style={{ flex: 1, display: "flex", alignItems: "center", paddingLeft: 3, borderRight: c < 2 ? innerVBorder : "none" }}>
+              <div style={{ height: 2, width: c === 0 ? "60%" : "40%", background: eff.fg, opacity: 0.2, borderRadius: 1 }} />
+            </div>
+          ))}
+        </div>
+      ))}
     </div>
   );
 }
