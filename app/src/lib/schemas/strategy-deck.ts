@@ -12,15 +12,29 @@ export const Slide = z.object({
 export type Slide = z.infer<typeof Slide>;
 
 // Per-deck formatting overrides on top of theme defaults.
-// Empty string / null = use theme default.
+// Empty string = use palette/theme default.
 export const DeckFormatting = z.object({
-  titleFont: z.string().default(""),    // e.g. "Georgia, serif" — overrides theme.font.display
-  bodyFont: z.string().default(""),     // overrides theme.font.body
-  accentColor: z.string().default(""),  // hex — overrides palette.accent
-  titleScale: z.number().default(1),    // 0.8..1.3
-  bodyScale: z.number().default(1),     // 0.8..1.3
+  titleFont: z.string().default(""),
+  bodyFont: z.string().default(""),
+  titleScale: z.number().default(1),
+  bodyScale: z.number().default(1),
 });
 export type DeckFormatting = z.infer<typeof DeckFormatting>;
+
+// Full custom palette — each field is a hex color or empty (= inherit from base palette).
+// Together these 5 colors define the complete visual identity of the deck.
+export const CustomPalette = z.object({
+  coverBg: z.string().default(""),   // cover/section background
+  bg: z.string().default(""),        // content slide background
+  accent: z.string().default(""),    // primary accent (bars, bullets, glows)
+  accent2: z.string().default(""),   // secondary accent
+  text: z.string().default(""),      // main text on content slides
+});
+export type CustomPalette = z.infer<typeof CustomPalette>;
+
+export const emptyCustomPalette = (): CustomPalette => ({
+  coverBg: "", bg: "", accent: "", accent2: "", text: "",
+});
 
 export const StrategyDeck = z.object({
   company: z.string().default(""),
@@ -29,9 +43,10 @@ export const StrategyDeck = z.object({
   headlineTarget: z.string().default(""),
   date: z.string().default(""),
   theme: z.string().default("navy-classic"),
-  paletteOverride: z.string().default(""), // PaletteId — overrides theme.palette when set
+  paletteOverride: z.string().default(""),    // PaletteId preset — starting point
+  customPalette: CustomPalette.default(emptyCustomPalette), // per-color overrides on top
   formatting: DeckFormatting.default(() => ({
-    titleFont: "", bodyFont: "", accentColor: "", titleScale: 1, bodyScale: 1,
+    titleFont: "", bodyFont: "", titleScale: 1, bodyScale: 1,
   })),
   slides: z.array(Slide).default([]),
 });
@@ -47,7 +62,6 @@ export const emptySlide = (layout: SlideLayout = "content"): Slide => ({
 export const defaultDeckFormatting = (): DeckFormatting => ({
   titleFont: "",
   bodyFont: "",
-  accentColor: "",
   titleScale: 1,
   bodyScale: 1,
 });

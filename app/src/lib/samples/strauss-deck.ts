@@ -3,7 +3,7 @@
 // named competitors, ~14 chapters, quantitative targets, defined trade-offs.
 // Fields not in public sources are marked [להשלמה / TO FILL] rather than invented.
 
-import { defaultDeckFormatting, type StrategyDeck } from "../schemas/strategy-deck";
+import { defaultDeckFormatting, emptyCustomPalette, type StrategyDeck } from "../schemas/strategy-deck";
 
 export function sampleStraussDeck(): StrategyDeck {
   return {
@@ -14,6 +14,7 @@ export function sampleStraussDeck(): StrategyDeck {
     date: "1 ביוני 2026",
     theme: "navy-magazine",
     paletteOverride: "",
+    customPalette: emptyCustomPalette(),
     formatting: defaultDeckFormatting(),
     slides: [
       // 1. Cover

@@ -5,8 +5,8 @@ import { useAppStore, type Artifact } from "@/lib/app-store";
 import { useStrategyDeckStore } from "@/lib/strategy-deck-store";
 import { strings } from "@/lib/i18n";
 import type { Lang } from "@/lib/i18n";
-import { DECK_THEMES, PALETTES, type PaletteId } from "@/lib/themes/deck-themes";
-import type { SlideLayout } from "@/lib/schemas/strategy-deck";
+import { DECK_THEMES, PALETTES, getPalette, type PaletteId } from "@/lib/themes/deck-themes";
+import { emptyCustomPalette, type CustomPalette, type SlideLayout } from "@/lib/schemas/strategy-deck";
 import { SlideView, SLIDE_W, SLIDE_H } from "./SlideView";
 import styles from "./DeckEditor.module.css";
 
@@ -189,86 +189,81 @@ export function DeckEditor() {
               )}
             </div>
 
-            {/* Palette override picker */}
+            {/* Palette panel */}
             <div ref={palettePickerRef} style={{ position: "relative" }}>
               <button type="button" onClick={() => setPalettePickerOpen((o) => !o)}
                 className="text-xs px-2 py-1 rounded border border-[color:var(--app-border)] hover:bg-neutral-50"
-                style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                <span style={{
-                  display: "inline-block", width: 14, height: 14, borderRadius: "50%",
-                  background: doc.paletteOverride
-                    ? PALETTES[doc.paletteOverride as PaletteId]?.accent
-                    : PALETTES[selectedTheme.palette].accent,
-                  border: "1px solid rgba(0,0,0,0.15)",
-                  flexShrink: 0,
-                }} />
+                style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                {/* 3-dot preview of current palette */}
+                {(["coverBg", "bg", "accent"] as const).map((k) => {
+                  const base = getPalette((doc.paletteOverride || selectedTheme.palette) as PaletteId);
+                  const cp = doc.customPalette ?? {};
+                  const color = (k === "coverBg" ? cp.coverBg || base.coverBg : k === "bg" ? cp.bg || base.bg : cp.accent || base.accent);
+                  return <span key={k} style={{ width: 10, height: 10, borderRadius: "50%", background: color, border: "1px solid rgba(0,0,0,0.15)", display: "inline-block" }} />;
+                })}
                 {lang === "he" ? "פלטה" : "Palette"}
-                {doc.paletteOverride ? " ✓" : ""}
               </button>
               {palettePickerOpen && (
-                <div className={styles.themeGallery} dir={t.dir} style={{ width: 340 }}>
-                  <div className={styles.themeGalleryHeader}>{lang === "he" ? "בחר פלטת צבעים" : "Choose colour palette"}</div>
-                  <div style={{ marginBottom: 8 }}>
-                    <button type="button"
-                      onClick={() => { st.setPaletteOverride(""); setPalettePickerOpen(false); }}
-                      style={{
-                        width: "100%", padding: "6px 12px", fontSize: 11, textAlign: "start",
-                        background: !doc.paletteOverride ? "var(--app-accent)" : "transparent",
-                        color: !doc.paletteOverride ? "#fff" : "inherit",
-                        border: "1px solid var(--app-border)", borderRadius: 4, cursor: "pointer",
-                      }}>
-                      {lang === "he" ? "ברירת מחדל (לפי עיצוב)" : "Default (from design)"}
-                    </button>
+                <div className={styles.themeGallery} dir={t.dir} style={{ width: 380 }}>
+                  <div className={styles.themeGalleryHeader}>
+                    {lang === "he" ? "עיצוב פלטת צבעים" : "Colour palette"}
                   </div>
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
+
+                  {/* ── Step 1: choose a preset as starting point ── */}
+                  <div style={{ fontSize: 11, fontWeight: 700, color: "#374151", marginBottom: 6 }}>
+                    {lang === "he" ? "נקודת התחלה (ערכת צבעים)" : "Starting point (colour set)"}
+                  </div>
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 5, marginBottom: 14 }}>
+                    {/* "default" option */}
+                    <button type="button"
+                      onClick={() => st.setPaletteOverride("")}
+                      style={{
+                        padding: "5px 4px", fontSize: 10, border: !doc.paletteOverride ? "2px solid var(--app-accent)" : "1px solid #d1d5db",
+                        borderRadius: 5, cursor: "pointer", background: !doc.paletteOverride ? "#f0f7ff" : "white",
+                        color: "#374151", lineHeight: 1.3,
+                      }}>
+                      {lang === "he" ? "ברירת מחדל" : "Default"}
+                    </button>
                     {(Object.keys(PALETTES) as PaletteId[]).map((pid) => {
                       const p = PALETTES[pid];
                       const isActive = doc.paletteOverride === pid;
-                      const names: Record<PaletteId, { he: string; en: string }> = {
-                        "corporate-navy":   { he: "Navy תאגידי",     en: "Corporate Navy" },
-                        "midnight-violet":  { he: "סגול לילה",       en: "Midnight Violet" },
-                        "deep-forest":      { he: "יער עמוק",        en: "Deep Forest" },
-                        "wine":             { he: "יין",             en: "Wine" },
-                        "obsidian":         { he: "אבסידיאן",        en: "Obsidian" },
-                        "tech-cyan":        { he: "ציאן טכנולוגי",   en: "Tech Cyan" },
-                        "muted-slate":      { he: "סלייט אפור",      en: "Muted Slate" },
-                        "soft-cream":       { he: "קרם רך",          en: "Soft Cream" },
-                        "minimal-paper":    { he: "נייר מינימלי",    en: "Minimal Paper" },
-                        "warm-terracotta":  { he: "טראקוטה חמה",     en: "Warm Terracotta" },
-                        "fresh-green":      { he: "ירוק טרי",        en: "Fresh Green" },
-                        "blush":            { he: "ורוד-סומק",       en: "Blush" },
-                        "monochrome":       { he: "מונוכרום",        en: "Monochrome" },
-                        "earth":            { he: "אדמה",            en: "Earth" },
-                        "arctic":           { he: "ארקטי",           en: "Arctic" },
-                        "sunset":           { he: "שקיעה",           en: "Sunset" },
-                      };
                       return (
                         <button key={pid} type="button"
-                          onClick={() => { st.setPaletteOverride(pid); setPalettePickerOpen(false); }}
+                          onClick={() => st.setPaletteOverride(pid)}
+                          title={pid}
                           style={{
-                            display: "flex", alignItems: "center", gap: 8, padding: "7px 10px",
-                            border: isActive ? "2px solid var(--app-accent)" : "1px solid var(--app-border)",
-                            borderRadius: 6, cursor: "pointer",
-                            background: isActive ? "rgba(var(--app-accent-rgb),0.06)" : "white",
-                            textAlign: "start",
+                            padding: 0, border: isActive ? "2px solid var(--app-accent)" : "1px solid #d1d5db",
+                            borderRadius: 5, cursor: "pointer", overflow: "hidden", height: 32,
                           }}>
-                          {/* mini gradient swatch */}
-                          <div style={{
-                            width: 36, height: 26, borderRadius: 4, flexShrink: 0, overflow: "hidden",
-                            border: "1px solid rgba(0,0,0,0.08)",
-                          }}>
-                            <div style={{ width: "100%", height: "55%", background: p.coverGradient }} />
-                            <div style={{ width: "100%", height: "45%", background: p.bgGradient, display: "flex", alignItems: "center", justifyContent: "flex-end", paddingRight: 3 }}>
-                              <span style={{ width: 6, height: 6, borderRadius: "50%", background: p.accent, display: "block" }} />
-                            </div>
+                          <div style={{ height: "55%", background: p.coverGradient }} />
+                          <div style={{ height: "45%", background: p.bgGradient, display: "flex", alignItems: "center", gap: 3, paddingInline: 4 }}>
+                            <span style={{ width: 5, height: 5, borderRadius: "50%", background: p.accent, flexShrink: 0 }} />
+                            <span style={{ width: 5, height: 5, borderRadius: "50%", background: p.accent2, flexShrink: 0 }} />
                           </div>
-                          <span style={{ fontSize: 11, lineHeight: 1.3 }}>
-                            {lang === "he" ? names[pid].he : names[pid].en}
-                          </span>
                         </button>
                       );
                     })}
                   </div>
+
+                  {/* ── Step 2: fine-tune individual colors ── */}
+                  <div style={{ fontSize: 11, fontWeight: 700, color: "#374151", marginBottom: 8 }}>
+                    {lang === "he" ? "כיוונון ידני (5 צבעים)" : "Custom colours (fine-tune)"}
+                  </div>
+                  <PaletteColorEditor
+                    cp={doc.customPalette ?? emptyCustomPalette()}
+                    basePaletteId={(doc.paletteOverride || selectedTheme.palette) as PaletteId}
+                    onChange={(patch) => st.setCustomPalette(patch)}
+                    lang={lang}
+                  />
+
+                  <button type="button" onClick={st.resetCustomPalette}
+                    style={{
+                      marginTop: 12, width: "100%", padding: "6px 0", fontSize: 11,
+                      border: "1px solid #d1d5db", borderRadius: 5, cursor: "pointer",
+                      background: "white", color: "#6b7280",
+                    }}>
+                    {lang === "he" ? "איפוס פלטה" : "Reset palette"}
+                  </button>
                 </div>
               )}
             </div>
@@ -289,19 +284,6 @@ export function DeckEditor() {
                   </Row>
                   <Row label={t.deck.bodyFont}>
                     <FontSelect value={doc.formatting.bodyFont} onChange={(v) => st.setFormatting({ bodyFont: v })} />
-                  </Row>
-                  <Row label={t.deck.accentColor}>
-                    <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
-                      <input type="color"
-                        value={doc.formatting.accentColor || PALETTES[selectedTheme.palette].accent}
-                        onChange={(e) => st.setFormatting({ accentColor: e.target.value })}
-                        style={{ width: 40, height: 28, border: "1px solid #ccc", borderRadius: 4, cursor: "pointer" }}
-                      />
-                      <button type="button"
-                        onClick={() => st.setFormatting({ accentColor: "" })}
-                        style={{ fontSize: 11, padding: "4px 8px", border: "1px solid #ddd", borderRadius: 4, background: "white", cursor: "pointer" }}
-                      >{t.deck.useTheme}</button>
-                    </div>
                   </Row>
                   <Row label={`${t.deck.titleSize} — ×${doc.formatting.titleScale.toFixed(2)}`}>
                     <input type="range" min={0.7} max={1.4} step={0.05}
@@ -454,5 +436,56 @@ function FontSelect({ value, onChange }: { value: string; onChange: (v: string) 
         <option key={o.id} value={o.id} style={{ fontFamily: o.css || undefined }}>{o.label}</option>
       ))}
     </select>
+  );
+}
+
+function PaletteColorEditor({
+  cp,
+  basePaletteId,
+  onChange,
+  lang,
+}: {
+  cp: CustomPalette;
+  basePaletteId: PaletteId;
+  onChange: (patch: Partial<CustomPalette>) => void;
+  lang: string;
+}) {
+  const base = getPalette(basePaletteId);
+  const fields: { key: keyof CustomPalette; labelHe: string; labelEn: string; baseVal: string }[] = [
+    { key: "coverBg",  labelHe: "רקע כריכה",      labelEn: "Cover background",    baseVal: base.coverBg },
+    { key: "bg",       labelHe: "רקע תוכן",        labelEn: "Content background",  baseVal: base.bg },
+    { key: "accent",   labelHe: "הדגשה ראשית",     labelEn: "Primary accent",      baseVal: base.accent },
+    { key: "accent2",  labelHe: "הדגשה משנית",     labelEn: "Secondary accent",    baseVal: base.accent2 },
+    { key: "text",     labelHe: "צבע טקסט",        labelEn: "Text colour",         baseVal: base.text },
+  ];
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+      {fields.map(({ key, labelHe, labelEn, baseVal }) => {
+        const current = cp[key] || baseVal;
+        const isCustom = !!cp[key];
+        return (
+          <div key={key} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <input
+              type="color"
+              value={current}
+              onChange={(e) => onChange({ [key]: e.target.value })}
+              style={{ width: 36, height: 28, border: "1px solid #d1d5db", borderRadius: 4, cursor: "pointer", padding: 2, flexShrink: 0 }}
+            />
+            <span style={{ flex: 1, fontSize: 11, color: "#374151" }}>
+              {lang === "he" ? labelHe : labelEn}
+              {isCustom && <span style={{ color: "var(--app-accent)", marginInlineStart: 4 }}>✓</span>}
+            </span>
+            {isCustom && (
+              <button
+                type="button"
+                onClick={() => onChange({ [key]: "" })}
+                title={lang === "he" ? "איפוס לברירת מחדל" : "Reset to default"}
+                style={{ fontSize: 10, color: "#9ca3af", background: "none", border: "none", cursor: "pointer", padding: "0 2px" }}
+              >✕</button>
+            )}
+          </div>
+        );
+      })}
+    </div>
   );
 }

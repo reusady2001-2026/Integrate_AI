@@ -27,9 +27,61 @@ type Effective = {
   accent: string;
 };
 
+// Derive a simple 2-stop gradient from a hex color by darkening one end.
+function deriveCoverGradient(hex: string): string {
+  return `linear-gradient(135deg, ${shiftHex(hex, -40)} 0%, ${hex} 55%, ${shiftHex(hex, 18)} 100%)`;
+}
+function deriveAccentGradient(hex: string): string {
+  return `linear-gradient(90deg, ${hex} 0%, ${shiftHex(hex, -20)} 100%)`;
+}
+function deriveBgGradient(hex: string): string {
+  return `linear-gradient(180deg, ${hex} 0%, ${shiftHex(hex, -8)} 100%)`;
+}
+function deriveGlow(hex: string): string {
+  return `${hex}44`;
+}
+
+// Shift each RGB channel by `delta` (clamped 0–255).
+function shiftHex(hex: string, delta: number): string {
+  const h = hex.replace(/^#/, "");
+  if (h.length !== 6) return hex;
+  const r = Math.min(255, Math.max(0, parseInt(h.slice(0, 2), 16) + delta));
+  const g = Math.min(255, Math.max(0, parseInt(h.slice(2, 4), 16) + delta));
+  const b = Math.min(255, Math.max(0, parseInt(h.slice(4, 6), 16) + delta));
+  return `#${r.toString(16).padStart(2, "0")}${g.toString(16).padStart(2, "0")}${b.toString(16).padStart(2, "0")}`;
+}
+
 export function resolveTheme(theme: DeckTheme, doc: StrategyDeck): Effective {
   const paletteId = (doc.paletteOverride || theme.palette) as Parameters<typeof getPalette>[0];
-  const palette = getPalette(paletteId);
+  let palette = { ...getPalette(paletteId) };
+  const cp = doc.customPalette ?? {};
+
+  // Apply per-color overrides and auto-derive gradient tokens.
+  if (cp.coverBg) {
+    palette.coverBg = cp.coverBg;
+    palette.coverGradient = deriveCoverGradient(cp.coverBg);
+  }
+  if (cp.bg) {
+    palette.bg = cp.bg;
+    palette.bgAlt = shiftHex(cp.bg, -10);
+    palette.bgGradient = deriveBgGradient(cp.bg);
+    palette.cardBg = `${cp.bg}ee`;
+    palette.cardBorder = `${shiftHex(cp.bg, -30)}33`;
+  }
+  if (cp.accent) {
+    palette.accent = cp.accent;
+    palette.accentGradient = deriveAccentGradient(cp.accent);
+    palette.glow = deriveGlow(cp.accent);
+  }
+  if (cp.accent2) {
+    palette.accent2 = cp.accent2;
+  }
+  if (cp.text) {
+    palette.text = cp.text;
+    palette.textMuted = shiftHex(cp.text, 60);
+    palette.coverText = cp.coverBg ? (isDark(cp.coverBg) ? "#ffffff" : "#111111") : palette.coverText;
+  }
+
   const baseFont = getFont(theme.font);
   const fmt = doc.formatting;
   const font: FontPair = {
@@ -38,12 +90,21 @@ export function resolveTheme(theme: DeckTheme, doc: StrategyDeck): Effective {
     body: fmt.bodyFont || baseFont.body,
   };
   return {
-    palette: { ...palette, accent: fmt.accentColor || palette.accent },
+    palette,
     font,
     titleScale: (theme.titleScale ?? 1) * (fmt.titleScale ?? 1),
     bodyScale: (theme.bodyScale ?? 1) * (fmt.bodyScale ?? 1),
-    accent: fmt.accentColor || palette.accent,
+    accent: palette.accent,
   };
+}
+
+function isDark(hex: string): boolean {
+  const h = hex.replace(/^#/, "");
+  if (h.length !== 6) return true;
+  const r = parseInt(h.slice(0, 2), 16);
+  const g = parseInt(h.slice(2, 4), 16);
+  const b = parseInt(h.slice(4, 6), 16);
+  return (r * 0.299 + g * 0.587 + b * 0.114) < 128;
 }
 
 interface SlideViewProps {

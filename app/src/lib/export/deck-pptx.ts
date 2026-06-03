@@ -37,11 +37,18 @@ export async function renderDeckPptx(doc: StrategyDeck, lang: Lang): Promise<voi
 
   const theme = DECK_THEMES.find((t) => t.id === doc.theme) ?? DECK_THEMES[0];
   const paletteId = (doc.paletteOverride || theme.palette) as keyof typeof PALETTES;
-  const palette = PALETTES[paletteId];
+  let palette = { ...PALETTES[paletteId] };
+  // Apply custom palette overrides
+  const cp = doc.customPalette ?? {};
+  if (cp.coverBg) palette.coverBg = cp.coverBg;
+  if (cp.bg) { palette.bg = cp.bg; palette.bgAlt = cp.bg; }
+  if (cp.accent) palette.accent = cp.accent;
+  if (cp.accent2) palette.accent2 = cp.accent2;
+  if (cp.text) { palette.text = cp.text; palette.textMuted = cp.text; }
   const baseFont = FONT_PAIRS[theme.font];
   const font: FontPair = { ...baseFont };
   const fmt = doc.formatting;
-  const accent = fmt.accentColor || palette.accent;
+  const accent = cp.accent || palette.accent;
   const rtl = lang === "he";
 
   const ctx: Ctx = {

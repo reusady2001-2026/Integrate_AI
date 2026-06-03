@@ -5,7 +5,9 @@ import type { Lang } from "./i18n";
 import { translateAnyDoc } from "./translate";
 import {
   defaultDeckFormatting,
+  emptyCustomPalette,
   emptySlide,
+  type CustomPalette,
   type DeckFormatting,
   type Slide,
   type SlideLayout,
@@ -19,6 +21,8 @@ type State = {
   setField: <K extends keyof S>(key: K, value: S[K]) => void;
   setTheme: (id: string) => void;
   setPaletteOverride: (id: string) => void;
+  setCustomPalette: (patch: Partial<CustomPalette>) => void;
+  resetCustomPalette: () => void;
   setFormatting: (patch: Partial<DeckFormatting>) => void;
   resetFormatting: () => void;
   setSlide: (i: number, patch: Partial<Slide>) => void;
@@ -43,6 +47,7 @@ const emptyDeck = (): StrategyDeck => ({
   date: "",
   theme: "navy-classic",
   paletteOverride: "",
+  customPalette: emptyCustomPalette(),
   formatting: defaultDeckFormatting(),
   slides: [emptySlide("cover"), emptySlide("content")],
 });
@@ -52,9 +57,14 @@ export const useStrategyDeckStore = create<State>((set, get) => ({
   setField: (k, v) => set((s) => ({ doc: { ...s.doc, [k]: v } })),
   setTheme: (id) => set((s) => ({ doc: { ...s.doc, theme: id } })),
   setPaletteOverride: (id) => set((s) => ({ doc: { ...s.doc, paletteOverride: id } })),
+  setCustomPalette: (patch) =>
+    set((s) => ({ doc: { ...s.doc, customPalette: { ...s.doc.customPalette, ...patch } } })),
+  resetCustomPalette: () =>
+    set((s) => ({ doc: { ...s.doc, paletteOverride: "", customPalette: emptyCustomPalette() } })),
   setFormatting: (patch) =>
     set((s) => ({ doc: { ...s.doc, formatting: { ...s.doc.formatting, ...patch } } })),
-  resetFormatting: () => set((s) => ({ doc: { ...s.doc, formatting: defaultDeckFormatting() } })),
+  resetFormatting: () =>
+    set((s) => ({ doc: { ...s.doc, formatting: defaultDeckFormatting() } })),
   setSlide: (i, p) =>
     set((s) => ({ doc: { ...s.doc, slides: s.doc.slides.map((sl, idx) => (idx === i ? { ...sl, ...p } : sl)) } })),
   addSlide: (layout = "content") =>
