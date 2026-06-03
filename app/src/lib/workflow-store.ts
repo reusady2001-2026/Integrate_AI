@@ -5,10 +5,12 @@ import type { Lang } from "./i18n";
 import { translateAnyDoc } from "./translate";
 import { emptyRaciRow, emptyStep, emptyWorkflow, type RaciRow, type Step, type Workflow } from "./schemas/workflow";
 import { sampleStraussWorkflow } from "./samples/strauss-samples";
+import { defaultDocDesign, emptyDocCustomPalette, type DocCustomPalette, type DocDesign } from "./themes/doc-themes";
 
 type S = Workflow;
 type State = {
   doc: S;
+  design: DocDesign;
   setField: <K extends keyof S>(key: K, value: S[K]) => void;
   setInput: (i: number, v: string) => void;
   addInput: () => void;
@@ -22,6 +24,11 @@ type State = {
   setRaci: (i: number, patch: Partial<RaciRow>) => void;
   addRaci: () => void;
   removeRaci: (i: number) => void;
+  setDocTheme: (id: string) => void;
+  setDocPaletteOverride: (id: string) => void;
+  setDocCustomPalette: (patch: Partial<DocCustomPalette>) => void;
+  resetDocDesign: () => void;
+  setDocFormatting: (patch: Partial<Pick<DocDesign, "titleFont" | "bodyFont" | "fontSize" | "titleScale" | "bodyScale" | "tableStyle">>) => void;
   loadSample: () => void;
   reset: () => void;
   translate: (from: Lang, to: Lang) => Promise<void>;
@@ -32,6 +39,14 @@ const removeAt = <T,>(arr: T[], i: number): T[] => (arr.length > 1 ? arr.filter(
 
 export const useWorkflowStore = create<State>((set, get) => ({
   doc: emptyWorkflow(),
+  design: defaultDocDesign(),
+
+  setDocTheme: (id) => set((s) => ({ design: { ...s.design, theme: id } })),
+  setDocPaletteOverride: (id) => set((s) => ({ design: { ...s.design, paletteOverride: id } })),
+  setDocCustomPalette: (patch) => set((s) => ({ design: { ...s.design, customPalette: { ...s.design.customPalette, ...patch } } })),
+  resetDocDesign: () => set({ design: defaultDocDesign() }),
+  setDocFormatting: (patch) => set((s) => ({ design: { ...s.design, ...patch } })),
+
   setField: (k, v) => set((s) => ({ doc: { ...s.doc, [k]: v } })),
   setInput: (i, v) => set((s) => ({ doc: { ...s.doc, inputs: s.doc.inputs.map((x, idx) => idx === i ? v : x) } })),
   addInput: () => set((s) => ({ doc: { ...s.doc, inputs: [...s.doc.inputs, ""] } })),

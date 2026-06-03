@@ -4,30 +4,38 @@ import { type CSSProperties } from "react";
 import { strings } from "@/lib/i18n";
 import { useAppStore } from "@/lib/app-store";
 import { useKpiStore } from "@/lib/store";
-import { FONT_CSS } from "@/lib/formatting";
+import { resolveDocTheme } from "@/lib/themes/doc-themes";
 import { Editable } from "@/components/Editable";
 import styles from "./Template.module.css";
 
 export function KpiTemplate() {
   const lang = useAppStore((s) => s.lang);
-  const fmt = useAppStore((s) => s.formatting);
   const t = strings[lang];
   const doc = useKpiStore((s) => s.doc);
+  const design = useKpiStore((s) => s.design);
   const {
     setField, setKpi, addKpi, removeKpi,
     setScorecardRow, addScorecardRow, removeScorecardRow,
   } = useKpiStore();
 
-  const tableClass = styles[`table_${fmt.tableStyle}` as keyof typeof styles] ?? "";
+  const eff = resolveDocTheme(design.theme, design);
+  const tableClass = styles[`table_${eff.tableStyle}` as keyof typeof styles] ?? "";
+  const hsClass = styles[`hs_${eff.headingStyle}` as keyof typeof styles] ?? styles.hs_classic ?? "";
   const docStyle = {
-    "--doc-font-body": FONT_CSS[fmt.fontFamily],
-    "--doc-font-display": FONT_CSS[fmt.fontFamily],
-    "--doc-accent": fmt.headingColor,
-    fontSize: `${fmt.fontSize}pt`,
+    "--doc-font-body": eff.fontBody,
+    "--doc-font-display": eff.fontDisplay,
+    "--doc-accent": eff.accent,
+    "--doc-accent2": eff.accent2,
+    "--doc-surface": eff.surface,
+    "--doc-fg": eff.fg,
+    "--doc-muted": eff.muted,
+    "--doc-border": eff.border,
+    "--doc-border-soft": eff.borderSoft,
+    fontSize: `${eff.fontSize}pt`,
   } as CSSProperties;
 
   return (
-    <article className={`${styles.doc} ${tableClass}`} lang={lang} dir={t.dir} style={docStyle}>
+    <article className={`${styles.doc} ${hsClass} ${tableClass}`} lang={lang} dir={t.dir} style={docStyle}>
       <h1 className={styles.h1}>{t.docTitle}</h1>
 
       <EditField label={t.company} gloss={t.companyGloss} value={doc.company} onChange={(v) => setField("company", v)} />

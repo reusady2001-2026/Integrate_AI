@@ -38,9 +38,63 @@
   font-size: 1.4rem;
   font-weight: 700;
   margin: 2rem 0 0.5rem;
-  padding-inline-start: 0.6rem;
+}
+
+/* ── Heading style variants (applied via .hs_* class on <article>) ── */
+
+/* classic: left/right inline border + accent color */
+.hs_classic .h2 {
   color: var(--doc-accent);
   border-inline-start: 3px solid var(--doc-accent);
+  padding-inline-start: 0.6rem;
+}
+
+/* minimal: thin bottom border, accent color, no side border */
+.hs_minimal .h2 {
+  color: var(--doc-accent);
+  border-bottom: 2px solid var(--doc-accent);
+  padding-bottom: 0.35rem;
+}
+
+/* bold: uppercase, heavy top rule */
+.hs_bold .h2 {
+  font-size: 1rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: var(--doc-fg);
+  border-top: 3px solid var(--doc-accent);
+  padding-top: 0.5rem;
+  margin-top: 2.5rem;
+}
+
+/* editorial: very large, light weight, hairline bottom */
+.hs_editorial .h2 {
+  font-size: 2rem;
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  color: var(--doc-fg);
+  border-bottom: 1px solid var(--doc-border);
+  padding-bottom: 0.3rem;
+}
+
+/* modern: gradient chip background */
+.hs_modern .h2 {
+  color: var(--doc-surface);
+  background: linear-gradient(135deg, var(--doc-accent) 0%, var(--doc-accent2, var(--doc-accent)) 100%);
+  padding: 0.35rem 0.75rem;
+  border-radius: 4px;
+  font-size: 1.2rem;
+}
+
+/* magazine: full-width solid band, bleeds to edges */
+.hs_magazine .h2 {
+  color: var(--doc-surface);
+  background: var(--doc-accent);
+  padding: 0.45rem 1.75rem;
+  margin-inline: -1.75rem;
+  font-size: 1.15rem;
+  letter-spacing: 0.03em;
 }
 
 .h3 {

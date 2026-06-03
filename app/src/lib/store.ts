@@ -12,9 +12,11 @@ import {
   type ScorecardRow,
 } from "./schemas/kpis";
 import { sampleStraussKpi } from "./samples/strauss-samples";
+import { defaultDocDesign, emptyDocCustomPalette, type DocCustomPalette, type DocDesign } from "./themes/doc-themes";
 
 type KpiState = {
   doc: KpiDocument;
+  design: DocDesign;
   setField: <K extends keyof KpiDocument>(key: K, value: KpiDocument[K]) => void;
   setKpi: (index: number, patch: Partial<KpiBlock>) => void;
   addKpi: () => void;
@@ -22,6 +24,11 @@ type KpiState = {
   setScorecardRow: (index: number, patch: Partial<ScorecardRow>) => void;
   addScorecardRow: () => void;
   removeScorecardRow: (index: number) => void;
+  setDocTheme: (id: string) => void;
+  setDocPaletteOverride: (id: string) => void;
+  setDocCustomPalette: (patch: Partial<DocCustomPalette>) => void;
+  resetDocDesign: () => void;
+  setDocFormatting: (patch: Partial<Pick<DocDesign, "titleFont" | "bodyFont" | "fontSize" | "titleScale" | "bodyScale" | "tableStyle">>) => void;
   loadSample: () => void;
   reset: () => void;
   translate: (from: Lang, to: Lang) => Promise<void>;
@@ -29,6 +36,13 @@ type KpiState = {
 
 export const useKpiStore = create<KpiState>((set, get) => ({
   doc: emptyKpiDocument(),
+  design: defaultDocDesign(),
+
+  setDocTheme: (id) => set((s) => ({ design: { ...s.design, theme: id } })),
+  setDocPaletteOverride: (id) => set((s) => ({ design: { ...s.design, paletteOverride: id } })),
+  setDocCustomPalette: (patch) => set((s) => ({ design: { ...s.design, customPalette: { ...s.design.customPalette, ...patch } } })),
+  resetDocDesign: () => set({ design: defaultDocDesign() }),
+  setDocFormatting: (patch) => set((s) => ({ design: { ...s.design, ...patch } })),
 
   setField: (key, value) =>
     set((s) => ({ doc: { ...s.doc, [key]: value } })),

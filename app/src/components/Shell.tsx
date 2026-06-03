@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { type ReactNode } from "react";
 import { useAppStore, type Artifact } from "@/lib/app-store";
 import { useKpiStore } from "@/lib/store";
 import { useJobStore } from "@/lib/job-store";
@@ -9,22 +9,7 @@ import { useStrategyDeckStore } from "@/lib/strategy-deck-store";
 import { useOrgStructureStore } from "@/lib/org-structure-store";
 import { useWorkflowStore } from "@/lib/workflow-store";
 import { strings, type Lang } from "@/lib/i18n";
-import { FormattingPanel } from "./FormattingPanel";
-
-export type DesignSystem =
-  | "editorial"
-  | "elegant"
-  | "kami"
-  | "paper"
-  | "warm-editorial";
-
-const SYSTEM_LABELS: Record<DesignSystem, string> = {
-  editorial: "Editorial",
-  elegant: "Elegant",
-  kami: "Kami",
-  paper: "Paper",
-  "warm-editorial": "Warm Editorial",
-};
+import { DocDesignBar, type DocDesignProps } from "./DocDesignBar";
 
 const ARTIFACTS: Artifact[] = [
   "kpi",
@@ -42,7 +27,6 @@ export function Shell({
   preview: ReactNode;
   onExport?: () => void;
 }) {
-  const [ds, setDs] = useState<DesignSystem>("editorial");
   const artifact = useAppStore((s) => s.artifact);
   const openArtifact = useAppStore((s) => s.openArtifact);
   const goHome = useAppStore((s) => s.goHome);
@@ -61,6 +45,28 @@ export function Shell({
 
   const stores = { kpi, "job-description": job, "strategy-document": sdoc, "strategy-deck": sdeck, "org-structure": org, workflow: wf };
   const current = stores[artifact];
+
+  // Build DocDesignBar props from the current artifact's store
+  const docDesignProps: DocDesignProps | null = (() => {
+    const storeMap = {
+      kpi:                kpi,
+      "job-description":  job,
+      "strategy-document": sdoc,
+      "org-structure":    org,
+      workflow:           wf,
+    };
+    const s = storeMap[artifact as keyof typeof storeMap];
+    if (!s) return null;
+    return {
+      design:               s.design,
+      setDocTheme:          s.setDocTheme,
+      setDocPaletteOverride: s.setDocPaletteOverride,
+      setDocCustomPalette:  s.setDocCustomPalette,
+      resetDocDesign:       s.resetDocDesign,
+      setDocFormatting:     s.setDocFormatting,
+      lang,
+    };
+  })();
 
   const switchLang = async (to: Lang) => {
     if (lang === to) return;
@@ -98,22 +104,7 @@ export function Shell({
           <button type="button" onClick={current.reset} className="btn-secondary">{t.reset}</button>
         </div>
         <div className="flex items-center gap-3">
-          <label className="flex items-center gap-2 text-xs text-[color:var(--app-muted)]">
-            <span>{lang === "he" ? "סגנון עיצוב" : "Design"}</span>
-            <select
-              value={ds}
-              onChange={(e) => setDs(e.target.value as DesignSystem)}
-              className="text-xs bg-white border border-[color:var(--app-border)] rounded px-2 py-1"
-              aria-label="design system"
-            >
-              {(Object.keys(SYSTEM_LABELS) as DesignSystem[]).map((key) => (
-                <option key={key} value={key}>
-                  {SYSTEM_LABELS[key]}
-                </option>
-              ))}
-            </select>
-          </label>
-          <FormattingPanel />
+          {docDesignProps && <DocDesignBar {...docDesignProps} />}
           <button
             type="button"
             onClick={() => switchLang(lang === "he" ? "en" : "he")}
@@ -133,7 +124,7 @@ export function Shell({
         </div>
       </header>
 
-      <div data-ds={ds} className="flex-1 preview-surface overflow-y-auto p-8">
+      <div className="flex-1 preview-surface overflow-y-auto p-8">
         <div className="mx-auto max-w-3xl">{preview}</div>
       </div>
     </div>

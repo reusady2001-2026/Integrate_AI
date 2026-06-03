@@ -12,9 +12,11 @@ import {
   type ResponsibilityArea,
 } from "./schemas/job-description";
 import { sampleStraussJob } from "./samples/strauss-samples";
+import { defaultDocDesign, emptyDocCustomPalette, type DocCustomPalette, type DocDesign } from "./themes/doc-themes";
 
 type JobState = {
   doc: JobDocument;
+  design: DocDesign;
   setField: <K extends keyof JobDocument>(key: K, value: JobDocument[K]) => void;
   setArea: (i: number, patch: Partial<ResponsibilityArea>) => void;
   addArea: () => void;
@@ -26,6 +28,11 @@ type JobState = {
   addInterface: () => void;
   removeInterface: (i: number) => void;
   toggleSection: (key: keyof JobDocument["enabled"]) => void;
+  setDocTheme: (id: string) => void;
+  setDocPaletteOverride: (id: string) => void;
+  setDocCustomPalette: (patch: Partial<DocCustomPalette>) => void;
+  resetDocDesign: () => void;
+  setDocFormatting: (patch: Partial<Pick<DocDesign, "titleFont" | "bodyFont" | "fontSize" | "titleScale" | "bodyScale" | "tableStyle">>) => void;
   loadSample: () => void;
   reset: () => void;
   translate: (from: Lang, to: Lang) => Promise<void>;
@@ -33,6 +40,13 @@ type JobState = {
 
 export const useJobStore = create<JobState>((set, get) => ({
   doc: emptyJobDocument(),
+  design: defaultDocDesign(),
+
+  setDocTheme: (id) => set((s) => ({ design: { ...s.design, theme: id } })),
+  setDocPaletteOverride: (id) => set((s) => ({ design: { ...s.design, paletteOverride: id } })),
+  setDocCustomPalette: (patch) => set((s) => ({ design: { ...s.design, customPalette: { ...s.design.customPalette, ...patch } } })),
+  resetDocDesign: () => set({ design: defaultDocDesign() }),
+  setDocFormatting: (patch) => set((s) => ({ design: { ...s.design, ...patch } })),
 
   setField: (key, value) => set((s) => ({ doc: { ...s.doc, [key]: value } })),
 

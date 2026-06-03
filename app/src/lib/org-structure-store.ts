@@ -8,10 +8,12 @@ import {
   type AuthorityRow, type Division, type GovernanceRow, type OrgStructure,
 } from "./schemas/org-structure";
 import { sampleStraussOrg } from "./samples/strauss-samples";
+import { defaultDocDesign, emptyDocCustomPalette, type DocCustomPalette, type DocDesign } from "./themes/doc-themes";
 
 type S = OrgStructure;
 type State = {
   doc: S;
+  design: DocDesign;
   setField: <K extends keyof S>(key: K, value: S[K]) => void;
   setPrinciple: (i: number, v: string) => void;
   addPrinciple: () => void;
@@ -25,6 +27,11 @@ type State = {
   setAuthority: (i: number, patch: Partial<AuthorityRow>) => void;
   addAuthority: () => void;
   removeAuthority: (i: number) => void;
+  setDocTheme: (id: string) => void;
+  setDocPaletteOverride: (id: string) => void;
+  setDocCustomPalette: (patch: Partial<DocCustomPalette>) => void;
+  resetDocDesign: () => void;
+  setDocFormatting: (patch: Partial<Pick<DocDesign, "titleFont" | "bodyFont" | "fontSize" | "titleScale" | "bodyScale" | "tableStyle">>) => void;
   loadSample: () => void;
   reset: () => void;
   translate: (from: Lang, to: Lang) => Promise<void>;
@@ -35,6 +42,14 @@ const removeAt = <T,>(arr: T[], i: number): T[] => (arr.length > 1 ? arr.filter(
 
 export const useOrgStructureStore = create<State>((set, get) => ({
   doc: emptyOrgStructure(),
+  design: defaultDocDesign(),
+
+  setDocTheme: (id) => set((s) => ({ design: { ...s.design, theme: id } })),
+  setDocPaletteOverride: (id) => set((s) => ({ design: { ...s.design, paletteOverride: id } })),
+  setDocCustomPalette: (patch) => set((s) => ({ design: { ...s.design, customPalette: { ...s.design.customPalette, ...patch } } })),
+  resetDocDesign: () => set({ design: defaultDocDesign() }),
+  setDocFormatting: (patch) => set((s) => ({ design: { ...s.design, ...patch } })),
+
   setField: (k, v) => set((s) => ({ doc: { ...s.doc, [k]: v } })),
   setPrinciple: (i, v) => set((s) => ({ doc: { ...s.doc, principles: s.doc.principles.map((p, idx) => idx === i ? v : p) } })),
   addPrinciple: () => set((s) => ({ doc: { ...s.doc, principles: [...s.doc.principles, ""] } })),

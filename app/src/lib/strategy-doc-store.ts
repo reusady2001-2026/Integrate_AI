@@ -10,10 +10,12 @@ import {
   type StrategyDocument,
 } from "./schemas/strategy-document";
 import { sampleStraussStrategy } from "./samples/strauss-samples";
+import { defaultDocDesign, emptyDocCustomPalette, type DocCustomPalette, type DocDesign } from "./themes/doc-themes";
 
 type S = StrategyDocument;
 type State = {
   doc: S;
+  design: DocDesign;
   setField: <K extends keyof S>(key: K, value: S[K]) => void;
   setPortfolio: (i: number, patch: Partial<PortfolioRow>) => void;
   addPortfolio: () => void;
@@ -39,6 +41,11 @@ type State = {
   setRisk: (i: number, patch: Partial<RiskRow>) => void;
   addRisk: () => void;
   removeRisk: (i: number) => void;
+  setDocTheme: (id: string) => void;
+  setDocPaletteOverride: (id: string) => void;
+  setDocCustomPalette: (patch: Partial<DocCustomPalette>) => void;
+  resetDocDesign: () => void;
+  setDocFormatting: (patch: Partial<Pick<DocDesign, "titleFont" | "bodyFont" | "fontSize" | "titleScale" | "bodyScale" | "tableStyle">>) => void;
   loadSample: () => void;
   reset: () => void;
   translate: (from: Lang, to: Lang) => Promise<void>;
@@ -50,6 +57,14 @@ const removeAt = <T,>(arr: T[], i: number): T[] => (arr.length > 1 ? arr.filter(
 
 export const useStrategyDocStore = create<State>((set, get) => ({
   doc: emptyStrategyDocument(),
+  design: defaultDocDesign(),
+
+  setDocTheme: (id) => set((s) => ({ design: { ...s.design, theme: id } })),
+  setDocPaletteOverride: (id) => set((s) => ({ design: { ...s.design, paletteOverride: id } })),
+  setDocCustomPalette: (patch) => set((s) => ({ design: { ...s.design, customPalette: { ...s.design.customPalette, ...patch } } })),
+  resetDocDesign: () => set({ design: defaultDocDesign() }),
+  setDocFormatting: (patch) => set((s) => ({ design: { ...s.design, ...patch } })),
+
   setField: (key, value) => set((s) => ({ doc: { ...s.doc, [key]: value } })),
   setPortfolio: (i, p) => set((s) => ({ doc: { ...s.doc, portfolio: setRow(s.doc.portfolio, i, p) } })),
   addPortfolio: () => set((s) => ({ doc: { ...s.doc, portfolio: [...s.doc.portfolio, emptyPortfolioRow()] } })),
