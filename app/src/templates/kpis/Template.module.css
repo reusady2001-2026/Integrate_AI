@@ -524,3 +524,108 @@
 .radius_sharp.doc  { border-radius: 0; }
 .radius_medium.doc { border-radius: 8px; }
 .radius_large.doc  { border-radius: 16px; }
+
+/* ══════════════════════════════════════════════════════════════════
+   Visual org-chart tree (used by OrgStructureTemplate).
+   Root sits at top. Children descend below the trunk like roots
+   fanning out, connected by a vertical trunk line + horizontal stubs.
+   Logical properties keep it RTL-friendly.
+   ══════════════════════════════════════════════════════════════════ */
+
+.orgChart {
+  margin: 0.75rem 0 1.5rem;
+  padding: 1.25rem 1rem;
+  background: color-mix(in oklab, var(--doc-surface), var(--doc-fg) 2%);
+  border: 1px solid var(--doc-border-soft);
+  border-radius: 6px;
+  overflow-x: auto;
+  font-family: var(--doc-font-body);
+}
+
+.orgNode {
+  position: relative;
+  margin: 0;
+}
+
+.orgBox {
+  display: inline-block;
+  margin-block: 4px;
+  padding: 6px 12px;
+  border: 1.5px solid var(--doc-accent);
+  border-radius: 5px;
+  background: linear-gradient(180deg,
+    var(--doc-surface) 0%,
+    color-mix(in oklab, var(--doc-surface), var(--doc-accent) 8%) 100%);
+  font-size: 0.92em;
+  line-height: 1.35;
+  color: var(--doc-fg);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  max-width: 30em;
+}
+
+.orgBoxRoot {
+  border-width: 2px;
+  font-weight: 700;
+  background: linear-gradient(180deg,
+    color-mix(in oklab, var(--doc-surface), var(--doc-accent) 8%) 0%,
+    color-mix(in oklab, var(--doc-surface), var(--doc-accent) 16%) 100%);
+}
+
+.orgBoxTitle {
+  font-size: 0.85em;
+  color: var(--doc-muted);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+.orgBoxName {
+  font-weight: 600;
+  font-size: 1em;
+}
+
+.orgBoxRoot .orgBoxName {
+  font-weight: 700;
+  font-size: 1.05em;
+}
+
+.orgBoxNotes {
+  font-size: 0.78em;
+  color: var(--doc-muted);
+  margin-block-start: 2px;
+  font-weight: 400;
+}
+
+/* Children container — indented to the inline-start (= right side in RTL) */
+.orgChildren {
+  margin-block-start: 6px;
+  padding-inline-start: 18px;
+  border-inline-start: 1.5px solid var(--doc-accent2, var(--doc-border));
+  margin-inline-start: 14px;
+}
+
+/* Each child gets a horizontal stub from the trunk to its box */
+.orgChildren > .orgNode::before {
+  content: "";
+  position: absolute;
+  inset-inline-start: -18px;
+  top: 16px;
+  width: 18px;
+  height: 1.5px;
+  background: var(--doc-accent2, var(--doc-border));
+}
+
+/* Last child: trim the trunk at the stub so the line doesn't dangle */
+.orgChildren > .orgNode:last-child::after {
+  content: "";
+  position: absolute;
+  inset-inline-start: -19.5px;
+  top: 17px;
+  bottom: -2px;
+  width: 3px;
+  background: color-mix(in oklab, var(--doc-surface), var(--doc-fg) 2%);
+}
+
+@media print {
+  .orgChart { background: transparent; border-color: var(--doc-border); }
+  .orgBox { box-shadow: none; }
+}

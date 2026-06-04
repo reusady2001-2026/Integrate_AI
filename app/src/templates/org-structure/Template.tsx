@@ -6,6 +6,7 @@ import { useAppStore } from "@/lib/app-store";
 import { useOrgStructureStore } from "@/lib/org-structure-store";
 import { resolveDocTheme, buildDocPresentation } from "@/lib/themes/doc-themes";
 import { Editable } from "@/components/Editable";
+import { OrgChartView } from "./OrgChartTree";
 import styles from "../kpis/Template.module.css";
 
 export function OrgStructureTemplate() {
@@ -66,13 +67,19 @@ export function OrgStructureTemplate() {
 
       <h2 className={styles.h2}>{to.chartHeading}</h2>
       <p className={styles.guidance}>{to.chartGuidance}</p>
-      <Editable
-        value={doc.chart}
-        onChange={(v) => st.setField("chart", v)}
-        block
-        className={styles.value}
-        style={{ whiteSpace: "pre-wrap", borderBottom: 0, minHeight: "5em", fontFamily: "ui-monospace, monospace" }}
-      />
+      <OrgChartView chart={doc.chart} />
+      <details style={{ marginTop: "0.5rem" }}>
+        <summary style={{ cursor: "pointer", color: "var(--doc-muted)", fontSize: "0.85em" }}>
+          {lang === "he" ? "ערוך טקסט מקור של התרשים" : "Edit source text"}
+        </summary>
+        <Editable
+          value={doc.chart}
+          onChange={(v) => st.setField("chart", v)}
+          block
+          className={styles.value}
+          style={{ whiteSpace: "pre-wrap", borderBottom: 0, minHeight: "5em", fontFamily: "ui-monospace, monospace", marginTop: "0.5rem" }}
+        />
+      </details>
 
       <h2 className={styles.h2}>{to.divisionsHeading}</h2>
       <p className={styles.guidance}>{to.divisionsGuidance}</p>
