@@ -1,11 +1,12 @@
 /**
  * Seeded project: דור־אלון אנרגיה בישראל (1988) בע\"מ.
  *
- * v8 — Adds the 11 SVP-level Job Descriptions (Rule 3 — 4 capability
- * sections), wired in via ./jobs.ts. Total bundle now: strategy doc
- * (11-section structure), org structure, 6 workflows, and 11 SVP JDs
- * (CEO, Stations, Food [להשלמה], Real Estate, Dorgaz CEO, Renewable
- * Energy [NEW], Strategy/BD, CFO [להשלמה], Legal/GC, Marketing, IT).
+ * v9 — Adds the 11 per-role KPI bundles (./kpis.ts). KPI documents are
+ * snapshot documents (Rule 0); numeric figures allowed, but targets that
+ * require management approval are marked [להחלטת דירקטוריון] /
+ * [להחלטת הנהלה]. Structural attributes (formula, owner, cadence) fully
+ * specified per Rule 14. Total bundle now: strategy doc + org structure
+ * + 6 workflows + 11 SVP JDs + 11 KPI bundles.
  *
  * Each JD is an archetype document — structural attributes only, no
  * point-in-time data, no person names; breadth before depth (6-10
@@ -23,6 +24,7 @@
 import type { SeededProjectFile } from "../../../lib/projects";
 import { defaultDocDesign } from "../../../lib/themes/doc-themes";
 import { dorAlonJobs, JOB_DOC_ID_LIST } from "./jobs";
+import { dorAlonKpis, KPI_DOC_ID_LIST } from "./kpis";
 
 const STRATEGY_DOC_ID = "pd_strategy_dor_alon_v5";
 const ORG_DOC_ID = "pd_org_dor_alon_v6";
@@ -36,7 +38,7 @@ const WF_RPT_BSRE        = "pd_wf_rpt_bsre_v7";
 const design = defaultDocDesign();
 
 const seed: SeededProjectFile = {
-  version: 8,
+  version: 9,
   project: {
     slug: "dor-alon",
     name: { he: "דור אלון אנרגיה בישראל", en: "Dor Alon Energy in Israel" },
@@ -96,7 +98,7 @@ const seed: SeededProjectFile = {
         publishedAt: "2026-03-26", retrievedAt: "2026-06-03",
         notes: "Sister company; cross-reference for related-party real-estate transfer." },
     ],
-    docIds: [STRATEGY_DOC_ID, ORG_DOC_ID, WF_STATIONS_REVIEW, WF_SITE_OPENING, WF_SOLAR_PILOT, WF_BUDGETING, WF_FIN_CLOSE, WF_RPT_BSRE, ...JOB_DOC_ID_LIST],
+    docIds: [STRATEGY_DOC_ID, ORG_DOC_ID, WF_STATIONS_REVIEW, WF_SITE_OPENING, WF_SOLAR_PILOT, WF_BUDGETING, WF_FIN_CLOSE, WF_RPT_BSRE, ...JOB_DOC_ID_LIST, ...KPI_DOC_ID_LIST],
   },
 
   docs: [
@@ -934,6 +936,15 @@ const seed: SeededProjectFile = {
     //  Rule 4: structural only — no point-in-time data, no names).
     // ──────────────────────────────────────────────────────────────────
     ...dorAlonJobs(design),
+
+    // ──────────────────────────────────────────────────────────────────
+    // 11 per-role KPI bundles (v9) — defined in ./kpis.ts
+    // Snapshot documents (Rule 0) — figures allowed; numeric targets
+    // sealed for management decision marked [להחלטת דירקטוריון] /
+    // [להחלטת הנהלה]. Structural definition + formula + cadence are
+    // always specified per Rule 14 (no ambiguous metrics).
+    // ──────────────────────────────────────────────────────────────────
+    ...dorAlonKpis(design),
   ],
 };
 
