@@ -183,15 +183,13 @@ export function SlideView(props: SlideViewProps) {
     pageNumber: props.pageNumber,
     totalPages: props.totalPages,
   };
-  // "Editorial" design intercept — when a slide opts into a rich kind,
-  // route through the editorial-grade renderer (magazine typography,
-  // overflow-safe, palette-aware). Falls through to the legacy
-  // theme-driven content router only for kind="bullets" or unset.
-  // Keeps BSREStyle imports around for future fallback / other designs.
+  // Premium design router — only activates when the chosen theme has
+  // `design` set (e.g. "editorial"). Otherwise the slide renders via
+  // the legacy cover/content router below, exactly as before.
   void BSREStats; void BSREKpiCard; void BSREHorizons; void BSREGrid;
   void BSRETracks; void BSREToc; void BSRETable; void BSRECompare;
-  void BSREDonts; void BSRESummary; void BSRECover; void bsreCommon;
-  if (bsre && bsre !== "bullets") {
+  void BSREDonts; void BSRESummary; void BSRECover; void bsreCommon; void bsre;
+  if (theme.design === "editorial") {
     return (
       <div style={containerStyle}>
         {renderEditorial(slide, {

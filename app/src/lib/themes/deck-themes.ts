@@ -335,6 +335,13 @@ export type FontPairId = keyof typeof FONT_PAIRS;
 
 // ─────────────────────── Theme spec ───────────────────────
 
+// Premium design systems (richer than the cover×content combinator).
+// When `design` is set, the SlideView bypasses the cover/content router
+// and renders via the named design — e.g. "editorial" routes every
+// slide through designs/Editorial.tsx, which still reads palette+font
+// from this theme so palette swaps still work.
+export type DesignSystem = "editorial";
+
 export type DeckTheme = {
   id: string;
   name_he: string;
@@ -345,6 +352,7 @@ export type DeckTheme = {
   font: FontPairId;
   titleScale?: number;
   bodyScale?: number;
+  design?: DesignSystem;
 };
 
 // ─────────────────────── The 55 themes ───────────────────────
@@ -428,6 +436,15 @@ export const DECK_THEMES: DeckTheme[] = [
   { id: "earth-classic",     name_he: "אדמה-קלאסי",          name_en: "Earth Classic",         palette: "earth",           cover: "left-bar-strong",    content: "classic-top",   font: "classic" },
   { id: "arctic-card",       name_he: "ארקטי-כרטיס",         name_en: "Arctic Card",           palette: "arctic",          cover: "card-center",        content: "card-stack",    font: "modern" },
   { id: "sunset-bold",       name_he: "שקיעה-בולט",          name_en: "Sunset Bold",           palette: "sunset",          cover: "centered-bold",      content: "header-block",  font: "bold" },
+
+  // Premium design — Editorial (magazine-grade typography, palette-aware).
+  // cover/content fields are unused when `design` is set but kept for type
+  // compatibility.
+  { id: "editorial-navy",    name_he: "Editorial · נייבי",    name_en: "Editorial · Navy",      palette: "corporate-navy",  cover: "minimal-bottom",     content: "minimal-line",  font: "editorial", design: "editorial" },
+  { id: "editorial-cream",   name_he: "Editorial · קרם",      name_en: "Editorial · Cream",     palette: "soft-cream",      cover: "minimal-bottom",     content: "minimal-line",  font: "editorial", design: "editorial" },
+  { id: "editorial-forest",  name_he: "Editorial · יער",      name_en: "Editorial · Forest",    palette: "deep-forest",     cover: "minimal-bottom",     content: "minimal-line",  font: "editorial", design: "editorial" },
+  { id: "editorial-wine",    name_he: "Editorial · יין",      name_en: "Editorial · Wine",      palette: "wine",            cover: "minimal-bottom",     content: "minimal-line",  font: "editorial", design: "editorial" },
+  { id: "editorial-mono",    name_he: "Editorial · מונוכרום", name_en: "Editorial · Mono",      palette: "monochrome",      cover: "minimal-bottom",     content: "minimal-line",  font: "editorial", design: "editorial" },
 ];
 
 // Convenience accessors
