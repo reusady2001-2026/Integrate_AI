@@ -326,7 +326,7 @@ export function DeckEditor() {
                 <div className={`${styles.thumbFrame} ${i === slideIdx ? styles.selected : ""}`}>
                   <div className={styles.thumbInner}
                     style={{ transform: `scale(${THUMB_SCALE})`, width: SLIDE_W, height: SLIDE_H }}>
-                    <SlideView slide={sl} theme={selectedTheme} doc={doc} interactive={false} />
+                    <SlideView slide={sl} theme={selectedTheme} doc={doc} interactive={false} pageNumber={i + 1} totalPages={doc.slides.length} />
                   </div>
                 </div>
               </div>
@@ -346,6 +346,8 @@ export function DeckEditor() {
                   theme={selectedTheme}
                   doc={doc}
                   interactive
+                  pageNumber={slideIdx + 1}
+                  totalPages={doc.slides.length}
                   onChange={(patch) => st.setSlide(slideIdx, patch)}
                   onBulletChange={(bi, v) => st.setBullet(slideIdx, bi, v)}
                   onAddBullet={() => st.addBullet(slideIdx)}
@@ -394,7 +396,7 @@ export function DeckEditor() {
             <div className={styles.printSlide}>
               <div className={styles.printSlideInner}
                 style={{ width: SLIDE_W, height: SLIDE_H, transform: "scale(var(--print-scale, 1))" }}>
-                <SlideView slide={sl} theme={selectedTheme} doc={doc} interactive={false} />
+                <SlideView slide={sl} theme={selectedTheme} doc={doc} interactive={false} pageNumber={i + 1} totalPages={doc.slides.length} />
               </div>
             </div>
           </div>

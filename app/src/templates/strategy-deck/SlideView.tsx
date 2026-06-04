@@ -12,6 +12,10 @@ import {
   getPalette,
   getFont,
 } from "@/lib/themes/deck-themes";
+import {
+  BSREStats, BSREKpiCard, BSREHorizons, BSREGrid, BSRETracks,
+  BSREToc, BSRETable, BSRECompare, BSREDonts, BSRESummary, BSRECover,
+} from "./BSREStyle";
 
 // 16:9 reference resolution. SlideView always renders at this exact size,
 // the caller scales it via CSS transform.
@@ -112,6 +116,10 @@ interface SlideViewProps {
   theme: DeckTheme;
   doc: StrategyDeck;
   interactive?: boolean;
+  // Page numbering (used by the BSRE-style chrome). Optional — falls back
+  // to no counter when omitted.
+  pageNumber?: number;
+  totalPages?: number;
   onChange?: (patch: Partial<Slide>) => void;
   onBulletChange?: (bi: number, v: string) => void;
   onAddBullet?: () => void;
@@ -163,6 +171,36 @@ export function SlideView(props: SlideViewProps) {
     },
   };
 
+  // BSRE-style intercept: any slide whose `kind` opts in renders through
+  // the BSRE layouts (full-bleed, light bg, dark navy/teal accents).
+  // These bypass the theme-driven content router entirely so they look
+  // consistent across themes — they ARE the design language.
+  const bsre = slide.kind;
+  const bsreCommon = {
+    slide, isRtl,
+    company: doc.company,
+    pageNumber: props.pageNumber,
+    totalPages: props.totalPages,
+  };
+  if (bsre && bsre !== "bullets") {
+    return (
+      <div style={containerStyle}>
+        {bsre === "cover"     && <BSRECover     slide={slide} isRtl={isRtl} company={doc.company} date={doc.date} />}
+        {bsre === "stats"     && <BSREStats     {...bsreCommon} />}
+        {bsre === "kpi-card"  && <BSREKpiCard   {...bsreCommon} />}
+        {bsre === "horizons"  && <BSREHorizons  {...bsreCommon} />}
+        {bsre === "grid"      && <BSREGrid      {...bsreCommon} />}
+        {bsre === "tracks"    && <BSRETracks    {...bsreCommon} />}
+        {bsre === "toc"       && <BSREToc       {...bsreCommon} />}
+        {bsre === "table"     && <BSRETable     {...bsreCommon} />}
+        {bsre === "compare"   && <BSRECompare   {...bsreCommon} />}
+        {bsre === "donts"     && <BSREDonts     {...bsreCommon} />}
+        {bsre === "summary"   && <BSRESummary   slide={slide} isRtl={isRtl} company={doc.company} />}
+      </div>
+    );
+  }
+
+  // Legacy / theme-driven rendering (default behavior).
   return (
     <div style={containerStyle}>
       {isCoverOrSection && <CoverDepth ctx={ctx} />}
