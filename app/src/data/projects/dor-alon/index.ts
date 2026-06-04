@@ -1,11 +1,15 @@
 /**
  * Seeded project: דור־אלון אנרגיה בישראל (1988) בע\"מ.
  *
- * v5 — REBUILT to the 11-section strategy-document structure modeled on
- * the user's BSRE reference document (1. Executive summary, 2. Who we are,
- * 3. Strategic diagnosis, 4. Focus principle, 5. Growth focuses,
- * 6. Cashflow base, 7. Capabilities, 8. 2026 action plan, 9. Success
- * metrics & target horizons, 10. Risk management, 11. Strategic summary).
+ * v8 — Adds the 11 SVP-level Job Descriptions (Rule 3 — 4 capability
+ * sections), wired in via ./jobs.ts. Total bundle now: strategy doc
+ * (11-section structure), org structure, 6 workflows, and 11 SVP JDs
+ * (CEO, Stations, Food [להשלמה], Real Estate, Dorgaz CEO, Renewable
+ * Energy [NEW], Strategy/BD, CFO [להשלמה], Legal/GC, Marketing, IT).
+ *
+ * Each JD is an archetype document — structural attributes only, no
+ * point-in-time data, no person names; breadth before depth (6-10
+ * duties per area); 4 mandatory capability sections.
  *
  * Stage-A inputs (locked with user):
  *   Document set: full bundle per SVP role + strategy doc + deck + org
@@ -14,13 +18,11 @@
  *   food-division head marked [להשלמה]. Role depth: SVP-level only.
  *   Names: structural role only in archetype docs (Rule 4). Workflows:
  *   top 5–7 critical processes.
- *
- * This v5 carries STRATEGY DOCUMENT only, in the new structure. Other
- * artifacts follow.
  */
 
 import type { SeededProjectFile } from "../../../lib/projects";
 import { defaultDocDesign } from "../../../lib/themes/doc-themes";
+import { dorAlonJobs, JOB_DOC_ID_LIST } from "./jobs";
 
 const STRATEGY_DOC_ID = "pd_strategy_dor_alon_v5";
 const ORG_DOC_ID = "pd_org_dor_alon_v6";
@@ -34,7 +36,7 @@ const WF_RPT_BSRE        = "pd_wf_rpt_bsre_v7";
 const design = defaultDocDesign();
 
 const seed: SeededProjectFile = {
-  version: 7,
+  version: 8,
   project: {
     slug: "dor-alon",
     name: { he: "דור אלון אנרגיה בישראל", en: "Dor Alon Energy in Israel" },
@@ -94,7 +96,7 @@ const seed: SeededProjectFile = {
         publishedAt: "2026-03-26", retrievedAt: "2026-06-03",
         notes: "Sister company; cross-reference for related-party real-estate transfer." },
     ],
-    docIds: [STRATEGY_DOC_ID, ORG_DOC_ID, WF_STATIONS_REVIEW, WF_SITE_OPENING, WF_SOLAR_PILOT, WF_BUDGETING, WF_FIN_CLOSE, WF_RPT_BSRE],
+    docIds: [STRATEGY_DOC_ID, ORG_DOC_ID, WF_STATIONS_REVIEW, WF_SITE_OPENING, WF_SOLAR_PILOT, WF_BUDGETING, WF_FIN_CLOSE, WF_RPT_BSRE, ...JOB_DOC_ID_LIST],
   },
 
   docs: [
@@ -924,6 +926,14 @@ const seed: SeededProjectFile = {
         controls: "1. הוועדה הבלתי תלויה נשארת פעילה לכל אורך התהליך — לא ניתן לבטלה ללא החלטת דירקטוריון מפורשת. 2. כל חוות דעת חיצונית (שמאי, יועץ משפטי) נבחרת ע\"י הוועדה הבלתי תלויה, לא ע\"י ההנהלה. 3. בעלי עניין (יו\"ר בן משה, דירקטורים מטעם בעלת השליטה) מסירים את עצמם מכל הצבעה דירקטוריונית בנושא העסקה. 4. כל מהלך הזמנים מתועד במסמך בקרה ייעודי ומועבר רבעונית לרשות ני\"ע במסגרת הדיווח התקופתי. 5. ביקורת פנים בלתי תלויה על קבלת ההחלטות לפני אישור סופי של דירקטוריון.",
       },
     },
+
+    // ──────────────────────────────────────────────────────────────────
+    // 11 SVP-level Job Descriptions (v8) — defined in ./jobs.ts
+    // Each JD is an archetype document per CLAUDE.md Section 9 rules
+    // (Rule 1: breadth before depth, Rule 3: 4 capability sections,
+    //  Rule 4: structural only — no point-in-time data, no names).
+    // ──────────────────────────────────────────────────────────────────
+    ...dorAlonJobs(design),
   ],
 };
 
