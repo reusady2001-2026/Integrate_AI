@@ -16,6 +16,7 @@ import {
   BSREStats, BSREKpiCard, BSREHorizons, BSREGrid, BSRETracks,
   BSREToc, BSRETable, BSRECompare, BSREDonts, BSRESummary, BSRECover,
 } from "./BSREStyle";
+import { renderEditorial } from "./designs/Editorial";
 
 // 16:9 reference resolution. SlideView always renders at this exact size,
 // the caller scales it via CSS transform.
@@ -182,20 +183,26 @@ export function SlideView(props: SlideViewProps) {
     pageNumber: props.pageNumber,
     totalPages: props.totalPages,
   };
+  // "Editorial" design intercept — when a slide opts into a rich kind,
+  // route through the editorial-grade renderer (magazine typography,
+  // overflow-safe, palette-aware). Falls through to the legacy
+  // theme-driven content router only for kind="bullets" or unset.
+  // Keeps BSREStyle imports around for future fallback / other designs.
+  void BSREStats; void BSREKpiCard; void BSREHorizons; void BSREGrid;
+  void BSRETracks; void BSREToc; void BSRETable; void BSRECompare;
+  void BSREDonts; void BSRESummary; void BSRECover; void bsreCommon;
   if (bsre && bsre !== "bullets") {
     return (
       <div style={containerStyle}>
-        {bsre === "cover"     && <BSRECover     slide={slide} isRtl={isRtl} company={doc.company} date={doc.date} />}
-        {bsre === "stats"     && <BSREStats     {...bsreCommon} />}
-        {bsre === "kpi-card"  && <BSREKpiCard   {...bsreCommon} />}
-        {bsre === "horizons"  && <BSREHorizons  {...bsreCommon} />}
-        {bsre === "grid"      && <BSREGrid      {...bsreCommon} />}
-        {bsre === "tracks"    && <BSRETracks    {...bsreCommon} />}
-        {bsre === "toc"       && <BSREToc       {...bsreCommon} />}
-        {bsre === "table"     && <BSRETable     {...bsreCommon} />}
-        {bsre === "compare"   && <BSRECompare   {...bsreCommon} />}
-        {bsre === "donts"     && <BSREDonts     {...bsreCommon} />}
-        {bsre === "summary"   && <BSRESummary   slide={slide} isRtl={isRtl} company={doc.company} />}
+        {renderEditorial(slide, {
+          palette: eff.palette,
+          font: eff.font,
+          isRtl,
+          company: doc.company,
+          date: doc.date,
+          pageNumber: props.pageNumber,
+          totalPages: props.totalPages,
+        })}
       </div>
     );
   }

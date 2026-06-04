@@ -40,7 +40,7 @@ const WF_RPT_BSRE        = "pd_wf_rpt_bsre_v7";
 const design = defaultDocDesign();
 
 const seed: SeededProjectFile = {
-  version: 11,
+  version: 12,
   project: {
     slug: "dor-alon",
     name: { he: "דור אלון אנרגיה בישראל", en: "Dor Alon Energy in Israel" },
