@@ -29,6 +29,11 @@ export const JobDocument = z.object({
   decides: z.string(),
   recommends: z.string(),
   escalates: z.string(),
+  // 4 capabilities sections (Rule 3 — mandatory for archetype role docs)
+  capabilitiesProfessional: z.array(z.string()).default([]),
+  capabilitiesStrategic: z.array(z.string()).default([]),
+  capabilitiesInterpersonal: z.array(z.string()).default([]),
+  capabilitiesLeadership: z.array(z.string()).default([]),
   enabled: z.object({
     interfaces: z.boolean(),
     successMetrics: z.boolean(),
@@ -65,6 +70,10 @@ export const emptyJobDocument = (): JobDocument => ({
   decides: "",
   recommends: "",
   escalates: "",
+  capabilitiesProfessional: [""],
+  capabilitiesStrategic: [""],
+  capabilitiesInterpersonal: [""],
+  capabilitiesLeadership: [""],
   enabled: {
     interfaces: false,
     successMetrics: false,

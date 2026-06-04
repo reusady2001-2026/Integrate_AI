@@ -294,6 +294,10 @@ export function sampleStraussJob(): JobDocument {
       "שינוי רגולטורי מהותי בשוק עיקרי שדורש שינוי מודל עסקי.\n" +
       "סטייה משמעותית מתקציב (≥ 8% חריגה רבעונית) — דיון מיידי בהנהלה.\n" +
       "חציית סף המינוף של הסגמנט (Net Debt > 1.5× EBITDA סגמנטי).",
+    capabilitiesProfessional: [""],
+    capabilitiesStrategic: [""],
+    capabilitiesInterpersonal: [""],
+    capabilitiesLeadership: [""],
     enabled: {
       interfaces: true,
       successMetrics: true,

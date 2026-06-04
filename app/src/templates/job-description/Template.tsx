@@ -146,6 +146,21 @@ export function JobTemplate() {
             <button type="button" onClick={() => toggleSection("qualifications")} className={styles.removeBtn} title={t.remove}>×</button>
           </div>
           <p className={styles.guidance}>{tj.qualificationsGuidance}</p>
+
+          {/* Rule 3: 4 mandatory capability sections */}
+          <CapabilityList heading={lang === "he" ? "יכולות מקצועיות (כלים, סטנדרטים, מומחיות)" : "Professional capabilities (tools, standards, expertise)"}
+            items={doc.capabilitiesProfessional}
+            onChange={(items) => setField("capabilitiesProfessional", items)} />
+          <CapabilityList heading={lang === "he" ? "יכולות אסטרטגיות וניהוליות" : "Strategic & managerial capabilities"}
+            items={doc.capabilitiesStrategic}
+            onChange={(items) => setField("capabilitiesStrategic", items)} />
+          <CapabilityList heading={lang === "he" ? "יכולות בין-אישיות" : "Interpersonal capabilities"}
+            items={doc.capabilitiesInterpersonal}
+            onChange={(items) => setField("capabilitiesInterpersonal", items)} />
+          <CapabilityList heading={lang === "he" ? "ציפיות מנהיגות ופרופיל אישיותי" : "Leadership expectations & personality profile"}
+            items={doc.capabilitiesLeadership}
+            onChange={(items) => setField("capabilitiesLeadership", items)} />
+
           <EditField label={tj.required} value={doc.required} onChange={(v) => setField("required", v)} inline />
           <EditField label={tj.advantage} value={doc.advantage} onChange={(v) => setField("advantage", v)} inline />
         </>
@@ -187,6 +202,32 @@ function EditField({
       {hint && <span className={styles.hint}> — {hint}</span>}
       {": "}
       <Editable value={value} onChange={onChange} className={inline ? styles.valueInline : styles.value} />
+    </div>
+  );
+}
+
+function CapabilityList({ heading, items, onChange }: {
+  heading: string;
+  items: string[];
+  onChange: (items: string[]) => void;
+}) {
+  const setItem = (i: number, v: string) => onChange(items.map((x, idx) => idx === i ? v : x));
+  const addItem = () => onChange([...items, ""]);
+  const removeItem = (i: number) => onChange(items.length > 1 ? items.filter((_, idx) => idx !== i) : items);
+  return (
+    <div style={{ marginTop: "0.6rem" }}>
+      <div className={styles.fieldInline}><strong>{heading}:</strong></div>
+      <ul style={{ margin: "0.3rem 0 0", paddingInlineStart: "1.2rem" }}>
+        {items.map((it, i) => (
+          <li key={i} style={{ marginBottom: "0.2rem" }}>
+            <Editable value={it} onChange={(v) => setItem(i, v)} />
+            {items.length > 1 && (
+              <button type="button" onClick={() => removeItem(i)} className={styles.removeBtn}>×</button>
+            )}
+          </li>
+        ))}
+      </ul>
+      <button type="button" onClick={addItem} className={styles.addBtn}>+</button>
     </div>
   );
 }

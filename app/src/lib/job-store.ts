@@ -171,6 +171,10 @@ function sampleJob(): JobDocument {
     decides: "תקציב פנימי של מחלקת הכספים, גיוסים במחלקה, החלטות בנקאיות יומיומיות.",
     recommends: "מבנה הון, חלוקת דיבידנד, השקעות אסטרטגיות.",
     escalates: "כל החלטה הדורשת אישור דירקטוריון או חריגה תקציבית מעל 5%.",
+    capabilitiesProfessional: [""],
+    capabilitiesStrategic: [""],
+    capabilitiesInterpersonal: [""],
+    capabilitiesLeadership: [""],
     enabled: {
       interfaces: true,
       successMetrics: true,
