@@ -1,12 +1,13 @@
 /**
  * Seeded project: דור־אלון אנרגיה בישראל (1988) בע\"מ.
  *
- * v9 — Adds the 11 per-role KPI bundles (./kpis.ts). KPI documents are
- * snapshot documents (Rule 0); numeric figures allowed, but targets that
- * require management approval are marked [להחלטת דירקטוריון] /
- * [להחלטת הנהלה]. Structural attributes (formula, owner, cadence) fully
- * specified per Rule 14. Total bundle now: strategy doc + org structure
- * + 6 workflows + 11 SVP JDs + 11 KPI bundles.
+ * v10 — Adds the strategic board deck (./deck.ts) — the closing
+ * artifact of the bundle. 11 slides per CLAUDE.md §4.2 board-deck
+ * structure, with one central thesis (Rule 7) running through every
+ * slide: Dor Alon owns the land; the 2026-2030 move is to activate
+ * that asset as a multi-layer platform. Total bundle now: strategy
+ * doc + org structure + 6 workflows + 11 SVP JDs + 11 KPI bundles +
+ * strategy deck = 30 docs per project.
  *
  * Each JD is an archetype document — structural attributes only, no
  * point-in-time data, no person names; breadth before depth (6-10
@@ -25,6 +26,7 @@ import type { SeededProjectFile } from "../../../lib/projects";
 import { defaultDocDesign } from "../../../lib/themes/doc-themes";
 import { dorAlonJobs, JOB_DOC_ID_LIST } from "./jobs";
 import { dorAlonKpis, KPI_DOC_ID_LIST } from "./kpis";
+import { dorAlonDeck, DECK_DOC_ID } from "./deck";
 
 const STRATEGY_DOC_ID = "pd_strategy_dor_alon_v5";
 const ORG_DOC_ID = "pd_org_dor_alon_v6";
@@ -38,7 +40,7 @@ const WF_RPT_BSRE        = "pd_wf_rpt_bsre_v7";
 const design = defaultDocDesign();
 
 const seed: SeededProjectFile = {
-  version: 9,
+  version: 10,
   project: {
     slug: "dor-alon",
     name: { he: "דור אלון אנרגיה בישראל", en: "Dor Alon Energy in Israel" },
@@ -98,7 +100,7 @@ const seed: SeededProjectFile = {
         publishedAt: "2026-03-26", retrievedAt: "2026-06-03",
         notes: "Sister company; cross-reference for related-party real-estate transfer." },
     ],
-    docIds: [STRATEGY_DOC_ID, ORG_DOC_ID, WF_STATIONS_REVIEW, WF_SITE_OPENING, WF_SOLAR_PILOT, WF_BUDGETING, WF_FIN_CLOSE, WF_RPT_BSRE, ...JOB_DOC_ID_LIST, ...KPI_DOC_ID_LIST],
+    docIds: [STRATEGY_DOC_ID, ORG_DOC_ID, WF_STATIONS_REVIEW, WF_SITE_OPENING, WF_SOLAR_PILOT, WF_BUDGETING, WF_FIN_CLOSE, WF_RPT_BSRE, ...JOB_DOC_ID_LIST, ...KPI_DOC_ID_LIST, DECK_DOC_ID],
   },
 
   docs: [
@@ -945,6 +947,15 @@ const seed: SeededProjectFile = {
     // always specified per Rule 14 (no ambiguous metrics).
     // ──────────────────────────────────────────────────────────────────
     ...dorAlonKpis(design),
+
+    // ──────────────────────────────────────────────────────────────────
+    // Strategic Board Deck (v10) — defined in ./deck.ts
+    // 11 slides per CLAUDE.md §4.2: cover → exec summary → who we are
+    // → diagnosis → focus principle → engines → cashflow base → 2026
+    // action plan → horizon targets → risk → strategic summary. One
+    // central thesis (Rule 7) carried through every slide.
+    // ──────────────────────────────────────────────────────────────────
+    dorAlonDeck(design),
   ],
 };
 
