@@ -11,7 +11,9 @@
 
 import type { SeededProjectFile } from "../../lib/projects";
 import dorAlon from "./dor-alon";
+import rivuaNadlan from "./rivua-nadlan";
 
 export const SEEDED_PROJECTS: SeededProjectFile[] = [
   dorAlon,
+  rivuaNadlan,
 ];
