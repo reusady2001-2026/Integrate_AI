@@ -33,12 +33,14 @@ const W = 960;
 const H = 540;
 const PAD_X = 56;
 const PAD_TOP = 36;
-const PAD_BOTTOM = 36;
-const CHROME_H = 22;        // top serial bar height
-const TITLE_RAIL = 88;      // y-coordinate where slide title sits
-const BODY_TOP = 158;       // y-coordinate where main content begins
-const BODY_BOTTOM = H - PAD_BOTTOM - 22;
-const BODY_H = BODY_BOTTOM - BODY_TOP;
+const PAD_BOTTOM = 32;
+const CHROME_H = 22;             // top serial bar height
+const TITLE_RAIL = 84;           // y-coordinate where slide title starts
+const TITLE_ZONE_H = 130;        // strict height of title block (eyebrow + H1 + lede)
+const BODY_TOP = TITLE_RAIL + TITLE_ZONE_H + 12;   // = 226 — body starts here
+const BODY_BOTTOM = H - PAD_BOTTOM;                 // = 508
+const BODY_H = BODY_BOTTOM - BODY_TOP;              // = 282
+const FOOTNOTE_H = 30;           // reserved when slide.footnote is rendered
 const CONTENT_W = W - PAD_X * 2;
 
 // ──────────────────────────────────────────────────────────────────────
@@ -215,21 +217,28 @@ function Page({ ctx, tokens, children, fullBleed }: {
   );
 }
 
-// Slide-title block — eyebrow + H1 + lede.
-// Always lands at the same vertical rhythm.
-function TitleBlock({ slide, tokens, size, maxLines, alignEnd }: {
-  slide: Slide; tokens: Tokens; size?: number; maxLines?: number; alignEnd?: boolean;
+// Slide-title block — eyebrow + H1 + lede, bounded to TITLE_ZONE_H.
+// Overflow is hidden, so very long titles clamp rather than spill into
+// the body zone. Sizes here are tuned to fit comfortably inside the
+// fixed zone even when all three parts are present.
+function TitleBlock({ slide, tokens, size = 26, maxLines = 2, ledeLines = 2, alignEnd }: {
+  slide: Slide; tokens: Tokens; size?: number; maxLines?: number; ledeLines?: number; alignEnd?: boolean;
 }) {
-  const isRtl = true; // alignment via direction; this block uses logical end
-  void isRtl;
   return (
     <div style={{
       position: "absolute", top: TITLE_RAIL, left: PAD_X, right: PAD_X,
+      height: TITLE_ZONE_H, overflow: "hidden",
       textAlign: alignEnd ? "end" : "start",
+      display: "flex", flexDirection: "column", justifyContent: "flex-start",
     }}>
       <Eyebrow text={slide.eyebrow ?? ""} tokens={tokens} />
       <H1 text={slide.title || ""} tokens={tokens} size={size} maxLines={maxLines} />
-      <Lede text={slide.subtitle || ""} tokens={tokens} />
+      {slide.subtitle && (
+        <Clamp lines={ledeLines} style={{
+          fontFamily: SANS, fontSize: 12.5, lineHeight: 1.5,
+          color: tokens.inkMuted, marginTop: 8, maxWidth: 720, fontWeight: 400,
+        }}>{slide.subtitle}</Clamp>
+      )}
     </div>
   );
 }
@@ -394,8 +403,9 @@ function EditorialToc(slide: Slide, ctx: DesignCtx, tokens: Tokens): ReactNode {
     <>
       <TitleBlock slide={slide} tokens={tokens} size={40} maxLines={2} />
       <div style={{
-        position: "absolute", top: BODY_TOP + 16, left: PAD_X, right: PAD_X,
+        position: "absolute", top: BODY_TOP, left: PAD_X, right: PAD_X,
         bottom: PAD_BOTTOM + 8,
+        overflow: "hidden",
         display: "grid", gridTemplateColumns: "1fr 1fr", gap: 48,
       }}>
         {[col1, col2].map((col, ci) => (
@@ -441,8 +451,9 @@ function EditorialStats(slide: Slide, ctx: DesignCtx, tokens: Tokens): ReactNode
     <>
       <TitleBlock slide={slide} tokens={tokens} size={32} maxLines={2} />
       <div style={{
-        position: "absolute", top: BODY_TOP + 16, left: PAD_X, right: PAD_X,
+        position: "absolute", top: BODY_TOP, left: PAD_X, right: PAD_X,
         bottom: PAD_BOTTOM + 24,
+        overflow: "hidden",
         display: "flex", flexDirection: "column", gap: 18,
       }}>
         {hero.length > 0 && (
@@ -521,6 +532,7 @@ function EditorialKpiCard(slide: Slide, ctx: DesignCtx, tokens: Tokens): ReactNo
       <div style={{
         position: "absolute", top: TITLE_RAIL + 14, left: PAD_X, right: PAD_X,
         bottom: PAD_BOTTOM + 16,
+        overflow: "hidden",
         display: "grid", gridTemplateColumns: "1fr 1fr", gap: 48,
         alignItems: "stretch",
       }}>
@@ -599,8 +611,9 @@ function EditorialHorizons(slide: Slide, ctx: DesignCtx, tokens: Tokens): ReactN
     <>
       <TitleBlock slide={slide} tokens={tokens} size={30} maxLines={2} />
       <div style={{
-        position: "absolute", top: BODY_TOP + 18, left: PAD_X, right: PAD_X,
+        position: "absolute", top: BODY_TOP, left: PAD_X, right: PAD_X,
         bottom: PAD_BOTTOM + 30,
+        overflow: "hidden",
         display: "grid", gridTemplateColumns: `repeat(${cards.length || 1}, 1fr)`,
         gap: 36, alignItems: "stretch",
       }}>
@@ -671,8 +684,9 @@ function EditorialGrid(slide: Slide, ctx: DesignCtx, tokens: Tokens): ReactNode 
     <>
       <TitleBlock slide={slide} tokens={tokens} size={28} maxLines={2} />
       <div style={{
-        position: "absolute", top: BODY_TOP + 30, left: PAD_X, right: PAD_X,
+        position: "absolute", top: BODY_TOP, left: PAD_X, right: PAD_X,
         bottom: PAD_BOTTOM + 16,
+        overflow: "hidden",
         display: "grid", gridTemplateColumns: "1fr 1fr",
         gridTemplateRows: "1fr 1fr",
         columnGap: 48, rowGap: 28,
@@ -692,9 +706,9 @@ function EditorialGrid(slide: Slide, ctx: DesignCtx, tokens: Tokens): ReactNode 
                 fontFamily: SERIF, fontSize: 17, fontWeight: 600,
                 color: tokens.ink, lineHeight: 1.25, marginBottom: 8,
               }}>{c.title}</Clamp>
-              <Clamp lines={4} style={{
+              <Clamp lines={3} style={{
                 fontFamily: SANS, fontSize: 12.5, color: tokens.inkMuted,
-                lineHeight: 1.6,
+                lineHeight: 1.55,
               }}>{c.description}</Clamp>
             </div>
           </div>
@@ -714,8 +728,9 @@ function EditorialTracks(slide: Slide, ctx: DesignCtx, tokens: Tokens): ReactNod
     <>
       <TitleBlock slide={slide} tokens={tokens} size={28} maxLines={2} />
       <div style={{
-        position: "absolute", top: BODY_TOP + 24, left: PAD_X, right: PAD_X,
+        position: "absolute", top: BODY_TOP, left: PAD_X, right: PAD_X,
         bottom: PAD_BOTTOM + (slide.footnote ? 60 : 24),
+        overflow: "hidden",
         display: "grid", gridTemplateColumns: `repeat(${tracks.length || 1}, 1fr)`,
         gap: 36, alignItems: "stretch",
       }}>
@@ -741,9 +756,9 @@ function EditorialTracks(slide: Slide, ctx: DesignCtx, tokens: Tokens): ReactNod
                 fontFamily: SERIF, fontSize: 19, fontWeight: 600,
                 color: tokens.ink, lineHeight: 1.2, marginBottom: 14,
               }}>{tk.title}</Clamp>
-              <Clamp lines={7} style={{
+              <Clamp lines={5} style={{
                 fontFamily: SANS, fontSize: 12, color: tokens.inkMuted,
-                lineHeight: 1.65, flex: 1,
+                lineHeight: 1.6, flex: 1,
               }}>{tk.description}</Clamp>
               {tk.chip && (
                 <Clamp lines={1} style={{
@@ -789,8 +804,9 @@ function EditorialTable(slide: Slide, ctx: DesignCtx, tokens: Tokens): ReactNode
     <>
       <TitleBlock slide={slide} tokens={tokens} size={28} maxLines={2} />
       <div style={{
-        position: "absolute", top: BODY_TOP + 24, left: PAD_X, right: PAD_X,
+        position: "absolute", top: BODY_TOP, left: PAD_X, right: PAD_X,
         bottom: PAD_BOTTOM + (slide.footnote ? 36 : 12),
+        overflow: "hidden",
         display: "flex", flexDirection: "column",
       }}>
         <div style={{
@@ -812,13 +828,13 @@ function EditorialTable(slide: Slide, ctx: DesignCtx, tokens: Tokens): ReactNode
             display: "grid",
             gridTemplateColumns: hasChip ? `repeat(${headers.length}, 1fr) auto` : `repeat(${headers.length}, 1fr)`,
             gap: "0 24px",
-            padding: "10px 0",
+            padding: "7px 0",
             borderBottom: ri < rows.length - 1 ? `1px solid ${tokens.ruleSoft}` : "none",
             alignItems: "center",
             background: row.emphasize ? rgba(tokens.accent, 0.05) : "transparent",
           }}>
             {row.cells.slice(0, headers.length).map((cell, ci) => (
-              <Clamp key={ci} lines={2} style={{
+              <Clamp key={ci} lines={1} style={{
                 fontFamily: ci === 0 ? SERIF : SANS,
                 fontSize: ci === 0 ? 13 : 12,
                 fontWeight: ci === 0 ? (row.emphasize ? 700 : 600) : 400,
@@ -855,8 +871,9 @@ function EditorialCompare(slide: Slide, ctx: DesignCtx, tokens: Tokens): ReactNo
     <>
       <TitleBlock slide={slide} tokens={tokens} size={28} maxLines={2} />
       <div style={{
-        position: "absolute", top: BODY_TOP + 22, left: PAD_X, right: PAD_X,
+        position: "absolute", top: BODY_TOP, left: PAD_X, right: PAD_X,
         bottom: PAD_BOTTOM + 16,
+        overflow: "hidden",
         display: "grid", gridTemplateColumns: panes.length === 2 ? "1fr 1fr" : "1fr", gap: 48,
       }}>
         {panes.map((pane, i) => (
@@ -938,8 +955,9 @@ function EditorialDonts(slide: Slide, ctx: DesignCtx, tokens: Tokens): ReactNode
     <>
       <TitleBlock slide={slide} tokens={tokens} size={32} maxLines={2} />
       <div style={{
-        position: "absolute", top: BODY_TOP + 26, left: PAD_X, right: PAD_X,
+        position: "absolute", top: BODY_TOP, left: PAD_X, right: PAD_X,
         bottom: PAD_BOTTOM + 12,
+        overflow: "hidden",
         display: "grid", gridTemplateColumns: "1fr 1fr",
         columnGap: 56, rowGap: 22,
       }}>
@@ -961,7 +979,7 @@ function EditorialDonts(slide: Slide, ctx: DesignCtx, tokens: Tokens): ReactNode
                 textDecorationColor: rgba(tokens.ink, 0.35),
                 textDecorationThickness: 1,
               }}>{it.title}</Clamp>
-              <Clamp lines={3} style={{
+              <Clamp lines={2} style={{
                 fontFamily: SANS, fontSize: 11.5, color: tokens.inkMuted, lineHeight: 1.55,
               }}>{it.description}</Clamp>
             </div>
@@ -1029,8 +1047,9 @@ function EditorialBullets(slide: Slide, ctx: DesignCtx, tokens: Tokens): ReactNo
     <>
       <TitleBlock slide={slide} tokens={tokens} size={30} maxLines={2} />
       <div style={{
-        position: "absolute", top: BODY_TOP + 26, left: PAD_X, right: PAD_X,
-        bottom: PAD_BOTTOM + 12, maxWidth: 800,
+        position: "absolute", top: BODY_TOP, left: PAD_X, right: PAD_X,
+        bottom: PAD_BOTTOM + 12,
+        overflow: "hidden", maxWidth: 800,
       }}>
         {(slide.bullets ?? []).slice(0, 8).map((b, i) => (
           <div key={i} style={{
