@@ -261,20 +261,34 @@ export function StrategyDocumentTemplate() {
       <BlockEdit label={ts.actionPlanRhythmLabel}
         value={doc.actionPlanRhythm}
         onChange={(v) => st.setField("actionPlanRhythm", v)} />
-      {doc.actionMoves.map((m, i) => (
-        <div key={i} className={styles.kpiBlock}>
-          <div className={styles.kpiBlockHeader}>
-            <div className={styles.kpiIndex}>{m.title || `מהלך ${i + 1}`}</div>
-            {doc.actionMoves.length > 1 && (
-              <button type="button" onClick={() => st.removeActionMove(i)} className={styles.removeBtn}>×</button>
-            )}
-          </div>
-          <EditField label={ts.actionMoveTitle} value={m.title} onChange={(v) => st.setActionMove(i, { title: v })} inline />
-          <EditField label={ts.actionMoveDescription} value={m.description} onChange={(v) => st.setActionMove(i, { description: v })} inline />
-          <EditField label={ts.actionMoveOwner} value={m.owner} onChange={(v) => st.setActionMove(i, { owner: v })} inline />
-          <EditField label={ts.actionMoveSuccessMetric} value={m.successMetric} onChange={(v) => st.setActionMove(i, { successMetric: v })} inline />
-        </div>
-      ))}
+      <div className={styles.tableWrap}>
+        <table className={styles.table}>
+          <thead>
+            <tr>
+              <th>{ts.actionMoveTitle}</th>
+              <th>{ts.actionMoveDescription}</th>
+              <th>{ts.actionMoveOwner}</th>
+              <th>{ts.actionMoveSuccessMetric}</th>
+              <th className={styles.tableCtrlCol}></th>
+            </tr>
+          </thead>
+          <tbody>
+            {doc.actionMoves.map((m, i) => (
+              <tr key={i}>
+                <td><Editable value={m.title} onChange={(v) => st.setActionMove(i, { title: v })} /></td>
+                <td><Editable value={m.description} onChange={(v) => st.setActionMove(i, { description: v })} /></td>
+                <td><Editable value={m.owner} onChange={(v) => st.setActionMove(i, { owner: v })} /></td>
+                <td><Editable value={m.successMetric} onChange={(v) => st.setActionMove(i, { successMetric: v })} /></td>
+                <td className={styles.tableCtrlCol}>
+                  {doc.actionMoves.length > 1 && (
+                    <button type="button" onClick={() => st.removeActionMove(i)} className={styles.removeBtn}>×</button>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
       <button type="button" onClick={st.addActionMove} className={styles.addBtn}>{ts.addActionMove}</button>
 
       {/* ════════ Section 9 — Success Metrics & Target Horizons ════════ */}
