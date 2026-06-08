@@ -336,7 +336,7 @@ function paintSlide(slide: PSlide, ops: Op[], bg: string) {
         line: op.line
           ? { color: op.line.color, width: Math.max(0.25, op.line.width), transparency: op.line.transparency }
           : { type: "none" },
-        ...(op.radius ? { rectRadius: op.radius } : {}),
+        ...(op.shape === "roundRect" && op.radius ? { rectRadius: op.radius } : {}),
       });
     } else if (op.t === "image") {
       slide.addImage({ data: op.data, x: op.x, y: op.y, w: op.w, h: op.h });
@@ -370,8 +370,9 @@ function nextFrame(): Promise<void> {
 export async function renderDeckPptx(doc: StrategyDeck, lang: Lang): Promise<void> {
   const PptxGenJS = (await import("pptxgenjs")).default;
   const prs: Pptx = new PptxGenJS();
-  prs.defineLayout({ name: "DECK", width: INW, height: INH });
-  prs.layout = "DECK";
+  // Built-in 16:9 layout is exactly 10 × 5.625in — same frame, but a known-good
+  // master/layout pair (a custom defineLayout risks a layout PowerPoint rejects).
+  prs.layout = "LAYOUT_16x9";
   prs.author = doc.company || "Integrate AI";
   prs.title = doc.planTitle || doc.company || "Strategy Deck";
 
