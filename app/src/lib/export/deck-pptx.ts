@@ -3,11 +3,9 @@ import type { Lang } from "@/lib/i18n";
 import {
   DECK_THEMES,
   PALETTES,
-  FONT_PAIRS,
   noHash,
   type DeckTheme,
   type Palette,
-  type FontPair,
 } from "@/lib/themes/deck-themes";
 
 // ──────────────────────────────────────────────────────────────────────
@@ -36,6 +34,9 @@ type Ctx = {
   coverBg: string;
   coverText: string;
   bg: string;
+  surface: string;     // card/tile fill (light: white; dark: lifted bg)
+  cardLine: string;    // card/tile border
+  dark: boolean;
   rtl: boolean;
   align: "left" | "right";
   alignEnd: "left" | "right";
@@ -50,6 +51,40 @@ function faceFrom(css: string | undefined, fallback: string): string {
   if (!css) return fallback;
   const first = css.split(",")[0].replace(/var\(--[^,]*/i, "").replace(/['"]/g, "").trim();
   return first || fallback;
+}
+
+// Shift each RGB channel (clamped) — mirrors the design engine's shiftHex.
+function shiftHex(hex: string, d: number): string {
+  const h = (hex || "").replace(/^#/, "");
+  if (h.length !== 6) return hex;
+  const ch = (i: number) => Math.max(0, Math.min(255, parseInt(h.slice(i, i + 2), 16) + d)).toString(16).padStart(2, "0");
+  return `#${ch(0)}${ch(2)}${ch(4)}`;
+}
+
+// Each on-screen design transforms the palette (Midnight forces dark, Corporate
+// greys the canvas, etc.). The export must mirror that transformation so the
+// .pptx lands in the same colour world + typography — otherwise a dark design
+// like Midnight would export light. Returns hex colours WITH the leading #.
+type Scheme = { dark: boolean; bg: string; ink: string; muted: string; surface: string; cardLine: string; titleFace: string; bodyFace: string };
+function designScheme(design: string | undefined, P: Palette, fmt: StrategyDeck["formatting"]): Scheme {
+  const d = !!P.dark;
+  let bg: string, ink: string, muted: string;
+  switch (design) {
+    case "midnight":  bg = d ? P.bg : P.coverBg; ink = "#eef2f8"; muted = "#9aa6b8"; break;
+    case "blueprint": bg = d ? P.bg : "#f4f7fa"; ink = d ? "#dbe6ef" : "#16334d"; muted = P.textMuted; break;
+    case "corporate": bg = d ? P.bg : shiftHex(P.bg, -8); ink = P.text; muted = P.textMuted; break;
+    case "sidebar":   bg = d ? P.bg : shiftHex(P.bg, -4); ink = P.text; muted = P.textMuted; break;
+    case "geometric": bg = d ? P.bg : shiftHex(P.bg, -5); ink = P.text; muted = P.textMuted; break;
+    case "gradient":  bg = d ? P.bg : shiftHex(P.bg, -4); ink = P.text; muted = P.textMuted; break;
+    default:          bg = P.bg; ink = P.text; muted = P.textMuted; break; // editorial, swiss, outline, strips
+  }
+  // dark designs (incl. Midnight even on a light palette) use a lifted panel.
+  const darkBg = !!P.dark || design === "midnight";
+  const surface = darkBg ? shiftHex(bg, 16) : "#ffffff";
+  const cardLine = darkBg ? shiftHex(bg, 36) : shiftHex(bg, -18);
+  const titleFace = faceFrom(fmt.titleFont, design === "editorial" ? "Frank Ruhl Libre" : "Heebo");
+  const bodyFace = faceFrom(fmt.bodyFont, "Heebo");
+  return { dark: darkBg, bg, ink, muted, surface, cardLine, titleFace, bodyFace };
 }
 
 export async function renderDeckPptx(doc: StrategyDeck, lang: Lang): Promise<void> {
@@ -69,24 +104,27 @@ export async function renderDeckPptx(doc: StrategyDeck, lang: Lang): Promise<voi
   if (cp.accent2) palette.accent2 = cp.accent2;
   if (cp.text) { palette.text = cp.text; palette.textMuted = cp.text; }
 
-  const baseFont: FontPair = FONT_PAIRS[theme.font];
   const fmt = doc.formatting;
   const rtl = lang === "he";
+  const sch = designScheme(theme.design, palette, fmt);
 
   const ctx: Ctx = {
     palette,
     accent: noHash(palette.accent),
     accent2: noHash(palette.accent2 || palette.accent),
-    ink: noHash(palette.text),
-    muted: noHash(palette.textMuted),
+    ink: noHash(sch.ink),
+    muted: noHash(sch.muted),
     coverBg: noHash(palette.coverBg),
     coverText: noHash(palette.coverText),
-    bg: noHash(palette.bg),
+    bg: noHash(sch.bg),
+    surface: noHash(sch.surface),
+    cardLine: noHash(sch.cardLine),
+    dark: sch.dark,
     rtl,
     align: rtl ? "right" : "left",
     alignEnd: rtl ? "left" : "right",
-    titleFace: faceFrom(fmt.titleFont, baseFont.pptxDisplay),
-    bodyFace: faceFrom(fmt.bodyFont, baseFont.pptxBody),
+    titleFace: sch.titleFace,
+    bodyFace: sch.bodyFace,
     company: doc.company,
     date: doc.date,
   };
@@ -252,7 +290,7 @@ function renderStats(s: S, slide: Slide, ctx: Ctx, r: Region) {
     items.forEach((st, i) => {
       const x = r.x + (ctx.rtl ? (items.length - 1 - i) : i) * (w + gap);
       if (i === 0 && big) rect(s, x, y, w, h, ctx.accent, { radius: 0.06 });
-      else rect(s, x, y, w, h, ctx.ink, { radius: 0.06, transparency: 95, line: { color: ctx.muted, width: 0.5 } });
+      else rect(s, x, y, w, h, ctx.surface, { radius: 0.06, line: { color: ctx.cardLine, width: 0.5 } });
       const onAcc = i === 0 && big;
       s.addText((st.label ?? "").toUpperCase(), {
         x: x + 0.12, y: y + 0.1, w: w - 0.24, h: 0.3, fontSize: 8,
@@ -296,7 +334,7 @@ function renderKpi(s: S, slide: Slide, ctx: Ctx, r: Region) {
     const st1 = stats[1];
     if (st1) {
       const y2 = r.y + h + 0.16;
-      rect(s, leftX, y2, half, r.h - h - 0.16, ctx.ink, { radius: 0.06, transparency: 95, line: { color: ctx.muted, width: 0.5 } });
+      rect(s, leftX, y2, half, r.h - h - 0.16, ctx.surface, { radius: 0.06, line: { color: ctx.cardLine, width: 0.5 } });
       s.addText([
         { text: st1.value ?? "", options: { fontSize: 22, bold: true, color: ctx.accent } },
         ...(st1.unit ? [{ text: " " + st1.unit, options: { fontSize: 10, color: ctx.muted } }] : []),
@@ -320,7 +358,7 @@ function renderHorizons(s: S, slide: Slide, ctx: Ctx, r: Region) {
   cards.forEach((c, i) => {
     const x = r.x + (ctx.rtl ? (cards.length - 1 - i) : i) * (w + gap);
     const acc = c.variant === "teal" || c.variant === "navy";
-    rect(s, x, r.y, w, h, acc ? ctx.accent : ctx.ink, acc ? { radius: 0.06 } : { radius: 0.06, transparency: 95, line: { color: ctx.muted, width: 0.5 } });
+    rect(s, x, r.y, w, h, acc ? ctx.accent : ctx.surface, acc ? { radius: 0.06 } : { radius: 0.06, line: { color: ctx.cardLine, width: 0.5 } });
     const fg = acc ? "FFFFFF" : ctx.ink, mut = acc ? "FFFFFF" : ctx.muted;
     s.addText((c.eyebrow ?? "").toUpperCase(), { x: x + 0.14, y: r.y + 0.12, w: w - 0.28, h: 0.26, fontSize: 8, color: acc ? "FFFFFF" : ctx.accent, fontFace: ctx.bodyFace, align: ctx.align, rtlMode: ctx.rtl, bold: true, charSpacing: 1 });
     s.addText(c.bigText ?? "", { x: x + 0.14, y: r.y + 0.38, w: w - 0.28, h: 0.7, fontSize: 30, bold: true, color: acc ? "FFFFFF" : ctx.accent, fontFace: ctx.titleFace, align: ctx.align, rtlMode: ctx.rtl, valign: "middle", fit: "shrink" });
@@ -347,7 +385,7 @@ function renderGrid(s: S, slide: Slide, ctx: Ctx, r: Region) {
     const col = i % 2, rowi = Math.floor(i / 2);
     const x = r.x + (ctx.rtl ? (1 - col) : col) * (w + gap);
     const y = r.y + rowi * (h + gap);
-    rect(s, x, y, w, h, ctx.ink, { radius: 0.06, transparency: 96, line: { color: ctx.muted, width: 0.5 } });
+    rect(s, x, y, w, h, ctx.surface, { radius: 0.06, line: { color: ctx.cardLine, width: 0.5 } });
     s.addText(c.index ?? "", { x: x + 0.16, y: y + 0.12, w: 0.7, h: 0.5, fontSize: 24, bold: true, color: ctx.accent, fontFace: ctx.titleFace, align: ctx.align, rtlMode: ctx.rtl });
     s.addText(c.title ?? "", { x: x + (ctx.rtl ? 0.16 : 0.85), y: y + 0.12, w: w - 1.0, h: 0.5, fontSize: 13, bold: true, color: ctx.ink, fontFace: ctx.titleFace, align: ctx.align, rtlMode: ctx.rtl, valign: "top", fit: "shrink" });
     s.addText(c.description ?? "", { x: x + 0.16, y: y + 0.66, w: w - 0.32, h: h - 0.78, fontSize: 9.5, color: ctx.muted, fontFace: ctx.bodyFace, align: ctx.align, rtlMode: ctx.rtl, valign: "top", fit: "shrink", lineSpacingMultiple: 1.1 });
@@ -365,7 +403,7 @@ function renderTracks(s: S, slide: Slide, ctx: Ctx, r: Region) {
   tr.forEach((tk, i) => {
     const x = r.x + (ctx.rtl ? (tr.length - 1 - i) : i) * (w + gap);
     const bar = tk.variant === "teal" ? ctx.accent : tk.variant === "navy" || tk.variant === "blue" ? ctx.accent2 : ctx.muted;
-    rect(s, x, r.y, w, h, ctx.ink, { radius: 0.06, transparency: 96, line: { color: ctx.muted, width: 0.5 } });
+    rect(s, x, r.y, w, h, ctx.surface, { radius: 0.06, line: { color: ctx.cardLine, width: 0.5 } });
     rect(s, x, r.y, w, 0.07, bar, { radius: 0.0 });
     s.addText([
       { text: (tk.index ?? "") + "  ", options: { fontSize: 16, bold: true, color: bar } },
@@ -397,8 +435,8 @@ function renderTable(s: S, slide: Slide, ctx: Ctx, r: Region) {
   const nCols = headers.length + (hasChip ? 1 : 0);
 
   const headRow = [
-    ...headers.map((h) => ({ text: h, options: { bold: true, color: ctx.accent, fontSize: 9, align: ctx.align, fill: { color: ctx.ink, transparency: 95 } } })),
-    ...(hasChip ? [{ text: "", options: { fill: { color: ctx.ink, transparency: 95 } } }] : []),
+    ...headers.map((h) => ({ text: h, options: { bold: true, color: ctx.accent, fontSize: 9, align: ctx.align, fill: { color: ctx.cardLine } } })),
+    ...(hasChip ? [{ text: "", options: { fill: { color: ctx.cardLine } } }] : []),
   ];
   const bodyRows = rows.map((row) => {
     const cells = headers.map((_, ci) => ({
@@ -447,7 +485,7 @@ function renderCompare(s: S, slide: Slide, ctx: Ctx, r: Region) {
     const x = r.x + (ctx.rtl ? (panes.length - 1 - i) : i) * (w + gap);
     const dark = pane.variant === "dark" || pane.variant === "teal";
     if (dark) rect(s, x, r.y, w, r.h, ctx.accent, { radius: 0.06 });
-    else rect(s, x, r.y, w, r.h, ctx.ink, { radius: 0.06, transparency: 96, line: { color: ctx.muted, width: 0.5 } });
+    else rect(s, x, r.y, w, r.h, ctx.surface, { radius: 0.06, line: { color: ctx.cardLine, width: 0.5 } });
     const fg = dark ? "FFFFFF" : ctx.ink, mut = dark ? "FFFFFF" : ctx.muted;
     let y = r.y + 0.14;
     s.addText((pane.eyebrow ?? "").toUpperCase(), { x: x + 0.16, y, w: w - 1.2, h: 0.26, fontSize: 8, color: dark ? "FFFFFF" : ctx.accent, fontFace: ctx.bodyFace, align: ctx.align, rtlMode: ctx.rtl, bold: true, charSpacing: 1 });
