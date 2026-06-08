@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Frank_Ruhl_Libre, Heebo, David_Libre } from "next/font/google";
+import { FontLoader } from "@/components/FontLoader";
 import "./globals.css";
 
 const body = David_Libre({
@@ -35,7 +36,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="he" dir="rtl" className={`${body.variable} ${ui.variable} ${display.variable}`}>
-      <body>{children}</body>
+      <body>
+        <FontLoader />
+        {children}
+      </body>
     </html>
   );
 }

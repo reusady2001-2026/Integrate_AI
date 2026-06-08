@@ -417,15 +417,70 @@ function Row({ label, children }: { label: string; children: React.ReactNode }) 
   );
 }
 
+// 50 selectable fonts, A→Z. Each is a real, loaded webfont (see the
+// @import block in globals.css) so every one renders a visibly different
+// face. Latin-only display fonts fall back to a Hebrew face for Hebrew
+// text. Fallbacks: serif fonts -> Frank Ruhl Libre; mono -> monospace;
+// everything else -> Heebo.
+const SANS_FB = ", 'Heebo', system-ui, sans-serif";
+const SERIF_FB = ", 'Frank Ruhl Libre', Georgia, serif";
+const MONO_FB = ", 'Heebo', ui-monospace, monospace";
+function f(name: string, fb: string): { id: string; label: string; css: string } {
+  const css = `'${name}'${fb}`;
+  return { id: css, label: name, css };
+}
 const FONT_OPTIONS: { id: string; label: string; css: string }[] = [
-  { id: "",                                  label: "ברירת מחדל / Theme default", css: "" },
-  { id: "Georgia, 'David Libre', serif",     label: "Georgia / David",             css: "Georgia, 'David Libre', serif" },
-  { id: "'Frank Ruhl Libre', Georgia, serif",label: "Frank Ruhl Libre",            css: "'Frank Ruhl Libre', Georgia, serif" },
-  { id: "'David Libre', Georgia, serif",     label: "David Libre",                 css: "'David Libre', Georgia, serif" },
-  { id: "'Heebo', Arial, sans-serif",        label: "Heebo",                       css: "'Heebo', Arial, sans-serif" },
-  { id: "'Helvetica Neue', Arial, sans-serif", label: "Helvetica / Modern",        css: "'Helvetica Neue', Arial, sans-serif" },
-  { id: "Arial, sans-serif",                 label: "Arial",                       css: "Arial, sans-serif" },
-  { id: "'Times New Roman', serif",          label: "Times New Roman",             css: "'Times New Roman', serif" },
+  { id: "", label: "ברירת מחדל / Theme default", css: "" },
+  f("Alef", SANS_FB),
+  f("Anton", SANS_FB),
+  f("Arimo", SANS_FB),
+  f("Assistant", SANS_FB),
+  f("Bebas Neue", SANS_FB),
+  f("Bellefair", SERIF_FB),
+  f("Bona Nova SC", SERIF_FB),
+  f("Cousine", MONO_FB),
+  f("David Libre", SERIF_FB),
+  f("Frank Ruhl Libre", SERIF_FB),
+  f("Gveret Levin", SANS_FB),
+  f("Heebo", SANS_FB),
+  f("IBM Plex Sans Hebrew", SANS_FB),
+  f("Karantina", SANS_FB),
+  f("Miriam Libre", SANS_FB),
+  f("Noto Rashi Hebrew", SERIF_FB),
+  f("Noto Sans Hebrew", SANS_FB),
+  f("Noto Serif Hebrew", SERIF_FB),
+  f("Open Sans", SANS_FB),
+  f("Rubik", SANS_FB),
+  f("Rubik 80s Fade", SANS_FB),
+  f("Rubik Beastly", SANS_FB),
+  f("Rubik Broken Fax", SANS_FB),
+  f("Rubik Bubbles", SANS_FB),
+  f("Rubik Burned", SANS_FB),
+  f("Rubik Dirt", SANS_FB),
+  f("Rubik Distressed", SANS_FB),
+  f("Rubik Doodle Shadow", SANS_FB),
+  f("Rubik Doodle Triangles", SANS_FB),
+  f("Rubik Gemstones", SANS_FB),
+  f("Rubik Glitch", SANS_FB),
+  f("Rubik Glitch Pop", SANS_FB),
+  f("Rubik Iso", SANS_FB),
+  f("Rubik Lines", SANS_FB),
+  f("Rubik Maps", SANS_FB),
+  f("Rubik Marker Hatch", SANS_FB),
+  f("Rubik Maze", SANS_FB),
+  f("Rubik Microbe", SANS_FB),
+  f("Rubik Mono One", MONO_FB),
+  f("Rubik Pixels", SANS_FB),
+  f("Rubik Puddles", SANS_FB),
+  f("Rubik Scribble", SANS_FB),
+  f("Rubik Spray Paint", SANS_FB),
+  f("Rubik Storm", SANS_FB),
+  f("Rubik Vinyl", SANS_FB),
+  f("Rubik Wet Paint", SANS_FB),
+  f("Secular One", SANS_FB),
+  f("Suez One", SERIF_FB),
+  f("Tinos", SERIF_FB),
+  f("Varela Round", SANS_FB),
 ];
 
 function FontSelect({ value, onChange }: { value: string; onChange: (v: string) => void }) {
