@@ -650,37 +650,70 @@ function Tracks({ slide, ctx, tok }: { slide: Slide; ctx: DesignCtx; tok: Tokens
 
 // ──────────────────────────────────────────────────────────────────────
 // TABLE
+// RULE (applies to every design): a table is ONE shared-column structure,
+// never a separate grid per row. Here that's a real <table> with
+// table-layout: fixed + a <colgroup>, so the header and every row share
+// the exact same column tracks and all columns line up from a single
+// right-hand baseline (start side). Editorial look kept: hairline rules
+// only, serif bold first column, severity dots — no Word-style gridlines.
 // ──────────────────────────────────────────────────────────────────────
 function Table({ slide, ctx, tok }: { slide: Slide; ctx: DesignCtx; tok: Tokens }) {
   const headers = slide.tableHeaders ?? [];
   const rows = slide.tableRows ?? [];
   const hasChip = rows.some((r) => r.chip);
+  const nData = headers.length;
+  const PAD_END = 20; // inter-column spacing (on the reading-end side)
   const setHeader = (i: number, v: string) =>
     ctx.onChange?.({ tableHeaders: headers.map((h, idx) => (idx === i ? v : h)) });
   const setCell = (ri: number, ci: number, v: string) => {
     const next = rows.map((r, idx) => (idx === ri ? { ...r, cells: r.cells.map((c, j) => (j === ci ? v : c)) } : r));
     ctx.onChange?.({ tableRows: next });
   };
-  const cols = hasChip ? `repeat(${headers.length}, 1fr) auto` : `repeat(${headers.length}, 1fr)`;
+  // Spacing sits on each cell's end side, except the final column.
+  const dataPadEnd = (ci: number) => (!hasChip && ci === nData - 1 ? 0 : PAD_END);
+
   return (
     <div>
       <Header ctx={ctx} tok={tok} slide={slide} titleSize={27} />
-      <div style={{ display: "grid", gridTemplateColumns: cols, gap: "0 22px", paddingBottom: 9, borderBottom: `1.5px solid ${tok.ink}` }}>
-        {headers.map((h, i) => (
-          <T key={i} v={h} onCh={(v) => setHeader(i, v)} ed={ctx.interactive}
-            style={{ fontFamily: SANS, fontSize: 9.5, letterSpacing: 2.5, textTransform: "uppercase", color: tok.ink, fontWeight: 700, display: "block" }} />
-        ))}
-        {hasChip && <span />}
-      </div>
-      {rows.map((row, ri) => (
-        <div key={ri} style={{ display: "grid", gridTemplateColumns: cols, gap: "0 22px", padding: "8px 0", borderBottom: ri < rows.length - 1 ? `1px solid ${tok.ruleSoft}` : "none", alignItems: "center", background: row.emphasize ? rgba(tok.accent, 0.05) : "transparent" }}>
-          {Array.from({ length: headers.length }).map((_, ci) => (
-            <T key={ci} v={row.cells[ci] ?? ""} onCh={(v) => setCell(ri, ci, v)} ed={ctx.interactive} block
-              style={{ display: "block", fontFamily: ci === 0 ? SERIF : SANS, fontSize: ci === 0 ? 13 : 12, fontWeight: ci === 0 ? (row.emphasize ? 700 : 600) : 400, color: ci === 0 ? tok.ink : tok.inkMuted, lineHeight: 1.4 }} />
+      <table style={{ width: "100%", borderCollapse: "collapse", tableLayout: "fixed", direction: ctx.isRtl ? "rtl" : "ltr" }}>
+        <colgroup>
+          {headers.map((_, i) => (
+            <col key={i} style={i === 0 ? { width: "22%" } : undefined} />
           ))}
-          {hasChip && (row.chip ? <SevDot label={row.chip} variant={row.chipVariant ?? "neutral"} tok={tok} /> : <span />)}
-        </div>
-      ))}
+          {hasChip && <col style={{ width: 116 }} />}
+        </colgroup>
+        <thead>
+          <tr>
+            {headers.map((h, i) => (
+              <th key={i} style={{ textAlign: "start", verticalAlign: "bottom", paddingBottom: 9, paddingInlineEnd: dataPadEnd(i), borderBottom: `1.5px solid ${tok.ink}` }}>
+                <T v={h} onCh={(v) => setHeader(i, v)} ed={ctx.interactive} block
+                  style={{ display: "block", fontFamily: SANS, fontSize: 9.5, letterSpacing: 2.5, textTransform: "uppercase", color: tok.ink, fontWeight: 700, lineHeight: 1.3 }} />
+              </th>
+            ))}
+            {hasChip && <th style={{ borderBottom: `1.5px solid ${tok.ink}` }} />}
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row, ri) => {
+            const rule = ri < rows.length - 1 ? `1px solid ${tok.ruleSoft}` : "none";
+            return (
+              <tr key={ri} style={{ background: row.emphasize ? rgba(tok.accent, 0.05) : "transparent" }}>
+                {Array.from({ length: nData }).map((_, ci) => (
+                  <td key={ci} style={{ textAlign: "start", verticalAlign: "middle", padding: "8px 0", paddingInlineEnd: dataPadEnd(ci), borderBottom: rule }}>
+                    <T v={row.cells[ci] ?? ""} onCh={(v) => setCell(ri, ci, v)} ed={ctx.interactive} block
+                      style={{ display: "block", fontFamily: ci === 0 ? SERIF : SANS, fontSize: ci === 0 ? 13 : 12, fontWeight: ci === 0 ? (row.emphasize ? 700 : 600) : 400, color: ci === 0 ? tok.ink : tok.inkMuted, lineHeight: 1.4 }} />
+                  </td>
+                ))}
+                {hasChip && (
+                  <td style={{ textAlign: "start", verticalAlign: "middle", padding: "8px 0", borderBottom: rule }}>
+                    {row.chip ? <SevDot label={row.chip} variant={row.chipVariant ?? "neutral"} tok={tok} /> : null}
+                  </td>
+                )}
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
       {(slide.footnote || ctx.interactive) && (
         <div style={{ marginTop: 14 }}>
           <T v={slide.footnote ?? ""} onCh={(v) => ctx.onChange?.({ footnote: v })} ed={ctx.interactive} block ph="הערה"
