@@ -167,7 +167,10 @@ function buildOps(root: HTMLElement): { ops: Op[]; svgTasks: { el: SVGElement; x
   function emitBox(el: HTMLElement, st: CSSStyleDeclaration, op: ReturnType<typeof rel>, opacity: number) {
     if (op.w <= 0.003 || op.h <= 0.003) return;
     const rad = radiusPx(st);
-    const radIn = rad > 0 ? toIn(rad) : 0;
+    // Clamp to half the shorter side: a roundRect's adjust value maxes out at
+    // 50% (pptx rejects anything larger — PowerPoint refuses to open the file).
+    const maxRad = Math.min(op.w, op.h) / 2;
+    const radIn = rad > 0 ? Math.min(toIn(rad), maxRad * 0.999) : 0;
     const isCircle = rad > 0 && rad * 2 >= Math.min(el.offsetWidth, el.offsetHeight) - 1;
     const shape: RectOp["shape"] = isCircle && Math.abs(op.w - op.h) < 0.02
       ? "ellipse"
@@ -207,7 +210,7 @@ function buildOps(root: HTMLElement): { ops: Op[]; svgTasks: { el: SVGElement; x
     }
   }
 
-  function emitTextNode(node: Text, st: CSSStyleDeclaration, opacity: number) {
+  function emitTextNode(node: Text, parentEl: Element, st: CSSStyleDeclaration, opacity: number) {
     const raw = node.nodeValue ?? "";
     if (!raw.trim()) return;
     const range = document.createRange();
@@ -215,6 +218,16 @@ function buildOps(root: HTMLElement): { ops: Op[]; svgTasks: { el: SVGElement; x
     const rr = range.getBoundingClientRect();
     if (rr.width <= 0.5 || rr.height <= 0.5) return;
     const op = rel(rr);
+
+    // AutoFit shrinks a slide via `transform: scale()`. That scales the
+    // measured box (rr) but NOT getComputedStyle's font-size — so font sizes
+    // must be multiplied by the same factor or dense slides export too large.
+    let scale = 1;
+    const peh = (parentEl as HTMLElement).offsetHeight;
+    if (peh > 0) {
+      const rh = parentEl.getBoundingClientRect().height;
+      if (rh > 0) scale = Math.max(0.05, Math.min(1.2, rh / peh));
+    }
 
     // colour — fall back to text-stroke colour for outlined titles.
     let col = parseColor(st.color);
@@ -240,13 +253,13 @@ function buildOps(root: HTMLElement): { ops: Op[]; svgTasks: { el: SVGElement; x
       text: applyTransform(raw.replace(/\s+/g, " "), st.textTransform),
       color: col.hex,
       transparency: transpOf(col.a, opacity),
-      size: sizePx * PX2PT,
+      size: sizePx * PX2PT * scale,
       bold: (parseInt(st.fontWeight, 10) || 400) >= 600,
       italic: st.fontStyle === "italic",
       face: firstFace(st.fontFamily),
       align: mapAlign(st, rtl),
       rtl,
-      charSpacing: Number.isFinite(lsPx) ? lsPx * PX2PT : 0,
+      charSpacing: (Number.isFinite(lsPx) ? lsPx * PX2PT : 0) * scale,
       lineSpacing: Math.max(0.8, Math.min(2, lh)),
     });
   }
@@ -269,7 +282,7 @@ function buildOps(root: HTMLElement): { ops: Op[]; svgTasks: { el: SVGElement; x
     // (value + unit) and RTL ordering exactly as laid out.
     for (const child of Array.from(el.childNodes)) {
       if (child.nodeType === Node.TEXT_NODE) {
-        emitTextNode(child as Text, st, eff);
+        emitTextNode(child as Text, el, st, eff);
       } else if (child.nodeType === Node.ELEMENT_NODE) {
         recurse(child as Element, eff);
       }
