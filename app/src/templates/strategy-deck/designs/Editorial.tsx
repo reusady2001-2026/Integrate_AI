@@ -41,8 +41,8 @@ const HERO_AVAIL_W = W - HERO_PAD_X * 2;
 const HERO_AVAIL_H = H - HERO_PAD_Y * 2;
 
 // ── Type identity ─────────────────────────────────────────────────────
-const SERIF = "'Frank Ruhl Libre', 'David Libre', Georgia, 'Times New Roman', serif";
-const SANS  = "'Heebo', 'Helvetica Neue', system-ui, -apple-system, Arial, sans-serif";
+const SERIF = "var(--deck-display, 'Frank Ruhl Libre', 'David Libre', Georgia, 'Times New Roman', serif)";
+const SANS  = "var(--deck-body, 'Heebo', 'Helvetica Neue', system-ui, -apple-system, Arial, sans-serif)";
 
 type Tokens = {
   bg: string; ink: string; inkMuted: string; inkSubtle: string;

@@ -221,8 +221,17 @@ export function SlideView(props: SlideViewProps) {
   };
   const renderFn = DESIGN_RENDERERS[theme.design ?? "editorial"] ?? renderEditorial;
   const rendered = renderFn(slide, designCtx);
+  // Font overrides from the format panel flow to every design as CSS
+  // variables. Each design's font constants read these vars and fall back
+  // to their own typographic identity when no override is set.
+  const fmt = doc.formatting;
+  const fontVars = {
+    "--deck-display": fmt.titleFont || undefined,
+    "--deck-body": fmt.bodyFont || undefined,
+    "--deck-font": fmt.bodyFont || fmt.titleFont || undefined,
+  } as CSSProperties;
   return (
-    <div style={{ ...containerStyle, background: undefined, backgroundColor: undefined }}>
+    <div style={{ ...containerStyle, background: undefined, backgroundColor: undefined, ...fontVars }}>
       {rendered}
     </div>
   );

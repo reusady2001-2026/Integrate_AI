@@ -17,7 +17,7 @@ const CHROME_B = 56;
 const CW = W - PAD * 2;
 const BTOP = CHROME_B + 18;
 const BH = H - BTOP - 44;
-const SANS = "'Heebo', 'Helvetica Neue', system-ui, Arial, sans-serif";
+const SANS = "var(--deck-font, 'Heebo', 'Helvetica Neue', system-ui, Arial, sans-serif)";
 
 type Tok = { bg: string; ink: string; muted: string; subtle: string; accent: string; accent2: string; line: string; soft: string };
 function toks(p: Palette): Tok {

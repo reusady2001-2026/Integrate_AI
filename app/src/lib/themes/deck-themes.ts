@@ -42,7 +42,21 @@ export type PaletteId =
   | "monochrome"
   | "earth"
   | "arctic"
-  | "sunset";
+  | "sunset"
+  | "royal-purple"
+  | "emerald"
+  | "crimson"
+  | "ocean-teal"
+  | "amber-gold"
+  | "rose-mauve"
+  | "indigo-night"
+  | "sage"
+  | "graphite"
+  | "coral-reef"
+  | "plum-wine"
+  | "steel-blue"
+  | "mint-fresh"
+  | "burnt-sienna";
 
 export const PALETTES: Record<PaletteId, Palette> = {
   "corporate-navy": {
@@ -267,6 +281,176 @@ export const PALETTES: Record<PaletteId, Palette> = {
     cardBg: "rgba(249,115,22,0.08)",
     cardBorder: "rgba(249,115,22,0.22)",
     glow: "rgba(249,115,22,0.28)",
+    dark: false,
+  },
+
+  // ── 14 additional palettes — varied hues, light & dark ──
+  "royal-purple": {
+    bg: "#ffffff", bgAlt: "#f3eefc",
+    bgGradient: "linear-gradient(180deg, #ffffff 0%, #f4eefb 100%)",
+    coverBg: "#3b0764",
+    coverGradient: "linear-gradient(135deg, #2e0552 0%, #6d28d9 55%, #a855f7 100%)",
+    coverText: "#ffffff",
+    text: "#2a1248", textMuted: "#6b5a86",
+    accent: "#8b5cf6", accent2: "#c026d3",
+    accentGradient: "linear-gradient(90deg, #8b5cf6 0%, #c026d3 100%)",
+    cardBg: "rgba(139,92,246,0.07)", cardBorder: "rgba(139,92,246,0.2)", glow: "rgba(139,92,246,0.28)",
+    dark: false,
+  },
+  "emerald": {
+    bg: "#f3fbf6", bgAlt: "#dcf3e6",
+    bgGradient: "linear-gradient(180deg, #f3fbf6 0%, #dcf3e6 100%)",
+    coverBg: "#053d2c",
+    coverGradient: "linear-gradient(135deg, #022c20 0%, #0f766e 55%, #10b981 100%)",
+    coverText: "#ffffff",
+    text: "#0a2e22", textMuted: "#4a6e60",
+    accent: "#059669", accent2: "#0d9488",
+    accentGradient: "linear-gradient(90deg, #059669 0%, #0d9488 100%)",
+    cardBg: "rgba(5,150,105,0.07)", cardBorder: "rgba(5,150,105,0.2)", glow: "rgba(5,150,105,0.26)",
+    dark: false,
+  },
+  "crimson": {
+    bg: "#fff5f5", bgAlt: "#ffe0e0",
+    bgGradient: "linear-gradient(180deg, #fff5f5 0%, #ffe0e0 100%)",
+    coverBg: "#5e0a1e",
+    coverGradient: "linear-gradient(135deg, #450713 0%, #9f1239 55%, #e11d48 100%)",
+    coverText: "#ffffff",
+    text: "#3d0a16", textMuted: "#8a5560",
+    accent: "#dc2626", accent2: "#be123c",
+    accentGradient: "linear-gradient(90deg, #dc2626 0%, #be123c 100%)",
+    cardBg: "rgba(220,38,38,0.06)", cardBorder: "rgba(220,38,38,0.2)", glow: "rgba(220,38,38,0.26)",
+    dark: false,
+  },
+  "ocean-teal": {
+    bg: "#f0fbfd", bgAlt: "#cdeef4",
+    bgGradient: "linear-gradient(180deg, #f0fbfd 0%, #cdeef4 100%)",
+    coverBg: "#063b46",
+    coverGradient: "linear-gradient(135deg, #042830 0%, #0e7490 55%, #06b6d4 100%)",
+    coverText: "#ffffff",
+    text: "#0a2e36", textMuted: "#456a72",
+    accent: "#0891b2", accent2: "#0e7490",
+    accentGradient: "linear-gradient(90deg, #0891b2 0%, #0e7490 100%)",
+    cardBg: "rgba(8,145,178,0.07)", cardBorder: "rgba(8,145,178,0.2)", glow: "rgba(8,145,178,0.26)",
+    dark: false,
+  },
+  "amber-gold": {
+    bg: "#fffbeb", bgAlt: "#fdeec0",
+    bgGradient: "linear-gradient(180deg, #fffbeb 0%, #fdeec0 100%)",
+    coverBg: "#3f2d04",
+    coverGradient: "linear-gradient(135deg, #2d2003 0%, #b45309 55%, #f59e0b 100%)",
+    coverText: "#ffffff",
+    text: "#3a2c08", textMuted: "#806a3a",
+    accent: "#d97706", accent2: "#ca8a04",
+    accentGradient: "linear-gradient(90deg, #d97706 0%, #ca8a04 100%)",
+    cardBg: "rgba(217,119,6,0.08)", cardBorder: "rgba(217,119,6,0.22)", glow: "rgba(217,119,6,0.26)",
+    dark: false,
+  },
+  "rose-mauve": {
+    bg: "#fdf4f8", bgAlt: "#f8deea",
+    bgGradient: "linear-gradient(180deg, #fdf4f8 0%, #f8deea 100%)",
+    coverBg: "#500724",
+    coverGradient: "linear-gradient(135deg, #3d0620 0%, #9d174d 55%, #db2777 100%)",
+    coverText: "#ffffff",
+    text: "#3f0f26", textMuted: "#8a5a72",
+    accent: "#db2777", accent2: "#a21caf",
+    accentGradient: "linear-gradient(90deg, #db2777 0%, #a21caf 100%)",
+    cardBg: "rgba(219,39,119,0.06)", cardBorder: "rgba(219,39,119,0.2)", glow: "rgba(219,39,119,0.24)",
+    dark: false,
+  },
+  "indigo-night": {
+    bg: "#0f1226", bgAlt: "#1a1f3d",
+    bgGradient: "linear-gradient(160deg, #0f1226 0%, #1a1f3d 100%)",
+    coverBg: "#0b0e1f",
+    coverGradient: "linear-gradient(135deg, #0b0e1f 0%, #312e81 55%, #4f46e5 100%)",
+    coverText: "#ffffff",
+    text: "#e3e6f5", textMuted: "#9095bf",
+    accent: "#6366f1", accent2: "#818cf8",
+    accentGradient: "linear-gradient(90deg, #6366f1 0%, #818cf8 100%)",
+    cardBg: "rgba(99,102,241,0.12)", cardBorder: "rgba(99,102,241,0.25)", glow: "rgba(99,102,241,0.34)",
+    dark: true,
+  },
+  "sage": {
+    bg: "#f5f8f3", bgAlt: "#e3ecdc",
+    bgGradient: "linear-gradient(180deg, #f5f8f3 0%, #e3ecdc 100%)",
+    coverBg: "#2e3a2a",
+    coverGradient: "linear-gradient(135deg, #20281d 0%, #4b5d43 55%, #84a06f 100%)",
+    coverText: "#ffffff",
+    text: "#2c352a", textMuted: "#65725e",
+    accent: "#6b8e4e", accent2: "#557a46",
+    accentGradient: "linear-gradient(90deg, #6b8e4e 0%, #557a46 100%)",
+    cardBg: "rgba(107,142,78,0.08)", cardBorder: "rgba(107,142,78,0.22)", glow: "rgba(107,142,78,0.24)",
+    dark: false,
+  },
+  "graphite": {
+    bg: "#1a1c1e", bgAlt: "#26292c",
+    bgGradient: "linear-gradient(160deg, #1a1c1e 0%, #26292c 100%)",
+    coverBg: "#0e0f11",
+    coverGradient: "linear-gradient(135deg, #0e0f11 0%, #2a2d31 60%, #475569 100%)",
+    coverText: "#ffffff",
+    text: "#e7eaed", textMuted: "#9aa1a8",
+    accent: "#f59e0b", accent2: "#fbbf24",
+    accentGradient: "linear-gradient(90deg, #f59e0b 0%, #fbbf24 100%)",
+    cardBg: "rgba(255,255,255,0.05)", cardBorder: "rgba(255,255,255,0.12)", glow: "rgba(245,158,11,0.3)",
+    dark: true,
+  },
+  "coral-reef": {
+    bg: "#fff6f3", bgAlt: "#ffe1d6",
+    bgGradient: "linear-gradient(180deg, #fff6f3 0%, #ffe1d6 100%)",
+    coverBg: "#7c2618",
+    coverGradient: "linear-gradient(135deg, #5a160c 0%, #ea580c 50%, #fb7185 100%)",
+    coverText: "#ffffff",
+    text: "#43170f", textMuted: "#8a5648",
+    accent: "#f43f5e", accent2: "#fb7185",
+    accentGradient: "linear-gradient(90deg, #f43f5e 0%, #fb923c 100%)",
+    cardBg: "rgba(244,63,94,0.06)", cardBorder: "rgba(244,63,94,0.2)", glow: "rgba(244,63,94,0.24)",
+    dark: false,
+  },
+  "plum-wine": {
+    bg: "#1c1320", bgAlt: "#2a1d30",
+    bgGradient: "linear-gradient(160deg, #1c1320 0%, #2a1d30 100%)",
+    coverBg: "#120a16",
+    coverGradient: "linear-gradient(135deg, #120a16 0%, #581c54 55%, #9d174d 100%)",
+    coverText: "#ffffff",
+    text: "#ecdff0", textMuted: "#a98fb0",
+    accent: "#c084fc", accent2: "#e879b9",
+    accentGradient: "linear-gradient(90deg, #c084fc 0%, #e879b9 100%)",
+    cardBg: "rgba(192,132,252,0.1)", cardBorder: "rgba(192,132,252,0.22)", glow: "rgba(192,132,252,0.3)",
+    dark: true,
+  },
+  "steel-blue": {
+    bg: "#f4f7fa", bgAlt: "#dde7f0",
+    bgGradient: "linear-gradient(180deg, #f4f7fa 0%, #dde7f0 100%)",
+    coverBg: "#1e293b",
+    coverGradient: "linear-gradient(135deg, #0f172a 0%, #334155 55%, #64748b 100%)",
+    coverText: "#ffffff",
+    text: "#1e2a3a", textMuted: "#5a6b7e",
+    accent: "#2563eb", accent2: "#0ea5e9",
+    accentGradient: "linear-gradient(90deg, #2563eb 0%, #0ea5e9 100%)",
+    cardBg: "rgba(37,99,235,0.06)", cardBorder: "rgba(37,99,235,0.18)", glow: "rgba(37,99,235,0.24)",
+    dark: false,
+  },
+  "mint-fresh": {
+    bg: "#f0fdfa", bgAlt: "#cbf5ec",
+    bgGradient: "linear-gradient(180deg, #f0fdfa 0%, #cbf5ec 100%)",
+    coverBg: "#064e44",
+    coverGradient: "linear-gradient(135deg, #033730 0%, #14b8a6 55%, #5eead4 100%)",
+    coverText: "#ffffff",
+    text: "#0c3b34", textMuted: "#4a7068",
+    accent: "#14b8a6", accent2: "#2dd4bf",
+    accentGradient: "linear-gradient(90deg, #14b8a6 0%, #2dd4bf 100%)",
+    cardBg: "rgba(20,184,166,0.07)", cardBorder: "rgba(20,184,166,0.2)", glow: "rgba(20,184,166,0.24)",
+    dark: false,
+  },
+  "burnt-sienna": {
+    bg: "#fbf3ee", bgAlt: "#f0dccf",
+    bgGradient: "linear-gradient(180deg, #fbf3ee 0%, #f0dccf 100%)",
+    coverBg: "#3d1f12",
+    coverGradient: "linear-gradient(135deg, #2b150b 0%, #9a3412 55%, #c2410c 100%)",
+    coverText: "#ffffff",
+    text: "#3a2317", textMuted: "#83604c",
+    accent: "#c2410c", accent2: "#92400e",
+    accentGradient: "linear-gradient(90deg, #c2410c 0%, #92400e 100%)",
+    cardBg: "rgba(194,65,12,0.07)", cardBorder: "rgba(194,65,12,0.2)", glow: "rgba(194,65,12,0.24)",
     dark: false,
   },
 };

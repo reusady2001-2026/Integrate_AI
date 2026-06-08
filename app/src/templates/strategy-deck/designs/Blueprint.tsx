@@ -17,7 +17,7 @@ const CW = W - PAD * 2;
 const BTOP = CHROME_B + 16;
 const BH = H - BTOP - 40;
 const MONO = "'IBM Plex Mono', 'Courier New', ui-monospace, monospace";
-const SANS = "'Heebo', 'Helvetica Neue', system-ui, Arial, sans-serif";
+const SANS = "var(--deck-font, 'Heebo', 'Helvetica Neue', system-ui, Arial, sans-serif)";
 
 type Tok = { bg: string; grid: string; ink: string; muted: string; subtle: string; accent: string; accent2: string; line: string; soft: string };
 function toks(p: Palette): Tok {

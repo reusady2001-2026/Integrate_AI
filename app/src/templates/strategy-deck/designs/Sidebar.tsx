@@ -16,7 +16,7 @@ const GAP = 30;
 const PAD = 34;
 const CW = W - SBW - GAP - PAD;   // content width
 const CH = H - PAD * 2;
-const SANS = "'Heebo', 'Assistant', 'Helvetica Neue', system-ui, Arial, sans-serif";
+const SANS = "var(--deck-font, 'Heebo', 'Assistant', 'Helvetica Neue', system-ui, Arial, sans-serif)";
 
 type Tok = { bg: string; sbBg: string; sbGrad: string; ink: string; muted: string; subtle: string; accent: string; accent2: string; onSb: string; onSbMut: string; line: string; soft: string; surf: string };
 function toks(p: Palette): Tok {

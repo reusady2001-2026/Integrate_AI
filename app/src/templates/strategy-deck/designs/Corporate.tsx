@@ -35,7 +35,7 @@ const BODY_AVAIL_H = H - BODY_TOP - PAD_BOTTOM;  // 440
 const HERO_PAD = 78;
 
 // ── Type ──────────────────────────────────────────────────────────────
-const SANS = "'Heebo', 'Assistant', 'Helvetica Neue', system-ui, -apple-system, Arial, sans-serif";
+const SANS = "var(--deck-font, 'Heebo', 'Assistant', 'Helvetica Neue', system-ui, -apple-system, Arial, sans-serif)";
 
 // ── Tokens ────────────────────────────────────────────────────────────
 type Tokens = {
