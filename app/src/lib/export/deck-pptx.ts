@@ -297,8 +297,8 @@ function renderStats(s: S, slide: Slide, ctx: Ctx, r: Region) {
         color: onAcc ? "FFFFFF" : ctx.muted, fontFace: ctx.bodyFace, align: ctx.align, rtlMode: ctx.rtl, bold: true, charSpacing: 1,
       });
       s.addText([
-        { text: st.value ?? "", options: { fontSize: big ? 30 : 24, bold: true, color: onAcc ? "FFFFFF" : ctx.accent } },
-        ...(st.unit ? [{ text: " " + st.unit, options: { fontSize: big ? 12 : 10, color: onAcc ? "FFFFFF" : ctx.muted } }] : []),
+        { text: st.value ?? "", options: { rtlMode: ctx.rtl, breakLine: false,  fontSize: big ? 30 : 24, bold: true, color: onAcc ? "FFFFFF" : ctx.accent } },
+        ...(st.unit ? [{ text: " " + st.unit, options: { rtlMode: ctx.rtl, breakLine: false,  fontSize: big ? 12 : 10, color: onAcc ? "FFFFFF" : ctx.muted } }] : []),
       ], {
         x: x + 0.12, y: y + 0.42, w: w - 0.24, h: 0.6, fontFace: ctx.titleFace, align: ctx.align, rtlMode: ctx.rtl, valign: "middle", fit: "shrink",
       });
@@ -327,8 +327,8 @@ function renderKpi(s: S, slide: Slide, ctx: Ctx, r: Region) {
     rect(s, leftX, r.y, half, h, ctx.accent, { radius: 0.06 });
     s.addText((st0.label ?? "").toUpperCase(), { x: leftX + 0.18, y: r.y + 0.16, w: half - 0.36, h: 0.3, fontSize: 8.5, color: "FFFFFF", fontFace: ctx.bodyFace, align: ctx.align, rtlMode: ctx.rtl, bold: true, charSpacing: 1 });
     s.addText([
-      { text: st0.value ?? "", options: { fontSize: 40, bold: true, color: "FFFFFF" } },
-      ...(st0.unit ? [{ text: " " + st0.unit, options: { fontSize: 15, color: "FFFFFF" } }] : []),
+      { text: st0.value ?? "", options: { rtlMode: ctx.rtl, breakLine: false,  fontSize: 40, bold: true, color: "FFFFFF" } },
+      ...(st0.unit ? [{ text: " " + st0.unit, options: { rtlMode: ctx.rtl, breakLine: false,  fontSize: 15, color: "FFFFFF" } }] : []),
     ], { x: leftX + 0.18, y: r.y + 0.5, w: half - 0.36, h: 0.9, fontFace: ctx.titleFace, align: ctx.align, rtlMode: ctx.rtl, valign: "middle", fit: "shrink" });
     if (st0.caption) s.addText(st0.caption, { x: leftX + 0.18, y: r.y + h - 0.7, w: half - 0.36, h: 0.6, fontSize: 8.5, color: "FFFFFF", fontFace: ctx.bodyFace, align: ctx.align, rtlMode: ctx.rtl, valign: "top", fit: "shrink" });
     const st1 = stats[1];
@@ -336,9 +336,9 @@ function renderKpi(s: S, slide: Slide, ctx: Ctx, r: Region) {
       const y2 = r.y + h + 0.16;
       rect(s, leftX, y2, half, r.h - h - 0.16, ctx.surface, { radius: 0.06, line: { color: ctx.cardLine, width: 0.5 } });
       s.addText([
-        { text: st1.value ?? "", options: { fontSize: 22, bold: true, color: ctx.accent } },
-        ...(st1.unit ? [{ text: " " + st1.unit, options: { fontSize: 10, color: ctx.muted } }] : []),
-        { text: "   " + (st1.label ?? ""), options: { fontSize: 9, color: ctx.muted } },
+        { text: st1.value ?? "", options: { rtlMode: ctx.rtl, breakLine: false,  fontSize: 22, bold: true, color: ctx.accent } },
+        ...(st1.unit ? [{ text: " " + st1.unit, options: { rtlMode: ctx.rtl, breakLine: false,  fontSize: 10, color: ctx.muted } }] : []),
+        { text: "   " + (st1.label ?? ""), options: { rtlMode: ctx.rtl, breakLine: false,  fontSize: 9, color: ctx.muted } },
       ], { x: leftX + 0.18, y: y2, w: half - 0.36, h: r.h - h - 0.16, fontFace: ctx.titleFace, align: ctx.align, rtlMode: ctx.rtl, valign: "middle", fit: "shrink" });
     }
   }
@@ -366,8 +366,8 @@ function renderHorizons(s: S, slide: Slide, ctx: Ctx, r: Region) {
     if (c.caption) { s.addText(c.caption, { x: x + 0.14, y: ry, w: w - 0.28, h: 0.5, fontSize: 9, italic: true, color: mut, fontFace: ctx.bodyFace, align: ctx.align, rtlMode: ctx.rtl, valign: "top", fit: "shrink" }); ry += 0.52; }
     (c.rows ?? []).slice(0, 6).forEach((row) => {
       s.addText([
-        { text: (row.label ?? "") + "  ", options: { color: mut, fontSize: 9 } },
-        { text: row.value ?? "", options: { color: fg, fontSize: 9.5, bold: true } },
+        { text: (row.label ?? "") + "  ", options: { rtlMode: ctx.rtl, breakLine: false,  color: mut, fontSize: 9 } },
+        { text: row.value ?? "", options: { rtlMode: ctx.rtl, breakLine: false,  color: fg, fontSize: 9.5, bold: true } },
       ], { x: x + 0.14, y: ry, w: w - 0.28, h: 0.26, fontFace: ctx.bodyFace, align: ctx.align, rtlMode: ctx.rtl, valign: "middle", fit: "shrink" });
       ry += 0.26;
     });
@@ -406,8 +406,8 @@ function renderTracks(s: S, slide: Slide, ctx: Ctx, r: Region) {
     rect(s, x, r.y, w, h, ctx.surface, { radius: 0.06, line: { color: ctx.cardLine, width: 0.5 } });
     rect(s, x, r.y, w, 0.07, bar, { radius: 0.0 });
     s.addText([
-      { text: (tk.index ?? "") + "  ", options: { fontSize: 16, bold: true, color: bar } },
-      { text: (tk.eyebrow ?? "").toUpperCase(), options: { fontSize: 8, color: ctx.muted, bold: true } },
+      { text: (tk.index ?? "") + "  ", options: { rtlMode: ctx.rtl, breakLine: false,  fontSize: 16, bold: true, color: bar } },
+      { text: (tk.eyebrow ?? "").toUpperCase(), options: { rtlMode: ctx.rtl, breakLine: false,  fontSize: 8, color: ctx.muted, bold: true } },
     ], { x: x + 0.14, y: r.y + 0.18, w: w - 0.28, h: 0.3, fontFace: ctx.bodyFace, align: ctx.align, rtlMode: ctx.rtl, valign: "middle" });
     s.addText(tk.title ?? "", { x: x + 0.14, y: r.y + 0.5, w: w - 0.28, h: 0.5, fontSize: 13, bold: true, color: ctx.ink, fontFace: ctx.titleFace, align: ctx.align, rtlMode: ctx.rtl, valign: "top", fit: "shrink" });
     s.addText(tk.description ?? "", { x: x + 0.14, y: r.y + 1.05, w: w - 0.28, h: h - (tk.chip ? 1.55 : 1.2), fontSize: 9.5, color: ctx.muted, fontFace: ctx.bodyFace, align: ctx.align, rtlMode: ctx.rtl, valign: "top", fit: "shrink", lineSpacingMultiple: 1.1 });
@@ -416,7 +416,7 @@ function renderTracks(s: S, slide: Slide, ctx: Ctx, r: Region) {
   if (slide.footnote) {
     rect(s, r.x, SLIDE_H - 0.62, r.w, 0.42, ctx.accent, { radius: 0.05, transparency: 88 });
     s.addText(slide.footnote, { x: r.x + 0.15, y: SLIDE_H - 0.62, w: r.w - 1.6, h: 0.42, fontSize: 10, bold: true, color: ctx.ink, fontFace: ctx.bodyFace, align: ctx.align, rtlMode: ctx.rtl, valign: "middle", fit: "shrink" });
-    if (slide.footnoteChip) s.addText((slide.footnoteChip).toUpperCase(), { x: r.x, y: SLIDE_H - 0.62, w: r.w - 0.15, h: 0.42, fontSize: 9, bold: true, color: ctx.accent, fontFace: ctx.bodyFace, align: ctx.alignEnd, valign: "middle", charSpacing: 1 });
+    if (slide.footnoteChip) s.addText((slide.footnoteChip).toUpperCase(), { x: r.x, y: SLIDE_H - 0.62, w: r.w - 0.15, h: 0.42, fontSize: 9, bold: true, color: ctx.accent, fontFace: ctx.bodyFace, align: ctx.alignEnd, rtlMode: ctx.rtl, valign: "middle", charSpacing: 1 });
   }
 }
 
@@ -435,21 +435,21 @@ function renderTable(s: S, slide: Slide, ctx: Ctx, r: Region) {
   const nCols = headers.length + (hasChip ? 1 : 0);
 
   const headRow = [
-    ...headers.map((h) => ({ text: h, options: { bold: true, color: ctx.accent, fontSize: 9, align: ctx.align, fill: { color: ctx.cardLine } } })),
-    ...(hasChip ? [{ text: "", options: { fill: { color: ctx.cardLine } } }] : []),
+    ...headers.map((h) => ({ text: h, options: { bold: true, color: ctx.accent, fontSize: 9, align: ctx.align, rtlMode: ctx.rtl, fill: { color: ctx.cardLine } } })),
+    ...(hasChip ? [{ text: "", options: { rtlMode: ctx.rtl, fill: { color: ctx.cardLine } } }] : []),
   ];
   const bodyRows = rows.map((row) => {
     const cells = headers.map((_, ci) => ({
       text: row.cells[ci] ?? "",
       options: {
-        bold: ci === 0, color: ci === 0 ? ctx.ink : ctx.muted, fontSize: 9.5, align: ctx.align,
+        bold: ci === 0, color: ci === 0 ? ctx.ink : ctx.muted, fontSize: 9.5, align: ctx.align, rtlMode: ctx.rtl,
         ...(row.emphasize ? { fill: { color: ctx.accent, transparency: 92 } } : {}),
       },
     }));
     if (hasChip) cells.push({
       text: row.chip ?? "",
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      options: { bold: true, color: noHash(chipColor(ctx, row.chipVariant)), fontSize: 8.5, align: "center", ...(row.emphasize ? { fill: { color: ctx.accent, transparency: 92 } } : {}) } as any,
+      options: { bold: true, color: noHash(chipColor(ctx, row.chipVariant)), fontSize: 8.5, align: "center", rtlMode: ctx.rtl, ...(row.emphasize ? { fill: { color: ctx.accent, transparency: 92 } } : {}) } as any,
     });
     return cells;
   });
@@ -495,8 +495,8 @@ function renderCompare(s: S, slide: Slide, ctx: Ctx, r: Region) {
     y += 0.6;
     (pane.rows ?? []).slice(0, 5).forEach((row) => {
       s.addText([
-        { text: (row.label ?? "") + "  ", options: { color: mut, fontSize: 9 } },
-        { text: row.value ?? "", options: { color: fg, fontSize: 9.5, bold: true } },
+        { text: (row.label ?? "") + "  ", options: { rtlMode: ctx.rtl, breakLine: false,  color: mut, fontSize: 9 } },
+        { text: row.value ?? "", options: { rtlMode: ctx.rtl, breakLine: false,  color: fg, fontSize: 9.5, bold: true } },
       ], { x: x + 0.16, y, w: w - 0.32, h: 0.24, fontFace: ctx.bodyFace, align: ctx.align, rtlMode: ctx.rtl, valign: "middle", fit: "shrink" });
       y += 0.25;
     });
@@ -504,9 +504,9 @@ function renderCompare(s: S, slide: Slide, ctx: Ctx, r: Region) {
       const letter = String.fromCharCode(65 + bi);
       const [head, ...rest] = (b || "").split(" — ");
       s.addText([
-        { text: letter + "  ", options: { color: dark ? "FFFFFF" : ctx.accent, bold: true, fontSize: 9.5 } },
-        { text: head, options: { color: fg, bold: true, fontSize: 9.5 } },
-        ...(rest.length ? [{ text: " — " + rest.join(" — "), options: { color: mut, fontSize: 9.5 } }] : []),
+        { text: letter + "  ", options: { rtlMode: ctx.rtl, breakLine: false,  color: dark ? "FFFFFF" : ctx.accent, bold: true, fontSize: 9.5 } },
+        { text: head, options: { rtlMode: ctx.rtl, breakLine: false,  color: fg, bold: true, fontSize: 9.5 } },
+        ...(rest.length ? [{ text: " — " + rest.join(" — "), options: { rtlMode: ctx.rtl, breakLine: false,  color: mut, fontSize: 9.5 } }] : []),
       ], { x: x + 0.16, y, w: w - 0.32, h: 0.4, fontFace: ctx.bodyFace, align: ctx.align, rtlMode: ctx.rtl, valign: "top", fit: "shrink" });
       y += 0.38;
     });
@@ -547,8 +547,8 @@ function renderToc(s: S, slide: Slide, ctx: Ctx, r: Region) {
     const y = r.y + idx * rowH;
     s.addText(it.index ?? "", { x: x + (ctx.rtl ? colW - 0.5 : 0), y, w: 0.5, h: rowH - 0.08, fontSize: 14, bold: true, color: ctx.accent, fontFace: ctx.titleFace, align: ctx.align, rtlMode: ctx.rtl, valign: "middle" });
     s.addText([
-      { text: (it.title ?? ""), options: { fontSize: 12, bold: true, color: ctx.ink } },
-      ...(it.subtitle ? [{ text: "\n" + it.subtitle, options: { fontSize: 9, color: ctx.muted } }] : []),
+      { text: (it.title ?? ""), options: { rtlMode: ctx.rtl, breakLine: false,  fontSize: 12, bold: true, color: ctx.ink } },
+      ...(it.subtitle ? [{ text: "\n" + it.subtitle, options: { rtlMode: ctx.rtl, breakLine: false,  fontSize: 9, color: ctx.muted } }] : []),
     ], { x: x + (ctx.rtl ? 0 : 0.55), y, w: colW - 0.55, h: rowH - 0.08, fontFace: ctx.bodyFace, align: ctx.align, rtlMode: ctx.rtl, valign: "middle", fit: "shrink" });
     rect(s, x, y + rowH - 0.06, colW, 0.008, ctx.muted, { transparency: 60 });
   });
