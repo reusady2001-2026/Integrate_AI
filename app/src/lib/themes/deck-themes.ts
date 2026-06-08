@@ -340,7 +340,9 @@ export type FontPairId = keyof typeof FONT_PAIRS;
 // and renders via the named design — e.g. "editorial" routes every
 // slide through designs/Editorial.tsx, which still reads palette+font
 // from this theme so palette swaps still work.
-export type DesignSystem = "editorial" | "corporate";
+export type DesignSystem =
+  | "editorial" | "corporate" | "swiss" | "midnight" | "blueprint"
+  | "sidebar" | "outline" | "strips" | "geometric" | "gradient";
 
 export type DeckTheme = {
   id: string;
@@ -383,6 +385,14 @@ export const DECK_THEMES: DeckTheme[] = [
     font: "modern",
     design: "corporate",
   },
+  { id: "swiss",     name_he: "Swiss Grid",  name_en: "Swiss Grid",  palette: "monochrome",      cover: "minimal-bottom", content: "minimal-line", font: "bold",   design: "swiss" },
+  { id: "midnight",  name_he: "Midnight",    name_en: "Midnight",    palette: "obsidian",        cover: "minimal-bottom", content: "minimal-line", font: "tech",   design: "midnight" },
+  { id: "blueprint", name_he: "Blueprint",   name_en: "Blueprint",   palette: "tech-cyan",       cover: "minimal-bottom", content: "minimal-line", font: "tech",   design: "blueprint" },
+  { id: "sidebar",   name_he: "Sidebar",     name_en: "Sidebar",     palette: "corporate-navy",  cover: "minimal-bottom", content: "minimal-line", font: "modern", design: "sidebar" },
+  { id: "outline",   name_he: "Outline",     name_en: "Outline",     palette: "monochrome",      cover: "minimal-bottom", content: "minimal-line", font: "modern", design: "outline" },
+  { id: "strips",    name_he: "Strips",      name_en: "Strips",      palette: "warm-terracotta", cover: "minimal-bottom", content: "minimal-line", font: "bold",   design: "strips" },
+  { id: "geometric", name_he: "Geometric",   name_en: "Geometric",   palette: "midnight-violet", cover: "minimal-bottom", content: "minimal-line", font: "bold",   design: "geometric" },
+  { id: "gradient",  name_he: "Gradient",    name_en: "Gradient",    palette: "sunset",          cover: "minimal-bottom", content: "minimal-line", font: "modern", design: "gradient" },
 ];
 
 // Convenience accessors

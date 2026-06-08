@@ -14,6 +14,29 @@ import {
 } from "@/lib/themes/deck-themes";
 import { renderEditorial } from "./designs/Editorial";
 import { renderCorporate } from "./designs/Corporate";
+import { renderSwiss } from "./designs/Swiss";
+import { renderMidnight } from "./designs/Midnight";
+import { renderBlueprint } from "./designs/Blueprint";
+import { renderSidebar } from "./designs/Sidebar";
+import { renderOutline } from "./designs/Outline";
+import { renderStrips } from "./designs/Strips";
+import { renderGeometric } from "./designs/Geometric";
+import { renderGradient } from "./designs/Gradient";
+import type { DesignCtx } from "./designs/shared";
+
+// Registry of all deck designs, keyed by DeckTheme.design.
+const DESIGN_RENDERERS: Record<string, (slide: Slide, ctx: DesignCtx) => ReactNode> = {
+  editorial: renderEditorial,
+  corporate: renderCorporate,
+  swiss: renderSwiss,
+  midnight: renderMidnight,
+  blueprint: renderBlueprint,
+  sidebar: renderSidebar,
+  outline: renderOutline,
+  strips: renderStrips,
+  geometric: renderGeometric,
+  gradient: renderGradient,
+};
 
 // 16:9 reference resolution. SlideView always renders at this exact size,
 // the caller scales it via CSS transform.
@@ -196,9 +219,8 @@ export function SlideView(props: SlideViewProps) {
     interactive,
     onChange: props.onChange,
   };
-  const rendered = theme.design === "corporate"
-    ? renderCorporate(slide, designCtx)
-    : renderEditorial(slide, designCtx);
+  const renderFn = DESIGN_RENDERERS[theme.design ?? "editorial"] ?? renderEditorial;
+  const rendered = renderFn(slide, designCtx);
   return (
     <div style={{ ...containerStyle, background: undefined, backgroundColor: undefined }}>
       {rendered}
