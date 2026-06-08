@@ -45,7 +45,7 @@ const emptyDeck = (): StrategyDeck => ({
   planTitle: "",
   headlineTarget: "",
   date: "",
-  theme: "navy-classic",
+  theme: "editorial",
   paletteOverride: "",
   customPalette: emptyCustomPalette(),
   formatting: defaultDeckFormatting(),

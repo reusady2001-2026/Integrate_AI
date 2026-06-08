@@ -12,10 +12,6 @@ import {
   getPalette,
   getFont,
 } from "@/lib/themes/deck-themes";
-import {
-  BSREStats, BSREKpiCard, BSREHorizons, BSREGrid, BSRETracks,
-  BSREToc, BSRETable, BSRECompare, BSREDonts, BSRESummary, BSRECover,
-} from "./BSREStyle";
 import { renderEditorial } from "./designs/Editorial";
 
 // 16:9 reference resolution. SlideView always renders at this exact size,
@@ -183,37 +179,24 @@ export function SlideView(props: SlideViewProps) {
     pageNumber: props.pageNumber,
     totalPages: props.totalPages,
   };
-  // Premium design router — only activates when the chosen theme has
-  // `design` set (e.g. "editorial"). Otherwise the slide renders via
-  // the legacy cover/content router below, exactly as before.
-  void BSREStats; void BSREKpiCard; void BSREHorizons; void BSREGrid;
-  void BSRETracks; void BSREToc; void BSRETable; void BSRECompare;
-  void BSREDonts; void BSRESummary; void BSRECover; void bsreCommon; void bsre;
-  if (theme.design === "editorial") {
-    return (
-      <div style={containerStyle}>
-        {renderEditorial(slide, {
-          palette: eff.palette,
-          font: eff.font,
-          isRtl,
-          company: doc.company,
-          date: doc.date,
-          pageNumber: props.pageNumber,
-          totalPages: props.totalPages,
-        })}
-      </div>
-    );
-  }
-
-  // Legacy / theme-driven rendering (default behavior).
+  // There is now a single deck design — "Editorial". Every slide renders
+  // through it. It is overflow-safe (auto-scales to fit), editable, and
+  // palette-driven. The legacy cover/content combinator below is retained
+  // only as inert reference; it is no longer on any render path.
+  void ctx; void isCoverOrSection; void bsre; void bsreCommon;
   return (
-    <div style={containerStyle}>
-      {isCoverOrSection && <CoverDepth ctx={ctx} />}
-      {!isCoverOrSection && <ContentDepth ctx={ctx} />}
-      {slide.layout === "cover" && renderCover(ctx)}
-      {slide.layout === "section" && renderSection(ctx)}
-      {slide.layout === "quote" && renderQuote(ctx)}
-      {slide.layout === "content" && renderContent(ctx)}
+    <div style={{ ...containerStyle, background: undefined, backgroundColor: undefined }}>
+      {renderEditorial(slide, {
+        palette: eff.palette,
+        font: eff.font,
+        isRtl,
+        company: doc.company,
+        date: doc.date,
+        pageNumber: props.pageNumber,
+        totalPages: props.totalPages,
+        interactive,
+        onChange: props.onChange,
+      })}
     </div>
   );
 }

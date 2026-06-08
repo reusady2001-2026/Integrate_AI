@@ -358,93 +358,21 @@ export type DeckTheme = {
 // ─────────────────────── The 55 themes ───────────────────────
 
 export const DECK_THEMES: DeckTheme[] = [
-  // 1–8: Corporate / classic
-  { id: "navy-classic",      name_he: "תאגידי קלאסי",       name_en: "Corporate Classic",     palette: "corporate-navy",  cover: "left-bar-strong",   content: "classic-top",   font: "classic" },
-  { id: "navy-magazine",     name_he: "תאגידי עריכה",       name_en: "Corporate Editorial",   palette: "corporate-navy",  cover: "horizon-line",       content: "magazine",      font: "editorial" },
-  { id: "navy-numbered",     name_he: "תאגידי ממוספר",      name_en: "Corporate Numbered",    palette: "corporate-navy",  cover: "centered-bold",      content: "numbered-list", font: "modern" },
-  { id: "navy-block",        name_he: "תאגידי בלוק",        name_en: "Corporate Block",       palette: "corporate-navy",  cover: "duotone-block",      content: "header-block",  font: "bold" },
-  { id: "navy-frame",        name_he: "תאגידי ממוסגר",      name_en: "Corporate Framed",      palette: "corporate-navy",  cover: "framed-thin",        content: "framed",        font: "refined" },
-  { id: "navy-split",        name_he: "תאגידי מפוצל",       name_en: "Corporate Split",       palette: "corporate-navy",  cover: "split-half",         content: "half-color",    font: "modern" },
-  { id: "navy-side",         name_he: "תאגידי פס צד",       name_en: "Corporate Side Band",   palette: "corporate-navy",  cover: "stripes-side",       content: "side-band",     font: "classic" },
-  { id: "navy-two-col",      name_he: "תאגידי שתי עמודות",  name_en: "Corporate Two-Column",  palette: "corporate-navy",  cover: "label-strip",        content: "two-column",    font: "modern" },
-
-  // 9–14: Midnight violet
-  { id: "violet-card",       name_he: "סגול-כרטיס",          name_en: "Violet Card",           palette: "midnight-violet", cover: "card-center",        content: "card-stack",    font: "modern" },
-  { id: "violet-circle",     name_he: "סגול-עיגול",          name_en: "Violet Circle",         palette: "midnight-violet", cover: "circle-accent",      content: "circle-bullets",font: "elegant" },
-  { id: "violet-gradient",   name_he: "סגול-גרדיאנט",        name_en: "Violet Gradient",       palette: "midnight-violet", cover: "gradient-diagonal",  content: "minimal-line",  font: "modern" },
-  { id: "violet-corner",     name_he: "סגול-פינתי",          name_en: "Violet Corner",         palette: "midnight-violet", cover: "geometric-corner",   content: "corner-accent", font: "bold" },
-  { id: "violet-stripe",     name_he: "סגול-פס",             name_en: "Violet Stripe",         palette: "midnight-violet", cover: "stripes-side",       content: "stripe-cards",  font: "modern" },
-  { id: "violet-magazine",   name_he: "סגול-עריכה",          name_en: "Violet Editorial",      palette: "midnight-violet", cover: "outlined-title",     content: "magazine",      font: "editorial" },
-
-  // 15–19: Deep forest
-  { id: "forest-classic",    name_he: "יער-קלאסי",           name_en: "Forest Classic",        palette: "deep-forest",     cover: "left-bar-strong",    content: "classic-top",   font: "classic" },
-  { id: "forest-dot",        name_he: "יער-נקודות",          name_en: "Forest Dots",           palette: "deep-forest",     cover: "geometric-corner",   content: "dot-grid",      font: "modern" },
-  { id: "forest-band",       name_he: "יער-פס",              name_en: "Forest Band",           palette: "deep-forest",     cover: "horizon-line",       content: "footer-band",   font: "elegant" },
-  { id: "forest-circle",     name_he: "יער-עיגול",           name_en: "Forest Circle",         palette: "deep-forest",     cover: "circle-accent",      content: "circle-bullets",font: "refined" },
-  { id: "forest-num",        name_he: "יער-ממוספר",          name_en: "Forest Numbered",       palette: "deep-forest",     cover: "big-number-corner",  content: "numbered-list", font: "bold" },
-
-  // 20–22: Wine
-  { id: "wine-elegant",      name_he: "יין-אלגנטי",          name_en: "Wine Elegant",          palette: "wine",            cover: "underline-title",    content: "left-rule",     font: "editorial" },
-  { id: "wine-frame",        name_he: "יין-מסגרת",           name_en: "Wine Framed",           palette: "wine",            cover: "framed-thin",        content: "framed",        font: "refined" },
-  { id: "wine-magazine",     name_he: "יין-עריכה",           name_en: "Wine Editorial",        palette: "wine",            cover: "outlined-title",     content: "magazine",      font: "editorial" },
-
-  // 23–28: Obsidian
-  { id: "obsidian-bold",     name_he: "אבסידיאן-בולט",       name_en: "Obsidian Bold",         palette: "obsidian",        cover: "centered-bold",      content: "header-block",  font: "bold" },
-  { id: "obsidian-big",      name_he: "אבסידיאן-מספר",       name_en: "Obsidian Big Number",   palette: "obsidian",        cover: "big-number-corner",  content: "numbered-list", font: "bold" },
-  { id: "obsidian-outline",  name_he: "אבסידיאן-קווי",       name_en: "Obsidian Outline",      palette: "obsidian",        cover: "outlined-title",     content: "minimal-line",  font: "modern" },
-  { id: "obsidian-stripe",   name_he: "אבסידיאן-פס",         name_en: "Obsidian Stripe",       palette: "obsidian",        cover: "stripes-side",       content: "stripe-cards",  font: "tech" },
-  { id: "obsidian-card",     name_he: "אבסידיאן-כרטיס",      name_en: "Obsidian Card",         palette: "obsidian",        cover: "card-center",        content: "card-stack",    font: "modern" },
-  { id: "obsidian-circle",   name_he: "אבסידיאן-עיגול",      name_en: "Obsidian Circle",       palette: "obsidian",        cover: "circle-accent",      content: "circle-bullets",font: "bold" },
-
-  // 29–33: Tech cyan
-  { id: "tech-grid",         name_he: "טכנו-רשת",            name_en: "Tech Grid",             palette: "tech-cyan",       cover: "geometric-corner",   content: "dot-grid",      font: "tech" },
-  { id: "tech-stripe",       name_he: "טכנו-פס",             name_en: "Tech Stripe",           palette: "tech-cyan",       cover: "stripes-side",       content: "side-band",     font: "tech" },
-  { id: "tech-mono",         name_he: "טכנו-מונו",           name_en: "Tech Mono",             palette: "tech-cyan",       cover: "minimal-bottom",     content: "minimal-line",  font: "tech" },
-  { id: "tech-block",        name_he: "טכנו-בלוק",           name_en: "Tech Block",            palette: "tech-cyan",       cover: "duotone-block",      content: "header-block",  font: "tech" },
-  { id: "tech-corner",       name_he: "טכנו-פינה",           name_en: "Tech Corner",           palette: "tech-cyan",       cover: "geometric-corner",   content: "corner-accent", font: "tech" },
-
-  // 34–37: Muted slate
-  { id: "slate-magazine",    name_he: "אפור-עריכה",          name_en: "Slate Editorial",       palette: "muted-slate",     cover: "horizon-line",       content: "magazine",      font: "editorial" },
-  { id: "slate-card",        name_he: "אפור-כרטיס",          name_en: "Slate Card",            palette: "muted-slate",     cover: "card-center",        content: "card-stack",    font: "modern" },
-  { id: "slate-two-col",     name_he: "אפור-שתי עמודות",     name_en: "Slate Two-Column",      palette: "muted-slate",     cover: "centered-bold",      content: "two-column",    font: "modern" },
-  { id: "slate-circle",      name_he: "אפור-עיגול",          name_en: "Slate Circle",          palette: "muted-slate",     cover: "circle-accent",      content: "circle-bullets",font: "refined" },
-
-  // 38–40: Soft cream
-  { id: "cream-classic",     name_he: "קרם-קלאסי",           name_en: "Cream Classic",         palette: "soft-cream",      cover: "left-bar-strong",    content: "classic-top",   font: "classic" },
-  { id: "cream-editorial",   name_he: "קרם-עריכה",           name_en: "Cream Editorial",       palette: "soft-cream",      cover: "underline-title",    content: "magazine",      font: "editorial" },
-  { id: "cream-frame",       name_he: "קרם-מסגרת",           name_en: "Cream Framed",          palette: "soft-cream",      cover: "framed-thin",        content: "framed",        font: "refined" },
-
-  // 41–44: Minimal paper
-  { id: "paper-minimal",     name_he: "נייר-מינימלי",        name_en: "Paper Minimal",         palette: "minimal-paper",   cover: "minimal-bottom",     content: "minimal-line",  font: "modern" },
-  { id: "paper-magazine",    name_he: "נייר-עריכה",          name_en: "Paper Editorial",       palette: "minimal-paper",   cover: "underline-title",    content: "magazine",      font: "editorial" },
-  { id: "paper-num",         name_he: "נייר-ממוספר",         name_en: "Paper Numbered",        palette: "minimal-paper",   cover: "big-number-corner",  content: "numbered-list", font: "bold" },
-  { id: "paper-frame",       name_he: "נייר-מסגרת",          name_en: "Paper Framed",          palette: "minimal-paper",   cover: "framed-thin",        content: "framed",        font: "refined" },
-
-  // 45–47: Warm terracotta
-  { id: "terra-bold",        name_he: "טראקוטה-בולט",        name_en: "Terracotta Bold",       palette: "warm-terracotta", cover: "centered-bold",      content: "header-block",  font: "bold" },
-  { id: "terra-magazine",    name_he: "טראקוטה-עריכה",       name_en: "Terracotta Editorial",  palette: "warm-terracotta", cover: "horizon-line",       content: "magazine",      font: "editorial" },
-  { id: "terra-card",        name_he: "טראקוטה-כרטיס",       name_en: "Terracotta Card",       palette: "warm-terracotta", cover: "card-center",        content: "card-stack",    font: "modern" },
-
-  // 48–50: Fresh green
-  { id: "green-classic",     name_he: "ירוק-קלאסי",          name_en: "Green Classic",         palette: "fresh-green",     cover: "left-bar-strong",    content: "classic-top",   font: "classic" },
-  { id: "green-dot",         name_he: "ירוק-נקודות",         name_en: "Green Dots",            palette: "fresh-green",     cover: "geometric-corner",   content: "dot-grid",      font: "modern" },
-  { id: "green-circle",      name_he: "ירוק-עיגול",          name_en: "Green Circle",          palette: "fresh-green",     cover: "circle-accent",      content: "circle-bullets",font: "refined" },
-
-  // 51–55: Blush, mono, earth, arctic, sunset
-  { id: "blush-elegant",     name_he: "ורוד-אלגנטי",         name_en: "Blush Elegant",         palette: "blush",           cover: "underline-title",    content: "left-rule",     font: "elegant" },
-  { id: "mono-bold",         name_he: "מונוכרום-בולט",       name_en: "Mono Bold",             palette: "monochrome",      cover: "outlined-title",     content: "stripe-cards",  font: "bold" },
-  { id: "earth-classic",     name_he: "אדמה-קלאסי",          name_en: "Earth Classic",         palette: "earth",           cover: "left-bar-strong",    content: "classic-top",   font: "classic" },
-  { id: "arctic-card",       name_he: "ארקטי-כרטיס",         name_en: "Arctic Card",           palette: "arctic",          cover: "card-center",        content: "card-stack",    font: "modern" },
-  { id: "sunset-bold",       name_he: "שקיעה-בולט",          name_en: "Sunset Bold",           palette: "sunset",          cover: "centered-bold",      content: "header-block",  font: "bold" },
-
-  // Premium design — Editorial (magazine-grade typography, palette-aware).
-  // cover/content fields are unused when `design` is set but kept for type
+  // The single deck design — "Editorial". Colours come from the chosen
+  // palette (via the palette picker), so this one design covers every
+  // look; there are intentionally no other themes. `cover`/`content`/
+  // `font` are unused by the editorial renderer but kept for type
   // compatibility.
-  { id: "editorial-navy",    name_he: "Editorial · נייבי",    name_en: "Editorial · Navy",      palette: "corporate-navy",  cover: "minimal-bottom",     content: "minimal-line",  font: "editorial", design: "editorial" },
-  { id: "editorial-cream",   name_he: "Editorial · קרם",      name_en: "Editorial · Cream",     palette: "soft-cream",      cover: "minimal-bottom",     content: "minimal-line",  font: "editorial", design: "editorial" },
-  { id: "editorial-forest",  name_he: "Editorial · יער",      name_en: "Editorial · Forest",    palette: "deep-forest",     cover: "minimal-bottom",     content: "minimal-line",  font: "editorial", design: "editorial" },
-  { id: "editorial-wine",    name_he: "Editorial · יין",      name_en: "Editorial · Wine",      palette: "wine",            cover: "minimal-bottom",     content: "minimal-line",  font: "editorial", design: "editorial" },
-  { id: "editorial-mono",    name_he: "Editorial · מונוכרום", name_en: "Editorial · Mono",      palette: "monochrome",      cover: "minimal-bottom",     content: "minimal-line",  font: "editorial", design: "editorial" },
+  {
+    id: "editorial",
+    name_he: "Editorial",
+    name_en: "Editorial",
+    palette: "corporate-navy",
+    cover: "minimal-bottom",
+    content: "minimal-line",
+    font: "editorial",
+    design: "editorial",
+  },
 ];
 
 // Convenience accessors
