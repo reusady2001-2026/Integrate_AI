@@ -207,11 +207,13 @@ function Chrome({ ctx, tok }: { ctx: DesignCtx; tok: Tokens }) {
 }
 
 // Header block (eyebrow + title + subtitle), rendered in flow inside AutoFit.
-function Header({ ctx, tok, slide, titleSize = 30, alignEnd }: {
-  ctx: DesignCtx; tok: Tokens; slide: Slide; titleSize?: number; alignEnd?: boolean;
+// Always aligned to the reading-start side — RIGHT in Hebrew (RTL), LEFT in
+// English (LTR) — via `text-align: start`.
+function Header({ ctx, tok, slide, titleSize = 30 }: {
+  ctx: DesignCtx; tok: Tokens; slide: Slide; titleSize?: number;
 }) {
   return (
-    <div style={{ textAlign: alignEnd ? "end" : "start", marginBottom: 20 }}>
+    <div style={{ textAlign: "start", marginBottom: 20 }}>
       <Eyebrow ctx={ctx} tok={tok} value={slide.eyebrow ?? ""} onCh={(v) => ctx.onChange?.({ eyebrow: v })} />
       <T v={slide.title} onCh={(v) => ctx.onChange?.({ title: v })} ed={ctx.interactive} ph="כותרת"
         style={{ display: "block", fontFamily: SERIF, fontSize: titleSize, lineHeight: 1.14, color: tok.ink, fontWeight: 600, letterSpacing: -0.2 }} />
@@ -371,7 +373,7 @@ function Toc({ slide, ctx, tok }: { slide: Slide; ctx: DesignCtx; tok: Tokens })
   const cols = [items.slice(0, half), items.slice(half)];
   return (
     <div>
-      <Header ctx={ctx} tok={tok} slide={slide} titleSize={38} alignEnd />
+      <Header ctx={ctx} tok={tok} slide={slide} titleSize={38} />
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 44 }}>
         {cols.map((col, ci) => (
           <div key={ci}>
@@ -410,7 +412,7 @@ function Stats({ slide, ctx, tok }: { slide: Slide; ctx: DesignCtx; tok: Tokens 
   const sub = stats.slice(4, 8);
   return (
     <div>
-      <Header ctx={ctx} tok={tok} slide={slide} titleSize={30} alignEnd />
+      <Header ctx={ctx} tok={tok} slide={slide} titleSize={30} />
       {hero.length > 0 && (
         <div style={{ display: "grid", gridTemplateColumns: `repeat(${hero.length}, 1fr)`, gap: 24 }}>
           {hero.map((s, i) => <StatBlock key={i} stat={s} tok={tok} ctx={ctx} onCh={(p) => setStat(i, p)} hero />)}
@@ -529,7 +531,7 @@ function Horizons({ slide, ctx, tok }: { slide: Slide; ctx: DesignCtx; tok: Toke
   };
   return (
     <div>
-      <Header ctx={ctx} tok={tok} slide={slide} titleSize={28} alignEnd />
+      <Header ctx={ctx} tok={tok} slide={slide} titleSize={28} />
       <div style={{ display: "grid", gridTemplateColumns: `repeat(${cards.length || 1}, 1fr)`, gap: 34 }}>
         {cards.map((c, i) => {
           const accent = c.variant === "teal" || c.variant === "navy";
@@ -576,7 +578,7 @@ function Grid({ slide, ctx, tok }: { slide: Slide; ctx: DesignCtx; tok: Tokens }
     ctx.onChange?.({ gridCards: cells.map((c, idx) => (idx === i ? { ...c, ...patch } : c)) });
   return (
     <div>
-      <Header ctx={ctx} tok={tok} slide={slide} titleSize={28} alignEnd />
+      <Header ctx={ctx} tok={tok} slide={slide} titleSize={28} />
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", columnGap: 44, rowGap: 24 }}>
         {cells.map((c, i) => (
           <div key={i} style={{ display: "grid", gridTemplateColumns: "auto 1fr", gap: 16, paddingTop: 14, borderTop: `1px solid ${tok.rule}`, minWidth: 0 }}>
@@ -604,7 +606,7 @@ function Tracks({ slide, ctx, tok }: { slide: Slide; ctx: DesignCtx; tok: Tokens
     ctx.onChange?.({ tracks: tracks.map((t, idx) => (idx === i ? { ...t, ...patch } : t)) });
   return (
     <div>
-      <Header ctx={ctx} tok={tok} slide={slide} titleSize={28} alignEnd />
+      <Header ctx={ctx} tok={tok} slide={slide} titleSize={28} />
       <div style={{ display: "grid", gridTemplateColumns: `repeat(${tracks.length || 1}, 1fr)`, gap: 34 }}>
         {tracks.map((tk, i) => {
           const accent = tk.variant === "teal";
@@ -662,7 +664,7 @@ function Table({ slide, ctx, tok }: { slide: Slide; ctx: DesignCtx; tok: Tokens 
   const cols = hasChip ? `repeat(${headers.length}, 1fr) auto` : `repeat(${headers.length}, 1fr)`;
   return (
     <div>
-      <Header ctx={ctx} tok={tok} slide={slide} titleSize={27} alignEnd />
+      <Header ctx={ctx} tok={tok} slide={slide} titleSize={27} />
       <div style={{ display: "grid", gridTemplateColumns: cols, gap: "0 22px", paddingBottom: 9, borderBottom: `1.5px solid ${tok.ink}` }}>
         {headers.map((h, i) => (
           <T key={i} v={h} onCh={(v) => setHeader(i, v)} ed={ctx.interactive}
@@ -702,7 +704,7 @@ function Compare({ slide, ctx, tok }: { slide: Slide; ctx: DesignCtx; tok: Token
   };
   return (
     <div>
-      <Header ctx={ctx} tok={tok} slide={slide} titleSize={27} alignEnd />
+      <Header ctx={ctx} tok={tok} slide={slide} titleSize={27} />
       <div style={{ display: "grid", gridTemplateColumns: panes.length === 2 ? "1fr 1fr" : "1fr", gap: 44 }}>
         {panes.map((key, i) => {
           const pane = slide[key]!;
@@ -774,7 +776,7 @@ function Donts({ slide, ctx, tok }: { slide: Slide; ctx: DesignCtx; tok: Tokens 
     ctx.onChange?.({ dontItems: items.map((it, idx) => (idx === i ? { ...it, ...patch } : it)) });
   return (
     <div>
-      <Header ctx={ctx} tok={tok} slide={slide} titleSize={30} alignEnd />
+      <Header ctx={ctx} tok={tok} slide={slide} titleSize={30} />
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", columnGap: 52, rowGap: 20 }}>
         {items.map((it, i) => (
           <div key={i} style={{ display: "grid", gridTemplateColumns: "auto 1fr", gap: 16, paddingTop: 12, borderTop: `1px solid ${tok.rule}`, minWidth: 0 }}>
@@ -801,7 +803,7 @@ function Bullets({ slide, ctx, tok }: { slide: Slide; ctx: DesignCtx; tok: Token
     ctx.onChange?.({ bullets: bullets.map((b, idx) => (idx === i ? v : b)) });
   return (
     <div>
-      <Header ctx={ctx} tok={tok} slide={slide} titleSize={30} alignEnd />
+      <Header ctx={ctx} tok={tok} slide={slide} titleSize={30} />
       <div style={{ maxWidth: 800 }}>
         {bullets.map((b, i) => (
           <div key={i} style={{ display: "grid", gridTemplateColumns: "auto 1fr", gap: 18, padding: "11px 0", borderBottom: `1px solid ${tok.ruleSoft}`, minWidth: 0 }}>
