@@ -17,20 +17,15 @@
  * cards, oversized numerals, generous whitespace.
  */
 
-import {
-  useRef, useState, useEffect, useLayoutEffect,
-  type CSSProperties, type ReactNode,
-} from "react";
-import { Editable } from "@/components/Editable";
+import { type CSSProperties, type ReactNode } from "react";
 import type { Slide } from "@/lib/schemas/strategy-deck";
-import type { Palette, FontPair } from "@/lib/themes/deck-themes";
+import type { Palette } from "@/lib/themes/deck-themes";
+import {
+  W, H, AutoFit, T, rgba, shiftHex, numSize,
+  type DesignCtx,
+} from "./shared";
 
-// SSR-safe layout effect (static export renders on the server once).
-const useIsoLayout = typeof window === "undefined" ? useEffect : useLayoutEffect;
-
-// ── Canvas geometry ───────────────────────────────────────────────────
-const W = 960;
-const H = 540;
+// ── Canvas geometry (Editorial-specific) ──────────────────────────────
 const PAD_X = 54;
 const PAD_TOP = 34;
 const PAD_BOTTOM = 34;
@@ -48,35 +43,6 @@ const HERO_AVAIL_H = H - HERO_PAD_Y * 2;
 // ── Type identity ─────────────────────────────────────────────────────
 const SERIF = "'Frank Ruhl Libre', 'David Libre', Georgia, 'Times New Roman', serif";
 const SANS  = "'Heebo', 'Helvetica Neue', system-ui, -apple-system, Arial, sans-serif";
-
-// ── Context ───────────────────────────────────────────────────────────
-type DesignCtx = {
-  palette: Palette;
-  font: FontPair;
-  isRtl: boolean;
-  company: string;
-  date: string;
-  pageNumber?: number;
-  totalPages?: number;
-  interactive?: boolean;
-  onChange?: (patch: Partial<Slide>) => void;
-};
-
-// ── Color helpers ─────────────────────────────────────────────────────
-function rgba(hex: string, a: number): string {
-  const h = (hex || "").replace(/^#/, "");
-  if (h.length !== 6) return hex;
-  const r = parseInt(h.slice(0, 2), 16);
-  const g = parseInt(h.slice(2, 4), 16);
-  const b = parseInt(h.slice(4, 6), 16);
-  return `rgba(${r},${g},${b},${a})`;
-}
-function shiftHex(hex: string, d: number): string {
-  const h = (hex || "").replace(/^#/, "");
-  if (h.length !== 6) return hex;
-  const ch = (i: number) => Math.max(0, Math.min(255, parseInt(h.slice(i, i + 2), 16) + d)).toString(16).padStart(2, "0");
-  return `#${ch(0)}${ch(2)}${ch(4)}`;
-}
 
 type Tokens = {
   bg: string; ink: string; inkMuted: string; inkSubtle: string;
@@ -98,71 +64,6 @@ function tokensFrom(p: Palette): Tokens {
     sevMed: p.accent2 || shiftHex(p.accent, -30),
     sevLow: rgba(ink, 0.42),
   };
-}
-
-// ──────────────────────────────────────────────────────────────────────
-// AutoFit — the core overflow guarantee.
-// Renders children at natural size inside a fixed (availW × availH) frame,
-// measures the natural height, and scales the WHOLE block down so it fits.
-// transform: scale doesn't affect layout, so scrollHeight stays the
-// natural size and the measurement never feeds back on itself.
-// A ResizeObserver re-fits live while the user edits text.
-// ──────────────────────────────────────────────────────────────────────
-function AutoFit({
-  availW, availH, isRtl, children, alignTop,
-}: { availW: number; availH: number; isRtl: boolean; children: ReactNode; alignTop?: boolean }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [scale, setScale] = useState(1);
-
-  useIsoLayout(() => {
-    const el = ref.current;
-    if (!el) return;
-    const measure = () => {
-      const h = el.scrollHeight;
-      const w = el.scrollWidth;
-      if (!h || !w) return;
-      const s = Math.min(1, availH / h, availW / w);
-      setScale((prev) => (Math.abs(prev - s) > 0.004 ? s : prev));
-    };
-    measure();
-    const ro = new ResizeObserver(measure);
-    ro.observe(el);
-    const f = (document as Document & { fonts?: { ready?: Promise<unknown> } }).fonts;
-    if (f?.ready) f.ready.then(measure).catch(() => {});
-    return () => ro.disconnect();
-  });
-
-  return (
-    <div style={{
-      width: availW, height: availH, overflow: "hidden",
-      display: "flex",
-      alignItems: alignTop ? "flex-start" : "center",
-      justifyContent: "center",
-    }}>
-      <div ref={ref} style={{
-        width: availW,
-        transform: `scale(${scale})`,
-        transformOrigin: alignTop ? (isRtl ? "top right" : "top left") : "center",
-      }}>
-        {children}
-      </div>
-    </div>
-  );
-}
-
-// ──────────────────────────────────────────────────────────────────────
-// Editable text. When interactive, renders a contentEditable span wired
-// to onCh; otherwise a plain span with identical styling.
-// ──────────────────────────────────────────────────────────────────────
-function T({ v, onCh, ed, style, block, ph }: {
-  v: string; onCh?: (v: string) => void; ed?: boolean;
-  style?: CSSProperties; block?: boolean; ph?: string;
-}) {
-  const base: CSSProperties = { overflowWrap: "break-word", wordBreak: "break-word", ...style };
-  if (ed && onCh) {
-    return <Editable value={v || ""} onChange={onCh} block={block} placeholder={ph} style={base} />;
-  }
-  return <span style={{ ...base, whiteSpace: block ? "pre-wrap" : "normal", display: block ? "block" : "inline" }}>{v || ""}</span>;
 }
 
 // ── Small shared bits ─────────────────────────────────────────────────
@@ -225,18 +126,6 @@ function Header({ ctx, tok, slide, titleSize = 30 }: {
       )}
     </div>
   );
-}
-
-// Auto-shrinking numeral (still wrapped by AutoFit, but this keeps very
-// long values from dominating their own column before the global fit).
-function numSize(value: string, base: number): number {
-  const n = String(value || "").length;
-  if (n <= 2) return base;
-  if (n <= 3) return base * 0.92;
-  if (n <= 4) return base * 0.78;
-  if (n <= 5) return base * 0.64;
-  if (n <= 7) return base * 0.52;
-  return base * 0.42;
 }
 
 // ──────────────────────────────────────────────────────────────────────

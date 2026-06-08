@@ -13,6 +13,7 @@ import {
   getFont,
 } from "@/lib/themes/deck-themes";
 import { renderEditorial } from "./designs/Editorial";
+import { renderCorporate } from "./designs/Corporate";
 
 // 16:9 reference resolution. SlideView always renders at this exact size,
 // the caller scales it via CSS transform.
@@ -184,19 +185,23 @@ export function SlideView(props: SlideViewProps) {
   // palette-driven. The legacy cover/content combinator below is retained
   // only as inert reference; it is no longer on any render path.
   void ctx; void isCoverOrSection; void bsre; void bsreCommon;
+  const designCtx = {
+    palette: eff.palette,
+    font: eff.font,
+    isRtl,
+    company: doc.company,
+    date: doc.date,
+    pageNumber: props.pageNumber,
+    totalPages: props.totalPages,
+    interactive,
+    onChange: props.onChange,
+  };
+  const rendered = theme.design === "corporate"
+    ? renderCorporate(slide, designCtx)
+    : renderEditorial(slide, designCtx);
   return (
     <div style={{ ...containerStyle, background: undefined, backgroundColor: undefined }}>
-      {renderEditorial(slide, {
-        palette: eff.palette,
-        font: eff.font,
-        isRtl,
-        company: doc.company,
-        date: doc.date,
-        pageNumber: props.pageNumber,
-        totalPages: props.totalPages,
-        interactive,
-        onChange: props.onChange,
-      })}
+      {rendered}
     </div>
   );
 }

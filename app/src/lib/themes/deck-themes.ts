@@ -340,7 +340,7 @@ export type FontPairId = keyof typeof FONT_PAIRS;
 // and renders via the named design — e.g. "editorial" routes every
 // slide through designs/Editorial.tsx, which still reads palette+font
 // from this theme so palette swaps still work.
-export type DesignSystem = "editorial";
+export type DesignSystem = "editorial" | "corporate";
 
 export type DeckTheme = {
   id: string;
@@ -372,6 +372,16 @@ export const DECK_THEMES: DeckTheme[] = [
     content: "minimal-line",
     font: "editorial",
     design: "editorial",
+  },
+  {
+    id: "corporate",
+    name_he: "Corporate Cards",
+    name_en: "Corporate Cards",
+    palette: "corporate-navy",
+    cover: "minimal-bottom",
+    content: "minimal-line",
+    font: "modern",
+    design: "corporate",
   },
 ];
 
