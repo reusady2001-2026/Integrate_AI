@@ -56,8 +56,8 @@ export async function renderKpiDocx(
     f(t.kpiCadence, t.kpiCadenceGloss, k.cadence);
     f(t.kpiBaseline, t.kpiBaselineGloss, k.baseline);
     f(t.kpiTargets, t.kpiTargetsGloss, k.targets);
-    children.push(b.card(inner));
-    children.push(b.spacer(200));
+    children.push(...inner);
+    children.push(b.spacer(240));
   });
 
   children.push(b.h2(t.scorecardHeading));

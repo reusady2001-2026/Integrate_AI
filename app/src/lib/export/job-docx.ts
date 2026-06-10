@@ -11,9 +11,11 @@ import { defaultFormatting, type Formatting } from "../formatting";
 import type { EffectiveDocDesign } from "../themes/doc-themes";
 import { buildDocx, buildTable, BULLET_NUMBERING, hexNoHash } from "./_docx-common";
 
-// Mirrors the app's JobTemplate one-to-one: same sections, same order, the
-// guidance lines, the four capability lists, and the bordered area cards —
-// styled by the SAME resolved doc design the app renders with.
+// Mirrors the app's JobTemplate CONTENT (same sections, order, the four
+// capability lists), styled by the SAME resolved doc design the app uses.
+// Editing chrome is deliberately NOT exported: the grey guidance blocks,
+// the card frames around repeating areas, and fill-lines for empty fields
+// exist only to help filling the document in the app.
 export async function renderJobDocx(
   doc: JobDocument,
   lang: Lang = "he",
@@ -37,27 +39,21 @@ export async function renderJobDocx(
   children.push(b.inlineField(tj.date, doc.date));
 
   children.push(b.h2(tj.purposeHeading));
-  children.push(b.guidance(tj.purposeGuidance));
   children.push(b.paragraph(doc.purpose));
 
   children.push(b.h2(tj.areasHeading));
-  children.push(b.guidance(tj.areasGuidance));
 
   doc.areas.forEach((a, i) => {
-    const inner: Paragraph[] = [
-      b.cardLabel(tj.areaLabel(i)),
-      b.inlineField(tj.areaName, a.name),
-      new Paragraph({ children: [b.bold(tj.duties + ":")], bidirectional: rtl, spacing: { after: 120, line: 396 } }),
-      ...a.duties.map((d) => b.bulletItem(d)),
-    ];
-    children.push(b.card(inner));
-    children.push(b.spacer(200));
+    children.push(b.cardLabel(tj.areaLabel(i)));
+    children.push(b.inlineField(tj.areaName, a.name));
+    children.push(new Paragraph({ children: [b.bold(tj.duties + ":")], bidirectional: rtl, spacing: { after: 120, line: 396 } }));
+    for (const d of a.duties.filter((x) => x.trim())) children.push(b.bulletItem(d));
+    children.push(b.spacer(240));
   });
 
   if (doc.enabled.interfaces) {
     children.push(b.h2(tj.interfacesHeading));
-    children.push(b.guidance(tj.interfacesGuidance));
-    children.push(
+      children.push(
       buildTable(
         [tj.colParty, tj.colKind, tj.colPurpose],
         doc.interfaces.map((r) => [r.party, r.kind, r.purpose]),
@@ -70,21 +66,19 @@ export async function renderJobDocx(
 
   if (doc.enabled.successMetrics) {
     children.push(b.h2(tj.metricsHeading));
-    children.push(b.guidance(tj.metricsGuidance));
-    children.push(b.paragraph(doc.successMetrics));
+      children.push(b.paragraph(doc.successMetrics));
   }
 
   if (doc.enabled.qualifications) {
     children.push(b.h2(tj.qualificationsHeading));
-    children.push(b.guidance(tj.qualificationsGuidance));
-
+  
     const capList = (heading: string, items: string[]) => {
       children.push(new Paragraph({
         children: [b.bold(heading + ":")],
         bidirectional: rtl,
         spacing: { before: 160, after: 100, line: 396 },
       }));
-      for (const it of items) children.push(b.bulletItem(it));
+      for (const it of items.filter((x) => x.trim())) children.push(b.bulletItem(it));
     };
     capList(
       lang === "he" ? "יכולות מקצועיות (כלים, סטנדרטים, מומחיות)" : "Professional capabilities (tools, standards, expertise)",
@@ -110,8 +104,7 @@ export async function renderJobDocx(
 
   if (doc.enabled.authority) {
     children.push(b.h2(tj.authorityHeading));
-    children.push(b.guidance(tj.authorityGuidance));
-    children.push(b.inlineField(tj.decides, doc.decides));
+      children.push(b.inlineField(tj.decides, doc.decides));
     children.push(b.inlineField(tj.recommends, doc.recommends));
     children.push(b.inlineField(tj.escalates, doc.escalates));
   }

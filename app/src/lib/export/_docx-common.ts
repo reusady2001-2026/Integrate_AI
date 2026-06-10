@@ -175,28 +175,15 @@ export function buildDocx(fmt: Formatting, rtl: boolean, eff?: EffectiveDocDesig
       spacing: { ...lineSpacing },
     });
 
-  // ── guidance ("מה למלא: …") — muted, indented, softly shaded ─────
-  const guidance = (text: string) =>
-    new Paragraph({
-      children: [mutedRun(text)],
-      bidirectional: rtl,
-      spacing: { after: 240, ...lineSpacing },
-      ...(eff
-        ? {
-            shading: { type: ShadingType.CLEAR, color: "auto", fill: blend(fg, surface, 0.04) },
-            border: rtl ? { right: softBorder(16) } : { left: softBorder(16) },
-          }
-        : {}),
-    });
-
   // ── fields & body ────────────────────────────────────────────────
   const inlineField = (label: string, value: string, opts: { sep?: string; hint?: string } = {}) => {
     const sep = opts.sep ?? ": ";
-    const tail = value.trim() ? value : FILL_LINE;
     const children: TextRun[] = [bold(label)];
     if (opts.hint) children.push(mutedRun(` — ${opts.hint}`));
     children.push(run(sep === ": " ? ": " : sep));
-    children.push(value.trim() ? run(tail) : mutedRun(tail));
+    // An empty field exports as the label alone — the fill line in the app
+    // is editing chrome, not document content.
+    if (value.trim()) children.push(run(value));
     return new Paragraph({
       children,
       bidirectional: rtl,
@@ -206,14 +193,14 @@ export function buildDocx(fmt: Formatting, rtl: boolean, eff?: EffectiveDocDesig
 
   const paragraph = (text: string) =>
     new Paragraph({
-      children: [text.trim() ? run(text) : mutedRun(FILL_LINE)],
+      children: text.trim() ? [run(text)] : [],
       bidirectional: rtl,
       spacing: { after: 200, ...lineSpacing },
     });
 
   const bulletItem = (text: string) =>
     new Paragraph({
-      children: [text.trim() ? run(text) : mutedRun(FILL_LINE)],
+      children: text.trim() ? [run(text)] : [],
       bullet: { level: 0 },
       bidirectional: rtl,
       spacing: { after: 80, ...(LINE ? { line: 360 } : {}) },
@@ -227,27 +214,10 @@ export function buildDocx(fmt: Formatting, rtl: boolean, eff?: EffectiveDocDesig
       spacing: { after: 120, ...lineSpacing },
     });
 
-  // ── card (app .kpiBlock): bordered single-cell table wrapping a group ──
-  const card = (children: Paragraph[]): Table =>
-    new Table({
-      rows: [
-        new TableRow({
-          children: [
-            new TableCell({
-              children,
-              margins: { top: 160, bottom: 60, left: 200, right: 200 },
-              shading: { type: ShadingType.CLEAR, color: "auto", fill: surface },
-            }),
-          ],
-        }),
-      ],
-      width: { size: 100, type: WidthType.PERCENTAGE },
-      visuallyRightToLeft: rtl,
-      borders: {
-        top: softBorder(6), bottom: softBorder(6), left: softBorder(6), right: softBorder(6),
-        insideHorizontal: noBorder, insideVertical: noBorder,
-      },
-    });
+  // Repeating blocks export WITHOUT the app's card frame — the border is
+  // on-screen editing scaffolding, not document content. The group keeps
+  // only the label + content + trailing space.
+  const group = (children: Paragraph[]): Paragraph[] => children;
 
   // a thin spacer paragraph (between cards / after tables)
   const spacer = (twips = 200) =>
@@ -257,7 +227,7 @@ export function buildDocx(fmt: Formatting, rtl: boolean, eff?: EffectiveDocDesig
     font: bodyFont, displayFont, bodyHp, h1Hp, h2Hp: h2HpDefault, h3Hp,
     headColor, accent, accent2, fg, muted, surface, border, borderSoft, rtl, eff,
     run, bold, mutedRun, heading, h1, h2, h3,
-    guidance, inlineField, paragraph, bulletItem, cardLabel, card, spacer,
+    inlineField, paragraph, bulletItem, cardLabel, group, spacer,
   };
 }
 
@@ -311,14 +281,14 @@ export function buildTable(
     : cellShading("header", fmt.tableStyle, b.headColor)?.fill;
 
   const cell = (text: string, header: boolean, even: boolean) => {
-    const value = text.trim() ? text : FILL_LINE;
+    const value = text.trim() ? text : "";
     const isStripedHeader = !eff && header && fmt.tableStyle === "striped";
     const textRun = header
       ? new TextRun({
           text: value, font: b.font, rightToLeft: b.rtl, size: b.bodyHp, bold: true,
           color: isStripedHeader ? "FFFFFF" : b.fg,
         })
-      : (text.trim() ? b.run(value) : b.mutedRun(value));
+      : b.run(value);
     const fill = header ? headerFill : eff ? undefined : cellShading(even ? "evenBody" : "body", fmt.tableStyle, b.headColor)?.fill;
     return new TableCell({
       children: [new Paragraph({
