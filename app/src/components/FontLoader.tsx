@@ -11,6 +11,11 @@ const FONT_HREFS = [
   "https://fonts.googleapis.com/css2?family=Rubik+80s+Fade&family=Rubik+Beastly&family=Rubik+Broken+Fax&family=Rubik+Bubbles&family=Rubik+Burned&family=Rubik+Dirt&family=Rubik+Distressed&family=Rubik+Doodle+Shadow&family=Rubik+Doodle+Triangles&family=Rubik+Gemstones&family=Rubik+Glitch+Pop&family=Rubik+Iso&family=Rubik+Lines&family=Rubik+Maps&family=Rubik+Marker+Hatch&family=Rubik+Maze&family=Rubik+Microbe&family=Rubik+Mono+One&family=Rubik+Pixels&family=Rubik+Puddles&family=Rubik+Scribble&family=Rubik+Spray+Paint&family=Rubik+Storm&family=Rubik+Vinyl&family=Rubik+Wet+Paint&display=swap",
   "https://fonts.googleapis.com/css2?family=Gveret+Levin&family=Karantina:wght@300;400;700&family=Rubik+Glitch&family=Suez+One&display=swap",
   "https://fonts.googleapis.com/css2?family=Anton&family=Bebas+Neue&display=swap",
+  // Heebo is the default body face of most deck designs AND the font name the
+  // PPTX export declares. The bare family must actually be loaded (next/font
+  // registers a scoped name only) or the browser silently falls back — and
+  // then the app, the PDF and the .pptx each show a different font.
+  "https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800;900&display=swap",
 ];
 
 export function FontLoader() {

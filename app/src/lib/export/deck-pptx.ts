@@ -56,7 +56,6 @@ type TextOp = {
   x: number; y: number; w: number; h: number;
   text: string;
   color: string;
-  transparency: number;
   size: number;       // pt
   bold: boolean;
   italic: boolean;
@@ -64,7 +63,6 @@ type TextOp = {
   align: "left" | "right" | "center";
   rtl: boolean;
   charSpacing: number;
-  lineSpacing: number;
 };
 type ImageOp = { t: "image"; x: number; y: number; w: number; h: number; data: string };
 type Op = RectOp | TextOp | ImageOp;
@@ -118,6 +116,12 @@ function gradientSolid(bg: string | null | undefined): { hex: string; a: number 
 function transpOf(a: number, inheritedOpacity: number): number {
   return Math.round((1 - a * inheritedOpacity) * 100);
 }
+// Alpha-composite `top` (hex, alpha a) over an opaque `under` hex.
+function blendHex(top: string, a: number, under: string): string {
+  const ch = (h: string, i: number) => parseInt(h.slice(i, i + 2), 16);
+  const mix = (i: number) => hx(ch(top, i) * a + ch(under, i) * (1 - a));
+  return mix(0) + mix(2) + mix(4);
+}
 function firstFace(family: string | undefined): string {
   if (!family) return "Heebo";
   const first = family.split(",")[0].replace(/['"]/g, "").trim();
@@ -149,10 +153,13 @@ function applyTransform(text: string, tt: string): string {
   return text;
 }
 
-function buildOps(root: HTMLElement): { ops: Op[]; svgTasks: { el: SVGElement; x: number; y: number; w: number; h: number }[]; bg: string } {
+type GradTask = { xPx: number; yPx: number; wPx: number; hPx: number; image: string };
+
+function buildOps(root: HTMLElement): { ops: Op[]; svgTasks: { el: SVGElement; x: number; y: number; w: number; h: number }[]; gradTasks: GradTask[]; bg: string } {
   const base = root.getBoundingClientRect();
   const ops: Op[] = [];
   const svgTasks: { el: SVGElement; x: number; y: number; w: number; h: number }[] = [];
+  const gradTasks: GradTask[] = [];
   let bg = "ffffff";
   let bgArea = 0;
 
@@ -164,8 +171,10 @@ function buildOps(root: HTMLElement): { ops: Op[]; svgTasks: { el: SVGElement; x
     h: toIn(r.height),
   });
 
-  function emitBox(el: HTMLElement, st: CSSStyleDeclaration, op: ReturnType<typeof rel>, opacity: number) {
-    if (op.w <= 0.003 || op.h <= 0.003) return;
+  // Emits the element's fill/borders. Returns the backdrop colour now behind
+  // the element's content (its fill composited over the inherited backdrop).
+  function emitBox(el: HTMLElement, st: CSSStyleDeclaration, op: ReturnType<typeof rel>, opacity: number, backdrop: string): string {
+    if (op.w <= 0.003 || op.h <= 0.003) return backdrop;
     const rad = radiusPx(st);
     // Clamp to half the shorter side: a roundRect's adjust value maxes out at
     // 50% (pptx rejects anything larger — PowerPoint refuses to open the file).
@@ -176,9 +185,14 @@ function buildOps(root: HTMLElement): { ops: Op[]; svgTasks: { el: SVGElement; x
       ? "ellipse"
       : radIn > 0 ? "roundRect" : "rect";
 
-    // fill: solid background, else a linear-gradient's mid stop.
-    let fill = parseColor(st.backgroundColor);
-    if (!fill) fill = gradientSolid(st.backgroundImage);
+    // fill: the solid background colour. Gradient layers are rasterised
+    // separately (collected below) so the canvas keeps its glow/fade —
+    // PowerPoint shapes can't express CSS gradients.
+    const fill = parseColor(st.backgroundColor);
+    if (st.backgroundImage && st.backgroundImage.includes("gradient(")) {
+      const r = el.getBoundingClientRect();
+      gradTasks.push({ xPx: r.left - base.left, yPx: r.top - base.top, wPx: r.width, hPx: r.height, image: st.backgroundImage });
+    }
 
     // borders, side by side.
     const sides = (["Top", "Right", "Bottom", "Left"] as const).map((s) => ({
@@ -208,19 +222,55 @@ function buildOps(root: HTMLElement): { ops: Op[]; svgTasks: { el: SVGElement; x
         if (b.s === "Right") ops.push({ t: "rect", shape: "rect", x: op.x + op.w - wIn, y: op.y, w: wIn, h: op.h, fill: { color: b.c!.hex, transparency: t } });
       }
     }
+    // backdrop for descendants: composite the fill, then a gradient's mid
+    // stop as an approximation of what now sits behind the text.
+    let next = fill ? blendHex(fill.hex, fill.a * opacity, backdrop) : backdrop;
+    const gmid = gradientSolid(st.backgroundImage);
+    if (gmid) next = blendHex(gmid.hex, gmid.a * opacity * 0.6, next);
+    return next;
   }
 
-  function emitTextNode(node: Text, parentEl: Element, st: CSSStyleDeclaration, opacity: number) {
+  // Split a text node into its RENDERED lines: [start, end) character
+  // offsets + the line's client rect. PowerPoint re-wraps text with its own
+  // font metrics (and substitutes missing fonts), so a multi-line box never
+  // breaks where the browser broke it — exporting each rendered line as its
+  // own non-wrapping shape pins the layout exactly.
+  function renderedLines(node: Text): { s: number; e: number; rect: DOMRect }[] {
+    const len = (node.nodeValue ?? "").length;
+    const r = document.createRange();
+    const lines: { s: number; e: number; rect: DOMRect }[] = [];
+    let s = 0;
+    while (s < len) {
+      // grow [s, e) while it still occupies a single line fragment
+      let lo = s + 1, hi = len, fit = s + 1;
+      const rectsAt = (e: number) => {
+        r.setStart(node, s); r.setEnd(node, e);
+        return r.getClientRects().length;
+      };
+      if (rectsAt(len) <= 1) { fit = len; }
+      else {
+        while (lo <= hi) {
+          const mid = (lo + hi) >> 1;
+          if (rectsAt(mid) <= 1) { fit = mid; lo = mid + 1; } else { hi = mid - 1; }
+        }
+      }
+      r.setStart(node, s); r.setEnd(node, fit);
+      const rect = r.getBoundingClientRect();
+      lines.push({ s, e: fit, rect });
+      s = fit;
+      // skip whitespace consumed by the wrap point
+      const txt = node.nodeValue ?? "";
+      while (s < len && /\s/.test(txt[s])) s++;
+    }
+    return lines;
+  }
+
+  function emitTextNode(node: Text, parentEl: Element, st: CSSStyleDeclaration, opacity: number, backdrop: string) {
     const raw = node.nodeValue ?? "";
     if (!raw.trim()) return;
-    const range = document.createRange();
-    range.selectNodeContents(node);
-    const rr = range.getBoundingClientRect();
-    if (rr.width <= 0.5 || rr.height <= 0.5) return;
-    const op = rel(rr);
 
     // AutoFit shrinks a slide via `transform: scale()`. That scales the
-    // measured box (rr) but NOT getComputedStyle's font-size — so font sizes
+    // measured box but NOT getComputedStyle's font-size — so font sizes
     // must be multiplied by the same factor or dense slides export too large.
     let scale = 1;
     const peh = (parentEl as HTMLElement).offsetHeight;
@@ -239,32 +289,48 @@ function buildOps(root: HTMLElement): { ops: Op[]; svgTasks: { el: SVGElement; x
     if (!col) return;
 
     const sizePx = parseFloat(st.fontSize) || 16;
-    const lhRaw = st.lineHeight;
-    const lh = lhRaw === "normal" ? 1.2 : (parseFloat(lhRaw) || sizePx * 1.2) / sizePx;
     const lsPx = parseFloat(st.letterSpacing);
     const rtl = st.direction === "rtl";
+    const align = mapAlign(st, rtl);
 
-    ops.push({
-      t: "text",
-      x: op.x,
-      y: op.y - 0.012,
-      w: op.w + 0.05,
-      h: op.h + 0.06,
-      text: applyTransform(raw.replace(/\s+/g, " "), st.textTransform),
-      color: col.hex,
-      transparency: transpOf(col.a, opacity),
-      size: sizePx * PX2PT * scale,
-      bold: (parseInt(st.fontWeight, 10) || 400) >= 600,
-      italic: st.fontStyle === "italic",
-      face: firstFace(st.fontFamily),
-      align: mapAlign(st, rtl),
-      rtl,
-      charSpacing: (Number.isFinite(lsPx) ? lsPx * PX2PT : 0) * scale,
-      lineSpacing: Math.max(0.8, Math.min(2, lh)),
-    });
+    for (const ln of renderedLines(node)) {
+      const text = applyTransform(raw.slice(ln.s, ln.e).replace(/\s+/g, " ").trim(), st.textTransform);
+      if (!text) continue;
+      if (ln.rect.width <= 0.5 || ln.rect.height <= 0.5) continue;
+      const op = rel(ln.rect);
+      // Wrapping is off, so a wider-metric substitute font extends the line
+      // instead of re-breaking it. Give the box slack on the open side(s) so
+      // the text stays anchored at its aligned edge and never re-fits:
+      // right-aligned text keeps its right edge and may grow left, etc.
+      const SLACK = Math.min(2, op.w * 0.6 + 0.15);
+      let x = op.x, w = op.w;
+      if (align === "right") { x -= SLACK; w += SLACK; }
+      else if (align === "left") { w += SLACK; }
+      else { x -= SLACK / 2; w += SLACK; }
+      ops.push({
+        t: "text",
+        x,
+        y: op.y - 0.012,
+        w,
+        h: op.h + 0.04,
+        text,
+        // Pre-blend translucent text against its backdrop instead of writing
+        // an <a:alpha> on the run colour — text-colour transparency breaks
+        // RTL layout in several renderers (LibreOffice reverses the line;
+        // older PowerPoint builds mis-handle it too). Solid colour, same look.
+        color: col.a * opacity >= 0.999 ? col.hex : blendHex(col.hex, col.a * opacity, backdrop),
+        size: sizePx * PX2PT * scale,
+        bold: (parseInt(st.fontWeight, 10) || 400) >= 600,
+        italic: st.fontStyle === "italic",
+        face: firstFace(st.fontFamily),
+        align,
+        rtl,
+        charSpacing: (Number.isFinite(lsPx) ? lsPx * PX2PT : 0) * scale,
+      });
+    }
   }
 
-  function recurse(el: Element, opacity: number) {
+  function recurse(el: Element, opacity: number, backdrop: string) {
     const st = getComputedStyle(el);
     if (isHidden(st)) return;
     const eff = opacity * (parseFloat(st.opacity || "1") || 1);
@@ -275,22 +341,129 @@ function buildOps(root: HTMLElement): { ops: Op[]; svgTasks: { el: SVGElement; x
       return;
     }
 
-    emitBox(el as HTMLElement, st, r, eff);
+    const innerBackdrop = emitBox(el as HTMLElement, st, r, eff, backdrop);
 
     // Emit each direct text node where the browser placed it, and recurse
     // into element children. Per-fragment emission keeps multi-colour lines
     // (value + unit) and RTL ordering exactly as laid out.
     for (const child of Array.from(el.childNodes)) {
       if (child.nodeType === Node.TEXT_NODE) {
-        emitTextNode(child as Text, el, st, eff);
+        emitTextNode(child as Text, el, st, eff, innerBackdrop);
       } else if (child.nodeType === Node.ELEMENT_NODE) {
-        recurse(child as Element, eff);
+        recurse(child as Element, eff, innerBackdrop);
       }
     }
   }
 
-  recurse(root, 1);
-  return { ops, svgTasks, bg };
+  recurse(root, 1, "ffffff");
+  return { ops, svgTasks, gradTasks, bg };
+}
+
+// ── CSS gradient rasteriser ───────────────────────────────────────────
+// PowerPoint shapes can't carry CSS gradients, and dropping them flattens
+// the designs (Midnight's glow, Gradient's canvas). All gradient layers of
+// a slide are painted into ONE full-slide PNG that sits just above the base
+// background — text, cards and rules stay native and editable above it.
+
+// Split a backgroundImage list on top-level commas.
+function splitLayers(s: string): string[] {
+  const out: string[] = [];
+  let depth = 0, cur = "";
+  for (const ch of s) {
+    if (ch === "(") depth++;
+    if (ch === ")") depth--;
+    if (ch === "," && depth === 0) { out.push(cur.trim()); cur = ""; continue; }
+    cur += ch;
+  }
+  if (cur.trim()) out.push(cur.trim());
+  return out;
+}
+// Split a gradient's argument list on top-level commas.
+function splitArgs(s: string): string[] {
+  return splitLayers(s);
+}
+type Stop = { color: string; pos?: number };
+function parseStops(args: string[]): Stop[] {
+  const stops: Stop[] = [];
+  for (const a of args) {
+    const m = a.match(/^(.*?)\s+(-?[\d.]+)%$/);
+    if (m) stops.push({ color: m[1].trim(), pos: parseFloat(m[2]) / 100 });
+    else stops.push({ color: a.trim() });
+  }
+  // distribute missing positions evenly
+  if (stops.length) {
+    if (stops[0].pos === undefined) stops[0].pos = 0;
+    if (stops[stops.length - 1].pos === undefined) stops[stops.length - 1].pos = 1;
+    for (let i = 1; i < stops.length - 1; i++) {
+      if (stops[i].pos === undefined) {
+        let j = i;
+        while (stops[j].pos === undefined) j++;
+        const prev = stops[i - 1].pos!, next = stops[j].pos!;
+        for (let k = i; k < j; k++) stops[k].pos = prev + ((next - prev) * (k - i + 1)) / (j - i + 1);
+      }
+    }
+  }
+  return stops;
+}
+
+function paintGradient(cx: CanvasRenderingContext2D, layer: string, x: number, y: number, w: number, h: number) {
+  const lin = layer.match(/^linear-gradient\((.*)\)$/s);
+  const rad = layer.match(/^radial-gradient\((.*)\)$/s);
+  if (lin) {
+    const args = splitArgs(lin[1]);
+    let angle = 180; // CSS default: to bottom
+    if (/^-?[\d.]+deg$/.test(args[0])) angle = parseFloat(args.shift()!);
+    else if (/^to\s/.test(args[0])) {
+      const dir = args.shift()!;
+      angle = dir.includes("right") ? 90 : dir.includes("left") ? 270 : dir.includes("top") ? 0 : 180;
+    }
+    const stops = parseStops(args);
+    const radians = (angle * Math.PI) / 180;
+    const dx = Math.sin(radians), dy = -Math.cos(radians);
+    const L = Math.abs(w * dx) + Math.abs(h * dy);
+    const cxm = x + w / 2, cym = y + h / 2;
+    const g = cx.createLinearGradient(cxm - (dx * L) / 2, cym - (dy * L) / 2, cxm + (dx * L) / 2, cym + (dy * L) / 2);
+    for (const s of stops) { try { g.addColorStop(Math.max(0, Math.min(1, s.pos ?? 0)), s.color); } catch { /* skip bad stop */ } }
+    cx.fillStyle = g;
+    cx.fillRect(x, y, w, h);
+  } else if (rad) {
+    const args = splitArgs(rad[1]);
+    // forms used by the designs: "circle at 30% 30%, …" / "120% 120% at 80% -10%, …" / "circle, …"
+    let fx = 0.5, fy = 0.5, rr = 0.75 * Math.max(w, h);
+    if (/(circle|ellipse|at|%)/.test(args[0]) && !args[0].match(/^(rgba?\(|#|transparent)/)) {
+      const head = args.shift()!;
+      const at = head.match(/at\s+(-?[\d.]+)%\s+(-?[\d.]+)%/);
+      if (at) { fx = parseFloat(at[1]) / 100; fy = parseFloat(at[2]) / 100; }
+      const size = head.match(/^(-?[\d.]+)%\s+(-?[\d.]+)%/);
+      if (size) rr = Math.max((parseFloat(size[1]) / 100) * w, (parseFloat(size[2]) / 100) * h) / 2 * 1.6;
+    }
+    const stops = parseStops(args);
+    const g = cx.createRadialGradient(x + fx * w, y + fy * h, 0, x + fx * w, y + fy * h, Math.max(1, rr));
+    for (const s of stops) { try { g.addColorStop(Math.max(0, Math.min(1, s.pos ?? 0)), s.color); } catch { /* skip bad stop */ } }
+    cx.fillStyle = g;
+    cx.fillRect(x, y, w, h);
+  }
+}
+
+// Rasterise all gradient layers of a slide into one full-slide PNG.
+function gradientsToPng(tasks: GradTask[]): string | null {
+  try {
+    const scale = 2;
+    const canvas = document.createElement("canvas");
+    canvas.width = PXW * scale;
+    canvas.height = PXH * scale;
+    const cx = canvas.getContext("2d");
+    if (!cx) return null;
+    cx.scale(scale, scale);
+    for (const t of tasks) {
+      // CSS paints the LAST layer first (bottom); reverse for canvas order.
+      const layers = splitLayers(t.image).filter((l) => l.includes("gradient("));
+      for (const layer of layers.reverse()) paintGradient(cx, layer, t.xPx, t.yPx, t.wPx, t.hPx);
+    }
+    return canvas.toDataURL("image/png");
+  } catch {
+    return null;
+  }
 }
 
 // Rasterise an inline <svg> (decorative corner shapes etc.) to a PNG so it
@@ -341,20 +514,22 @@ function paintSlide(slide: PSlide, ops: Op[], bg: string) {
     } else if (op.t === "image") {
       slide.addImage({ data: op.data, x: op.x, y: op.y, w: op.w, h: op.h });
     } else {
+      // One shape per rendered LINE. The box carries generous width slack on
+      // its open side, so even a wider-metric substitute font stays on one
+      // line — wrap stays ON because wrap="none" triggers a bidi-reversal
+      // bug in some renderers (LibreOffice) for RTL paragraphs.
       slide.addText(op.text, {
         x: op.x, y: op.y, w: op.w, h: op.h,
         color: op.color,
-        transparency: op.transparency || undefined,
         fontSize: op.size,
         bold: op.bold,
         italic: op.italic,
         fontFace: op.face,
         align: op.align,
         rtlMode: op.rtl,
-        valign: "top",
+        valign: "middle",
         margin: 0,
         charSpacing: op.charSpacing || undefined,
-        lineSpacingMultiple: op.lineSpacing,
         wrap: true,
         fit: "none",
       });
@@ -410,7 +585,17 @@ export async function renderDeckPptx(doc: StrategyDeck, lang: Lang): Promise<voi
 
       const rootEl = host.firstElementChild as HTMLElement | null;
       if (!rootEl) continue;
-      const { ops, svgTasks, bg } = buildOps(rootEl);
+      const { ops, svgTasks, gradTasks, bg } = buildOps(rootEl);
+
+      // Gradient layers (canvas glows, fading rules) → one full-slide PNG
+      // slotted right above the base background rect, below everything else.
+      if (gradTasks.length) {
+        const data = gradientsToPng(gradTasks);
+        if (data) {
+          const at = ops.length && ops[0].t === "rect" ? 1 : 0;
+          ops.splice(at, 0, { t: "image", x: 0, y: 0, w: INW, h: INH, data });
+        }
+      }
 
       // Rasterise any decorative SVGs and lay them behind the rest (corner
       // shapes etc. paint first in the DOM, so they sit at the back).
