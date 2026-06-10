@@ -397,6 +397,22 @@ function splitArgs(s: string): string[] {
   return splitLayers(s);
 }
 type Stop = { color: string; pos?: number };
+// Raw rgba parse for gradient stops (parseColor drops fully-transparent).
+function toRGBA(c: string): { r: number; g: number; b: number; a: number } | null {
+  const s = c.trim().toLowerCase();
+  if (s === "transparent") return { r: 0, g: 0, b: 0, a: 0 };
+  const m = s.match(/rgba?\(([^)]+)\)/);
+  if (m) {
+    const p = m[1].split(/[,/]/).map((v) => parseFloat(v));
+    return { r: p[0], g: p[1], b: p[2], a: p[3] !== undefined ? p[3] : 1 };
+  }
+  if (s[0] === "#") {
+    let h = s.slice(1);
+    if (h.length === 3) h = h.split("").map((ch) => ch + ch).join("");
+    if (h.length >= 6) return { r: parseInt(h.slice(0, 2), 16), g: parseInt(h.slice(2, 4), 16), b: parseInt(h.slice(4, 6), 16), a: h.length === 8 ? parseInt(h.slice(6, 8), 16) / 255 : 1 };
+  }
+  return null;
+}
 function parseStops(args: string[]): Stop[] {
   const stops: Stop[] = [];
   for (const a of args) {
@@ -416,6 +432,20 @@ function parseStops(args: string[]): Stop[] {
         for (let k = i; k < j; k++) stops[k].pos = prev + ((next - prev) * (k - i + 1)) / (j - i + 1);
       }
     }
+  }
+  // CSS interpolates gradients in PREMULTIPLIED alpha: fading to `transparent`
+  // keeps the hue while alpha drops. Canvas interpolates straight rgba, so a
+  // transparent (black) stop drags the fade through muddy darkness and the
+  // glow/rule appears to die halfway. Re-colour zero-alpha stops with the rgb
+  // of their nearest visible neighbour to emulate premultiplied fading.
+  const rgbas = stops.map((s) => toRGBA(s.color));
+  for (let i = 0; i < stops.length; i++) {
+    const c = rgbas[i];
+    if (!c || c.a > 0.01) continue;
+    let donor = null as { r: number; g: number; b: number; a: number } | null;
+    for (let j = i - 1; j >= 0 && !donor; j--) if (rgbas[j] && rgbas[j]!.a > 0.01) donor = rgbas[j];
+    for (let j = i + 1; j < stops.length && !donor; j++) if (rgbas[j] && rgbas[j]!.a > 0.01) donor = rgbas[j];
+    if (donor) stops[i] = { ...stops[i], color: `rgba(${donor.r},${donor.g},${donor.b},0)` };
   }
   return stops;
 }
@@ -443,19 +473,37 @@ function paintGradient(cx: CanvasRenderingContext2D, layer: string, x: number, y
   } else if (rad) {
     const args = splitArgs(rad[1]);
     // forms used by the designs: "circle at 30% 30%, …" / "120% 120% at 80% -10%, …" / "circle, …"
-    let fx = 0.5, fy = 0.5, rr = 0.75 * Math.max(w, h);
+    let fx = 0.5, fy = 0.5;
+    let rx = 0, ry = 0;
+    let isCircle = false;
     if (/(circle|ellipse|at|%)/.test(args[0]) && !args[0].match(/^(rgba?\(|#|transparent)/)) {
       const head = args.shift()!;
+      isCircle = /\bcircle\b/.test(head);
       const at = head.match(/at\s+(-?[\d.]+)%\s+(-?[\d.]+)%/);
       if (at) { fx = parseFloat(at[1]) / 100; fy = parseFloat(at[2]) / 100; }
+      // explicit size "P% Q%": ellipse radii as % of box width / height
       const size = head.match(/^(-?[\d.]+)%\s+(-?[\d.]+)%/);
-      if (size) rr = Math.max((parseFloat(size[1]) / 100) * w, (parseFloat(size[2]) / 100) * h) / 2 * 1.6;
+      if (size) { rx = (parseFloat(size[1]) / 100) * w; ry = (parseFloat(size[2]) / 100) * h; }
     }
+    const cxp = x + fx * w, cyp = y + fy * h;
+    if (!rx || !ry) {
+      // CSS default: farthest-corner.
+      const dx = Math.max(Math.abs(cxp - x), Math.abs(cxp - (x + w)));
+      const dy = Math.max(Math.abs(cyp - y), Math.abs(cyp - (y + h)));
+      if (isCircle) { rx = ry = Math.hypot(dx, dy); }
+      else { rx = dx * Math.SQRT2; ry = dy * Math.SQRT2; }
+    }
+    rx = Math.max(1, rx); ry = Math.max(1, ry);
     const stops = parseStops(args);
-    const g = cx.createRadialGradient(x + fx * w, y + fy * h, 0, x + fx * w, y + fy * h, Math.max(1, rr));
+    // Elliptical radial via a scaled circular gradient (canvas only does circles).
+    cx.save();
+    cx.translate(cxp, cyp);
+    cx.scale(1, ry / rx);
+    const g = cx.createRadialGradient(0, 0, 0, 0, 0, rx);
     for (const s of stops) { try { g.addColorStop(Math.max(0, Math.min(1, s.pos ?? 0)), s.color); } catch { /* skip bad stop */ } }
     cx.fillStyle = g;
-    cx.fillRect(x, y, w, h);
+    cx.fillRect(x - cxp, (y - cyp) * (rx / ry), w, h * (rx / ry));
+    cx.restore();
   }
 }
 
@@ -541,6 +589,10 @@ function paintSlide(slide: PSlide, ops: Op[], bg: string) {
         fontFace: op.face,
         align: op.align,
         rtlMode: op.rtl,
+        // Run language drives PowerPoint's bidi handling of neutral characters
+        // (commas, ·, :, dashes). Left at the default en-US, punctuation flips
+        // to the wrong side of Hebrew words ("פורטפוליו ,פעילויות").
+        lang: op.rtl ? "he-IL" : undefined,
         valign: "middle",
         margin: 0,
         charSpacing: op.charSpacing || undefined,
