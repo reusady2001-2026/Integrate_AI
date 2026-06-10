@@ -1,0 +1,26 @@
+.editable {
+  cursor: text;
+  border-radius: 2px;
+  outline: none;
+  transition: background 0.1s;
+  min-width: 1px;
+}
+.editable:hover {
+  background: color-mix(in oklab, transparent, var(--doc-accent, #1a1a1a) 5%);
+}
+.editable:focus {
+  background: color-mix(in oklab, transparent, var(--doc-accent, #1a1a1a) 8%);
+  outline: 1px solid color-mix(in oklab, transparent, var(--doc-accent, #1a1a1a) 20%);
+  outline-offset: 2px;
+}
+.editable[data-empty]::before {
+  content: attr(data-placeholder);
+  color: var(--doc-muted, #888);
+  pointer-events: none;
+  font-style: italic;
+}
+.block {
+  display: block;
+  white-space: pre-wrap;
+  min-height: 1.5em;
+}

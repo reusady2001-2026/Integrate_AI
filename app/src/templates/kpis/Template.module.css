@@ -1,0 +1,631 @@
+/* Token aliases: each design system supplies different variable names.
+ * We read the broad set and fall back to neutral defaults so the doc
+ * renders even before a design system is applied. */
+.doc {
+  --doc-fg: var(--fg, var(--app-fg, #1a1a1a));
+  --doc-fg-2: var(--fg-2, var(--doc-fg));
+  --doc-muted: var(--muted, #6b6b6b);
+  --doc-border: var(--border, #d8d4cc);
+  --doc-border-soft: var(--border-soft, #ebe6dc);
+  --doc-accent: var(--accent, #1a1a1a);
+  --doc-surface: var(--surface, #ffffff);
+  --doc-font-display: var(--font-display, var(--font-display-app, "Frank Ruhl Libre"), serif);
+  --doc-font-body: var(--font-body, var(--font-body-app, "David Libre"), serif);
+
+  color: var(--doc-fg);
+  background: var(--doc-surface);
+  font-family: var(--doc-font-body);
+  font-size: 11.5pt;
+  line-height: 1.65;
+  padding: 1.5rem 1.75rem;
+  border-radius: 4px;
+  border: 1px solid var(--doc-border-soft);
+  /* The chrome of the preview is set by Shell; the doc only paints content. */
+}
+
+.h1 {
+  font-family: var(--doc-font-display);
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem;
+  letter-spacing: -0.005em;
+  border-bottom: 2px solid var(--doc-accent);
+  padding-bottom: 0.5rem;
+}
+
+.h2 {
+  font-family: var(--doc-font-display);
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin: 2rem 0 0.5rem;
+}
+
+/* ── Heading style variants (applied via .hs_* class on <article>) ── */
+
+/* classic: left/right inline border + accent color */
+.hs_classic .h2 {
+  color: var(--doc-accent);
+  border-inline-start: 3px solid var(--doc-accent);
+  padding-inline-start: 0.6rem;
+}
+
+/* minimal: thin bottom border, accent color, no side border */
+.hs_minimal .h2 {
+  color: var(--doc-accent);
+  border-bottom: 2px solid var(--doc-accent);
+  padding-bottom: 0.35rem;
+}
+
+/* bold: uppercase, heavy top rule */
+.hs_bold .h2 {
+  font-size: 1rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: var(--doc-fg);
+  border-top: 3px solid var(--doc-accent);
+  padding-top: 0.5rem;
+  margin-top: 2.5rem;
+}
+
+/* editorial: very large, light weight, hairline bottom */
+.hs_editorial .h2 {
+  font-size: 2rem;
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  color: var(--doc-fg);
+  border-bottom: 1px solid var(--doc-border);
+  padding-bottom: 0.3rem;
+}
+
+/* modern: gradient chip background */
+.hs_modern .h2 {
+  color: var(--doc-surface);
+  background: linear-gradient(135deg, var(--doc-accent) 0%, var(--doc-accent2, var(--doc-accent)) 100%);
+  padding: 0.35rem 0.75rem;
+  border-radius: 4px;
+  font-size: 1.2rem;
+}
+
+/* magazine: full-width solid band, bleeds to edges */
+.hs_magazine .h2 {
+  color: var(--doc-surface);
+  background: var(--doc-accent);
+  padding: 0.45rem 1.75rem;
+  margin-inline: -1.75rem;
+  font-size: 1.15rem;
+  letter-spacing: 0.03em;
+}
+
+.h3 {
+  font-family: var(--doc-font-body);
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 1.25rem 0 0.75rem;
+  color: var(--doc-fg);
+}
+
+.intro {
+  color: var(--doc-fg-2);
+  margin: 0 0 1.25rem;
+}
+
+.section {
+  margin: 0 0 1.5rem;
+}
+
+.guidance {
+  color: var(--doc-muted);
+  font-size: 0.92em;
+  margin: 0 0 1rem;
+  padding: 0.5rem 0.75rem;
+  border-inline-start: 2px solid var(--doc-border-soft);
+  background: color-mix(in oklab, var(--doc-surface), var(--doc-fg) 2%);
+}
+
+.guidanceLabel {
+  font-weight: 700;
+  color: var(--doc-fg-2);
+}
+
+.rule {
+  border: 0;
+  border-top: 1px solid var(--doc-border);
+  margin: 1.75rem 0;
+}
+
+.field {
+  margin: 0 0 0.85rem;
+}
+
+.fieldInline {
+  margin: 0 0 0.9rem;
+  line-height: 1.7;
+}
+
+.fieldInline strong {
+  font-weight: 700;
+}
+
+.fieldLabel {
+  font-size: 0.95em;
+  margin-bottom: 0.2rem;
+}
+
+.fieldLabel strong {
+  font-weight: 700;
+}
+
+.gloss {
+  font-weight: 400;
+  color: var(--doc-muted);
+  font-size: 0.92em;
+}
+
+.hint {
+  color: var(--doc-muted);
+  font-weight: 400;
+  font-size: 0.92em;
+}
+
+.value {
+  min-height: 1.5em;
+  padding: 0.1rem 0;
+  border-bottom: 1px solid var(--doc-border-soft);
+}
+
+.valueMulti {
+  min-height: 2.5em;
+  padding: 0.25rem 0;
+  border-bottom: 1px solid var(--doc-border-soft);
+  white-space: pre-wrap;
+}
+
+.valueInline {
+  display: inline;
+}
+
+.fillLine {
+  display: inline-block;
+  width: 100%;
+  height: 0;
+}
+
+.kpiBlock {
+  margin: 0 0 1.5rem;
+  padding: 1rem 1rem 0.5rem;
+  border: 1px solid var(--doc-border-soft);
+  border-radius: 4px;
+}
+
+.kpiIndex {
+  font-size: 0.85em;
+  color: var(--doc-muted);
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.note {
+  color: var(--doc-muted);
+  font-size: 0.9em;
+  margin: 0.5rem 0 0;
+}
+
+.optional {
+  font-weight: 400;
+  color: var(--doc-muted);
+  font-size: 0.85em;
+}
+
+.tableWrap {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95em;
+  font-variant-numeric: tabular-nums;
+}
+
+.table th,
+.table td {
+  border: 1px solid var(--doc-border);
+  padding: 0.5rem 0.6rem;
+  text-align: start;
+  vertical-align: top;
+}
+
+.table th {
+  background: color-mix(in oklab, var(--doc-surface), var(--doc-accent) 6%);
+  font-weight: 700;
+  text-align: center;
+}
+
+.table td {
+  min-width: 5rem;
+}
+
+.statusCell {
+  text-align: center;
+  font-size: 1.1em;
+}
+
+/* Table style variants — base table resets all styles, variants add back what they need */
+.table th, .table td { border: 0; background: transparent; color: inherit; }
+
+/* plain */
+.table_plain .table th { background: color-mix(in oklab, var(--doc-surface), var(--doc-fg) 6%); }
+
+/* lines */
+.table_lines .table th,
+.table_lines .table td { border-bottom: 1px solid var(--doc-border); }
+.table_lines .table th { border-bottom: 2px solid var(--doc-accent); }
+
+/* grid */
+.table_grid .table { border: 1px solid var(--doc-border); }
+.table_grid .table th,
+.table_grid .table td { border: 1px solid var(--doc-border); }
+
+/* classic */
+.table_classic .table th,
+.table_classic .table td { border: 1px solid var(--doc-border); }
+.table_classic .table th { background: color-mix(in oklab, var(--doc-surface), var(--doc-accent) 8%); }
+
+/* striped */
+.table_striped .table th,
+.table_striped .table td { border: 1px solid var(--doc-border-soft); }
+.table_striped .table th { background: color-mix(in oklab, var(--doc-surface), var(--doc-fg) 15%); }
+.table_striped .table tbody tr:nth-child(even) td { background: color-mix(in oklab, var(--doc-surface), var(--doc-fg) 4%); }
+
+/* minimal */
+.table_minimal .table th,
+.table_minimal .table td { border-bottom: 1px solid var(--doc-border-soft); }
+.table_minimal .table th { border-bottom: 2px solid var(--doc-accent); background: transparent; }
+
+/* dark-header */
+.table_dark-header .table th,
+.table_dark-header .table td { border-bottom: 1px solid var(--doc-border); }
+.table_dark-header .table th { background: var(--doc-fg); color: var(--doc-surface); border: 0; border-bottom: 0; }
+
+/* colored-header */
+.table_colored-header .table th,
+.table_colored-header .table td { border: 1px solid var(--doc-border); }
+.table_colored-header .table th { background: var(--doc-accent); color: var(--doc-surface); }
+
+/* accent-alt */
+.table_accent-alt .table th,
+.table_accent-alt .table td { border: 1px solid color-mix(in oklab, var(--doc-surface), var(--doc-accent) 30%); }
+.table_accent-alt .table th { background: var(--doc-accent); color: var(--doc-surface); }
+.table_accent-alt .table tbody tr:nth-child(even) td { background: color-mix(in oklab, var(--doc-surface), var(--doc-accent) 6%); }
+
+/* professional */
+.table_professional .table { border-top: 2px solid var(--doc-accent); border-bottom: 2px solid var(--doc-accent); }
+.table_professional .table th,
+.table_professional .table td { border-bottom: 1px solid var(--doc-border-soft); }
+.table_professional .table th { border-bottom: 1.5px solid var(--doc-accent); background: transparent; font-weight: 700; }
+
+/* bordered */
+.table_bordered .table { border: 2px solid var(--doc-accent); }
+.table_bordered .table th,
+.table_bordered .table td { border: 1px solid var(--doc-border); }
+.table_bordered .table th { background: color-mix(in oklab, var(--doc-surface), var(--doc-accent) 14%); }
+
+/* elegant */
+.table_elegant .table th,
+.table_elegant .table td { border-bottom: 1px solid var(--doc-border-soft); }
+.table_elegant .table th { border-bottom: 1.5px solid var(--doc-accent); background: transparent; }
+
+/* ── WYSIWYG document controls (hidden in print) ── */
+.kpiBlockHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.25rem;
+}
+.addBtn {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.78em;
+  padding: 0.2rem 0.65rem;
+  margin: 0.4rem 0;
+  border: 1px dashed var(--doc-border, #d8d4cc);
+  border-radius: 3px;
+  color: var(--doc-muted, #6b6b6b);
+  cursor: pointer;
+  background: transparent;
+  transition: border-color 0.1s, color 0.1s, border-style 0.1s;
+}
+.addBtn:hover {
+  border-style: solid;
+  border-color: var(--doc-accent, #1a1a1a);
+  color: var(--doc-accent, #1a1a1a);
+}
+.addSectionBtn {
+  display: block;
+  width: 100%;
+  text-align: start;
+  font-size: 0.85em;
+  padding: 0.5rem 0.75rem;
+  margin: 1.5rem 0 0.5rem;
+  border: 1px dashed var(--doc-border, #d8d4cc);
+  border-radius: 4px;
+  color: var(--doc-muted, #6b6b6b);
+  background: transparent;
+  cursor: pointer;
+  transition: border-color 0.1s, color 0.1s, border-style 0.1s;
+}
+.addSectionBtn:hover {
+  border-style: solid;
+  border-color: var(--doc-accent, #1a1a1a);
+  color: var(--doc-accent, #1a1a1a);
+}
+.removeBtn {
+  padding: 0 0.3rem;
+  line-height: 1.4;
+  color: var(--doc-muted, #6b6b6b);
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  font-size: 1.1em;
+  opacity: 0.45;
+  transition: opacity 0.1s, color 0.1s;
+  flex-shrink: 0;
+}
+.removeBtn:hover {
+  color: #b91c1c;
+  opacity: 1;
+}
+.tableCtrlCol {
+  width: 1.5rem !important;
+  padding: 0 0.2rem !important;
+  border: 0 !important;
+  background: transparent !important;
+  text-align: center !important;
+  vertical-align: middle !important;
+}
+@media print {
+  .addBtn, .addSectionBtn, .removeBtn { display: none !important; }
+  .tableCtrlCol { display: none !important; }
+}
+.table_elegant .table tbody tr:nth-child(even) td { background: color-mix(in oklab, var(--doc-surface), var(--doc-fg) 3%); }
+
+/* ══════════════════════════════════════════════════════════════════
+   Design-builder form variants. Each modifier class is applied to the
+   <article> root; compound selectors below target the relevant elements
+   inside the doc. Empty/omitted values fall back to the base styling
+   defined further up in this file.
+   ══════════════════════════════════════════════════════════════════ */
+
+/* ── H1 (document title) variants ────────────────────────────────── */
+.h1_thinLine   .h1 { border-bottom: 1px solid var(--doc-border); }
+.h1_thickBar   .h1 { border-bottom: 5px solid var(--doc-accent); padding-bottom: 0.6rem; }
+.h1_none       .h1 { border-bottom: 0; padding-bottom: 0; }
+.h1_filled     .h1 {
+  background: var(--doc-accent);
+  color: var(--doc-surface);
+  padding: 0.55rem 1rem;
+  border-bottom: 0;
+  margin-inline: -1.75rem;
+  margin-block-start: -0.25rem;
+}
+.h1_centered  .h1 { text-align: center; }
+.h1_smallCaps .h1 {
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 1.5rem;
+  font-weight: 800;
+}
+
+/* ── H3 variants ─────────────────────────────────────────────────── */
+.h3_italic        .h3 { font-style: italic; font-weight: 600; }
+.h3_bulleted      .h3::before { content: "● "; color: var(--doc-accent); margin-inline-end: 0.3rem; }
+.h3_thinUnderline .h3 { border-bottom: 1px solid var(--doc-border-soft); padding-bottom: 0.25rem; }
+.h3_accentColor   .h3 { color: var(--doc-accent); }
+
+/* ── Body density ────────────────────────────────────────────────── */
+.body_tight.doc { line-height: 1.35; }
+.body_tight .field, .body_tight .fieldInline { margin-bottom: 0.45rem; }
+.body_loose.doc { line-height: 1.9; }
+.body_loose .field, .body_loose .fieldInline { margin-bottom: 1.2rem; }
+
+/* ── Guidance treatments ─────────────────────────────────────────── */
+.guidance_bar       .guidance { background: transparent; padding-inline-start: 0.75rem; }
+.guidance_box       .guidance {
+  border-inline-start: 0;
+  background: color-mix(in oklab, var(--doc-surface), var(--doc-fg) 4%);
+  padding: 0.5rem 0.75rem;
+  border-radius: 4px;
+}
+.guidance_italic    .guidance {
+  border-inline-start: 0;
+  background: transparent;
+  font-style: italic;
+  padding: 0;
+}
+.guidance_accentBar .guidance {
+  border-inline-start: 3px solid var(--doc-accent);
+  background: color-mix(in oklab, var(--doc-surface), var(--doc-accent) 4%);
+}
+.guidance_corner    .guidance {
+  border-inline-start: 0;
+  border-top: 2px solid var(--doc-accent);
+  background: transparent;
+  padding: 0.4rem 0 0;
+  border-radius: 0;
+}
+
+/* ── Field underline treatments ──────────────────────────────────── */
+.field_thick  .value,
+.field_thick  .valueMulti  { border-bottom: 2px solid var(--doc-border); }
+.field_dashed .value,
+.field_dashed .valueMulti  { border-bottom: 1px dashed var(--doc-border); }
+.field_none   .value,
+.field_none   .valueMulti  { border-bottom: 0; }
+.field_boxed  .value,
+.field_boxed  .valueMulti  {
+  border: 1px solid var(--doc-border-soft);
+  border-radius: 3px;
+  padding: 0.25rem 0.5rem;
+  background: color-mix(in oklab, var(--doc-surface), var(--doc-fg) 2%);
+}
+
+/* ── List bullet styles ──────────────────────────────────────────── */
+.list_diamond ul { list-style: none; padding-inline-start: 0.4rem; }
+.list_diamond ul li::before { content: "◆ "; color: var(--doc-accent); margin-inline-end: 0.3rem; }
+.list_arrow   ul { list-style: none; padding-inline-start: 0.4rem; }
+.list_arrow   ul li::before { content: "→ "; color: var(--doc-accent); margin-inline-end: 0.3rem; }
+.list_dash    ul { list-style: none; padding-inline-start: 0.4rem; }
+.list_dash    ul li::before { content: "— "; color: var(--doc-muted); margin-inline-end: 0.3rem; }
+.list_square  ul { list-style: square; }
+.list_square  ul li::marker { color: var(--doc-accent); }
+.list_circle  ul { list-style: circle; }
+.list_circle  ul li::marker { color: var(--doc-accent); }
+
+/* ── Group / card variants (the .kpiBlock element) ───────────────── */
+.group_thick       .kpiBlock { border: 2px solid var(--doc-border); }
+.group_shadow      .kpiBlock {
+  border: 1px solid var(--doc-border-soft);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+}
+.group_sideAccent  .kpiBlock {
+  border: 1px solid var(--doc-border-soft);
+  border-inline-start: 4px solid var(--doc-accent);
+}
+.group_grayBg      .kpiBlock {
+  border: 0;
+  background: color-mix(in oklab, var(--doc-surface), var(--doc-fg) 4%);
+}
+.group_accentHeader .kpiBlock {
+  border: 1px solid var(--doc-border-soft);
+  padding-top: 0;
+}
+.group_accentHeader .kpiBlock .kpiBlockHeader {
+  background: var(--doc-accent);
+  color: var(--doc-surface);
+  padding: 0.35rem 0.75rem;
+  margin-inline: -1rem;
+  margin-block-start: 0;
+  margin-bottom: 0.75rem;
+}
+.group_accentHeader .kpiBlock .kpiIndex { color: var(--doc-surface); }
+
+/* ── Divider styles ──────────────────────────────────────────────── */
+.divider_dashed .rule { border-top-style: dashed; }
+.divider_double .rule { border-top: 0; border-bottom: 0; border-block: 3px double var(--doc-border); height: 7px; }
+.divider_thick  .rule { border-top: 3px solid var(--doc-accent); }
+.divider_dotted .rule { border-top-style: dotted; border-top-width: 2px; }
+
+/* ── Doc-level padding / radius ─────────────────────────────────── */
+.pad_compact.doc   { padding: 1rem 1.25rem; }
+.pad_spacious.doc  { padding: 2.25rem 2.5rem; }
+.radius_sharp.doc  { border-radius: 0; }
+.radius_medium.doc { border-radius: 8px; }
+.radius_large.doc  { border-radius: 16px; }
+
+/* ══════════════════════════════════════════════════════════════════
+   Visual org-chart tree (used by OrgStructureTemplate).
+   Root sits at top. Children descend below the trunk like roots
+   fanning out, connected by a vertical trunk line + horizontal stubs.
+   Logical properties keep it RTL-friendly.
+   ══════════════════════════════════════════════════════════════════ */
+
+.orgChart {
+  margin: 0.75rem 0 1.5rem;
+  padding: 1.25rem 1rem;
+  background: color-mix(in oklab, var(--doc-surface), var(--doc-fg) 2%);
+  border: 1px solid var(--doc-border-soft);
+  border-radius: 6px;
+  overflow-x: auto;
+  font-family: var(--doc-font-body);
+}
+
+.orgNode {
+  position: relative;
+  margin: 0;
+}
+
+.orgBox {
+  display: inline-block;
+  margin-block: 4px;
+  padding: 6px 12px;
+  border: 1.5px solid var(--doc-accent);
+  border-radius: 5px;
+  background: linear-gradient(180deg,
+    var(--doc-surface) 0%,
+    color-mix(in oklab, var(--doc-surface), var(--doc-accent) 8%) 100%);
+  font-size: 0.92em;
+  line-height: 1.35;
+  color: var(--doc-fg);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  max-width: 30em;
+}
+
+.orgBoxRoot {
+  border-width: 2px;
+  font-weight: 700;
+  background: linear-gradient(180deg,
+    color-mix(in oklab, var(--doc-surface), var(--doc-accent) 8%) 0%,
+    color-mix(in oklab, var(--doc-surface), var(--doc-accent) 16%) 100%);
+}
+
+.orgBoxTitle {
+  font-size: 0.85em;
+  color: var(--doc-muted);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+.orgBoxName {
+  font-weight: 600;
+  font-size: 1em;
+}
+
+.orgBoxRoot .orgBoxName {
+  font-weight: 700;
+  font-size: 1.05em;
+}
+
+.orgBoxNotes {
+  font-size: 0.78em;
+  color: var(--doc-muted);
+  margin-block-start: 2px;
+  font-weight: 400;
+}
+
+/* Children container — indented to the inline-start (= right side in RTL) */
+.orgChildren {
+  margin-block-start: 6px;
+  padding-inline-start: 18px;
+  border-inline-start: 1.5px solid var(--doc-accent2, var(--doc-border));
+  margin-inline-start: 14px;
+}
+
+/* Each child gets a horizontal stub from the trunk to its box */
+.orgChildren > .orgNode::before {
+  content: "";
+  position: absolute;
+  inset-inline-start: -18px;
+  top: 16px;
+  width: 18px;
+  height: 1.5px;
+  background: var(--doc-accent2, var(--doc-border));
+}
+
+/* Last child: trim the trunk at the stub so the line doesn't dangle */
+.orgChildren > .orgNode:last-child::after {
+  content: "";
+  position: absolute;
+  inset-inline-start: -19.5px;
+  top: 17px;
+  bottom: -2px;
+  width: 3px;
+  background: color-mix(in oklab, var(--doc-surface), var(--doc-fg) 2%);
+}
+
+@media print {
+  .orgChart { background: transparent; border-color: var(--doc-border); }
+  .orgBox { box-shadow: none; }
+}

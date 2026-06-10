@@ -1,0 +1,456 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+  background: transparent;
+}
+
+.header {
+  height: 48px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  background: white;
+  border-bottom: 1px solid #e2e8f0;
+  gap: 8px;
+}
+
+.headerLeft {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.headerRight {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.divider {
+  color: #e2e8f0;
+  font-size: 18px;
+  user-select: none;
+}
+
+.main {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* ─── Left thumbnail strip ─── */
+.thumbnailStrip {
+  width: 192px;
+  flex-shrink: 0;
+  overflow-y: auto;
+  border-inline-end: 1px solid #e2e8f0;
+  background: #f8fafc;
+  padding: 12px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.thumbItem {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  cursor: pointer;
+}
+
+.thumbIndex {
+  font-size: 10px;
+  color: #94a3b8;
+  text-align: center;
+  user-select: none;
+}
+
+.thumbFrame {
+  width: 172px;
+  height: 97px;
+  overflow: hidden;
+  border-radius: 4px;
+  border: 2px solid #e2e8f0;
+  transition: border-color 0.15s;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.thumbFrame.selected {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+}
+
+.thumbFrame:hover:not(.selected) {
+  border-color: #93c5fd;
+}
+
+.thumbInner {
+  transform-origin: top left;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.addSlideBtn {
+  width: 172px;
+  padding: 8px 0;
+  background: none;
+  border: 1px dashed #cbd5e1;
+  border-radius: 4px;
+  color: #64748b;
+  cursor: pointer;
+  font-size: 12px;
+  text-align: center;
+  transition: border-color 0.15s, color 0.15s;
+  align-self: center;
+}
+
+.addSlideBtn:hover {
+  border-color: #2563eb;
+  color: #2563eb;
+}
+
+/* ─── Canvas area ─── */
+.canvasArea {
+  flex: 1;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 32px;
+  gap: 20px;
+}
+
+.canvasOuter {
+  width: 100%;
+  max-width: 1100px;
+  aspect-ratio: 16 / 9;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 32px rgba(0, 0, 0, 0.18);
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.canvasInner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: top left;
+}
+
+/* ─── Slide controls bar ─── */
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 8px 16px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+
+.controlsDivider {
+  width: 1px;
+  height: 20px;
+  background: #e2e8f0;
+  margin: 0 4px;
+}
+
+.slideCounter {
+  font-size: 12px;
+  color: #64748b;
+  min-width: 80px;
+  text-align: center;
+}
+
+.navBtn {
+  background: none;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #475569;
+  font-size: 14px;
+  transition: background 0.1s;
+}
+
+.navBtn:hover:not(:disabled) {
+  background: #f1f5f9;
+}
+
+.navBtn:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.layoutBtn {
+  background: none;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  padding: 4px 10px;
+  font-size: 12px;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.1s;
+}
+
+.layoutBtn:hover:not(.layoutBtnActive) {
+  background: #f8fafc;
+  border-color: #94a3b8;
+}
+
+.layoutBtnActive {
+  background: #1e3a5f;
+  border-color: #1e3a5f;
+  color: #fff;
+}
+
+.deleteSlideBtn {
+  background: none;
+  border: 1px solid #fee2e2;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 12px;
+  color: #dc2626;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+
+.deleteSlideBtn:hover {
+  background: #fef2f2;
+}
+
+/* ─── Theme gallery popover ─── */
+.themeGallery {
+  position: absolute;
+  top: calc(100% + 6px);
+  inset-inline-end: 0;
+  width: 720px;
+  max-height: 70vh;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+  z-index: 100;
+  padding: 16px;
+}
+
+.themeGalleryHeader {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.themeGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 10px;
+}
+
+.themeCard {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  padding: 6px;
+  background: white;
+  border: 2px solid #e5e7eb;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: border-color 0.12s, transform 0.12s;
+  text-align: start;
+}
+
+.themeCard:hover:not(.themeCardSelected) {
+  border-color: #93c5fd;
+  transform: translateY(-1px);
+}
+
+.themeCardSelected {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+}
+
+.themeMiniWrap {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  position: relative;
+  overflow: hidden;
+  border-radius: 3px;
+  background: #f5f5f5;
+}
+
+.themeMiniInner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: top left;
+}
+
+.themeCardName {
+  font-size: 11px;
+  color: #1f2937;
+  font-weight: 600;
+  margin-top: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.themeSwatches {
+  display: flex;
+  gap: 3px;
+  margin-top: 4px;
+}
+
+.themeSwatches span {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+}
+
+/* ─── Format panel popover ─── */
+.formatPanel {
+  position: absolute;
+  top: calc(100% + 6px);
+  inset-inline-end: 0;
+  width: 280px;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+  z-index: 100;
+  padding: 14px;
+}
+
+.formatPanelTitle {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 4px;
+}
+
+.formatPanelHint {
+  font-size: 11px;
+  color: #6b7280;
+  margin-bottom: 12px;
+  line-height: 1.4;
+}
+
+.formatResetBtn {
+  width: 100%;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  padding: 6px 10px;
+  font-size: 12px;
+  color: #4b5563;
+  cursor: pointer;
+  margin-top: 4px;
+}
+
+.formatResetBtn:hover {
+  background: #f9fafb;
+}
+
+/* ─── Print styles ─── */
+/* On screen the print container is parked off-viewport but FULLY LAID OUT
+   (not display:none). This matters: each slide's AutoFit measures itself
+   with a ResizeObserver, and a display:none subtree measures 0 — slides
+   would print unfitted. Off-viewport keeps the measurements live so the
+   printed slide is the exact fitted slide the canvas shows. */
+.printOnly {
+  position: fixed;
+  left: -20000px;
+  top: 0;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* The print tree renders interactively so empty optional fields keep the
+   exact placeholder space they occupy on the canvas — but the placeholder
+   TEXT must never show in a PDF. visibility (not display) hides the words
+   while preserving the geometry. */
+.printOnly :global([data-empty])::before {
+  visibility: hidden !important;
+}
+
+@media print {
+  /* The PDF page is the slide. 10×5.625in matches the 960×540px slide
+     reference 1:1 at 96 DPI, so the slide fills the page exactly with no
+     letterboxing, no scaling, and no app chrome leaking in. */
+  @page {
+    size: 10in 5.625in;
+    margin: 0;
+  }
+
+  .root,
+  .root * {
+    display: none !important;
+  }
+
+  .printOnly {
+    display: block !important;
+    position: static !important;
+    left: auto !important;
+  }
+
+  /* Browsers drop CSS backgrounds when printing unless told otherwise
+     (the "Background graphics" checkbox). The deck IS backgrounds —
+     gradients, cards, dark covers — so force exact color reproduction
+     regardless of the user's dialog settings. */
+  .printOnly,
+  .printOnly * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+
+  .printPage {
+    width: 10in;
+    height: 5.625in;
+    overflow: hidden;
+    page-break-after: always;
+    break-after: page;
+    position: relative;
+  }
+  /* The last page must NOT force another break, or Chrome prints a blank
+     trailing page. */
+  .printPage:last-child {
+    page-break-after: auto;
+    break-after: auto;
+  }
+
+  .printSlide {
+    width: 10in;
+    height: 5.625in;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* SlideView is authored at 960×540px. 960px = 10in @ 96 DPI, so no
+     scaling is required — just sit it at the page origin. */
+  .printSlideInner {
+    position: absolute;
+    inset: 0;
+    width: 960px;
+    height: 540px;
+    transform: none;
+  }
+}

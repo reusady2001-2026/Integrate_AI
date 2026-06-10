@@ -1,0 +1,55 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import "../styles/design-systems.generated.css";
+
+:root {
+  --app-bg: #eff6ff;
+  --app-bg-gradient: linear-gradient(180deg, #bfdbfe 0%, #dbeafe 35%, #ffffff 100%);
+  --app-fg: #0f172a;
+  --app-muted: #64748b;
+  --app-border: #cbd5e1;
+  --app-accent: #2563eb;
+}
+
+html,
+body {
+  background: var(--app-bg);
+  color: var(--app-fg);
+}
+
+body {
+  font-family: var(--font-ui), "Heebo", system-ui, sans-serif;
+  background-image: var(--app-bg-gradient);
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+}
+
+/* The preview pane is the document — scoped surface where vendored
+   design-system tokens are allowed to take over. The doc itself paints
+   its own background; this wrapper stays transparent so the site's
+   blue→white gradient shows through around it. */
+.preview-surface {
+  background: transparent;
+  color: var(--fg, var(--app-fg));
+  font-family: var(--font-body), "David Libre", serif;
+}
+
+@layer components {
+  .btn-tiny {
+    @apply text-xs px-2 py-0.5 rounded border border-[color:var(--app-border)] hover:bg-neutral-50;
+  }
+  .btn-secondary {
+    @apply text-xs px-2 py-1 rounded border border-[color:var(--app-border)] hover:bg-neutral-50;
+  }
+}
+
+/* Print: kill the site gradient so the deck owns each PDF page. The deck
+   editor's own print stylesheet hides the app chrome and sizes slides. */
+@media print {
+  html, body {
+    background: #ffffff !important;
+    background-image: none !important;
+  }
+}

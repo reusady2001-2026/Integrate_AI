@@ -1,0 +1,14 @@
+# Confidential company material — never commit grounding sources / filings.
+reference/
+*.uploads/
+
+# Working drafts scaffolded by the pipeline (may contain confidential data).
+work/
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Scratch
+/tmp/

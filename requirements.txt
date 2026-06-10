@@ -1,0 +1,7 @@
+# Python dependencies for the draft pipeline and rendering.
+python-docx>=1.1
+pytest>=8
+
+# System dependencies (install separately, not via pip):
+#   pandoc          — Markdown -> .docx rendering
+#   poppler-utils   — pdftotext, for extracting text from PDF filings
