@@ -23,6 +23,7 @@ export function LandingPage() {
   const projects = useProjectsStore((s) => s.projects);
   const hydrateProjects = useProjectsStore((s) => s.hydrate);
   const createProject = useProjectsStore((s) => s.createProject);
+  const deleteProject = useProjectsStore((s) => s.deleteProject);
   const router = useRouter();
   useEffect(() => { hydrateSchemas(); hydrateDesigns(); hydrateProjects(); }, [hydrateSchemas, hydrateDesigns, hydrateProjects]);
   const t = strings[lang];
@@ -105,13 +106,12 @@ export function LandingPage() {
           ) : (
             <div className="mb-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {projects.map((p) => (
-                <button
+                <div
                   key={p.id}
-                  type="button"
+                  className="relative text-start p-5 bg-white rounded-lg border border-[color:var(--app-border)] hover:border-[color:var(--app-accent)] hover:shadow-md transition-all cursor-pointer"
                   onClick={() => router.push(`/project?id=${p.id}`)}
-                  className="text-start p-5 bg-white rounded-lg border border-[color:var(--app-border)] hover:border-[color:var(--app-accent)] hover:shadow-md transition-all"
                 >
-                  <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center justify-between mb-2 pe-5">
                     <div className="font-display text-lg font-bold">
                       {labelText(p.name, lang) || (isHe ? "ללא שם" : "Untitled")}
                     </div>
@@ -130,7 +130,22 @@ export function LandingPage() {
                     <span>{p.docIds.length} {isHe ? "מסמכים" : "docs"}</span>
                     <span>{p.sources.length} {isHe ? "מקורות" : "sources"}</span>
                   </div>
-                </button>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (confirm(isHe
+                        ? `למחוק את הפרויקט "${labelText(p.name, lang)}" ואת כל המסמכים שבתוכו?`
+                        : `Delete project "${labelText(p.name, lang)}" and all its documents?`)) {
+                        deleteProject(p.id);
+                      }
+                    }}
+                    title={isHe ? "מחק פרויקט" : "Delete project"}
+                    className="absolute top-2 inset-inline-end-2 text-xs px-1.5 py-0.5 rounded bg-white/90 text-[color:var(--app-muted)] hover:bg-neutral-100 hover:text-red-600"
+                  >
+                    ✕
+                  </button>
+                </div>
               ))}
             </div>
           )}
