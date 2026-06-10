@@ -16,6 +16,7 @@ import { useStrategyDocStore } from "@/lib/strategy-doc-store";
 import { useOrgStructureStore } from "@/lib/org-structure-store";
 import { useWorkflowStore } from "@/lib/workflow-store";
 import { useAppStore, isCustomArtifact, customSchemaIdFrom } from "@/lib/app-store";
+import { resolveDocTheme } from "@/lib/themes/doc-themes";
 import { renderKpiDocx } from "@/lib/export/kpi-docx";
 import { renderJobDocx } from "@/lib/export/job-docx";
 import { renderStrategyDocDocx } from "@/lib/export/strategy-doc-docx";
@@ -28,30 +29,38 @@ export default function HomePage() {
   const lang = useAppStore((s) => s.lang);
   const formatting = useAppStore((s) => s.formatting);
   const kpiDoc = useKpiStore((s) => s.doc);
+  const kpiDesign = useKpiStore((s) => s.design);
   const jobDoc = useJobStore((s) => s.doc);
+  const jobDesign = useJobStore((s) => s.design);
   const sdocDoc = useStrategyDocStore((s) => s.doc);
+  const sdocDesign = useStrategyDocStore((s) => s.design);
   const orgDoc = useOrgStructureStore((s) => s.doc);
+  const orgDesign = useOrgStructureStore((s) => s.design);
   const wfDoc = useWorkflowStore((s) => s.doc);
+  const wfDesign = useWorkflowStore((s) => s.design);
 
   const onExport = useCallback(async () => {
     let blob: Blob;
     let name: string;
     let prefix: string;
+    // The export receives the SAME resolved design the on-screen document
+    // renders with, so the .docx mirrors the app's typography and styling.
+    const eff = (d: Parameters<typeof resolveDocTheme>[1]) => resolveDocTheme(d.theme, d);
     switch (artifact) {
       case "kpi":
-        blob = await renderKpiDocx(kpiDoc, lang, formatting);
+        blob = await renderKpiDocx(kpiDoc, lang, formatting, eff(kpiDesign));
         name = kpiDoc.company || "untitled"; prefix = "kpis"; break;
       case "job-description":
-        blob = await renderJobDocx(jobDoc, lang, formatting);
+        blob = await renderJobDocx(jobDoc, lang, formatting, eff(jobDesign));
         name = jobDoc.title || "untitled"; prefix = "job"; break;
       case "strategy-document":
-        blob = await renderStrategyDocDocx(sdocDoc, lang, formatting);
+        blob = await renderStrategyDocDocx(sdocDoc, lang, formatting, eff(sdocDesign));
         name = sdocDoc.company || "untitled"; prefix = "strategy"; break;
       case "org-structure":
-        blob = await renderOrgStructureDocx(orgDoc, lang, formatting);
+        blob = await renderOrgStructureDocx(orgDoc, lang, formatting, eff(orgDesign));
         name = orgDoc.company || "untitled"; prefix = "org"; break;
       case "workflow":
-        blob = await renderWorkflowDocx(wfDoc, lang, formatting);
+        blob = await renderWorkflowDocx(wfDoc, lang, formatting, eff(wfDesign));
         name = wfDoc.name || "untitled"; prefix = "workflow"; break;
       default:
         return;
@@ -64,7 +73,7 @@ export default function HomePage() {
     a.click();
     a.remove();
     URL.revokeObjectURL(url);
-  }, [artifact, kpiDoc, jobDoc, sdocDoc, orgDoc, wfDoc, lang, formatting]);
+  }, [artifact, kpiDoc, jobDoc, sdocDoc, orgDoc, wfDoc, lang, formatting, kpiDesign, jobDesign, sdocDesign, orgDesign, wfDesign]);
 
   if (view === "home") return <LandingPage />;
 

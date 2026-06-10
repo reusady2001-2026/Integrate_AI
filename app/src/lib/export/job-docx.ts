@@ -1,239 +1,131 @@
 import {
-  AlignmentType,
-  BorderStyle,
   Document,
-  HeadingLevel,
-  LevelFormat,
   Packer,
   PageOrientation,
   Paragraph,
-  ShadingType,
   Table,
-  TableCell,
-  TableRow,
-  TextRun,
-  WidthType,
-  type IRunOptions,
 } from "docx";
 import type { JobDocument } from "../schemas/job-description";
 import { strings, type Lang } from "../i18n";
-import {
-  defaultFormatting,
-  FONT_DOCX,
-  TABLE_STYLE_DEFS,
-  type Formatting,
-} from "../formatting";
+import { defaultFormatting, type Formatting } from "../formatting";
+import type { EffectiveDocDesign } from "../themes/doc-themes";
+import { buildDocx, buildTable, BULLET_NUMBERING, hexNoHash } from "./_docx-common";
 
-const FILL_LINE = "_______________________________________________________";
-
-function hexNoHash(hex: string): string {
-  return hex.replace(/^#/, "");
-}
-
-function mixHex(hex: string, withWhite: number): string {
-  const h = hexNoHash(hex);
-  const r = parseInt(h.slice(0, 2), 16);
-  const g = parseInt(h.slice(2, 4), 16);
-  const b = parseInt(h.slice(4, 6), 16);
-  const mix = (c: number) => Math.round(c + (255 - c) * (1 - withWhite));
-  const to2 = (n: number) => n.toString(16).padStart(2, "0");
-  return to2(mix(r)) + to2(mix(g)) + to2(mix(b));
-}
-
-function tableBorders(style: string, accent: string) {
-  const def = TABLE_STYLE_DEFS[style as keyof typeof TABLE_STYLE_DEFS] ?? TABLE_STYLE_DEFS.classic;
-  const solid = (color: string, size: number) => ({ style: BorderStyle.SINGLE, size, color });
-  const none = { style: BorderStyle.NONE, size: 0, color: "FFFFFF" };
-  const soft = mixHex(`#${accent}`, 0.18);
-
-  const outer = def.outerBorder === "thick" ? solid(accent, 16)
-    : def.outerBorder === "normal" ? solid("888888", 6)
-    : def.outerBorder === "thin" ? solid(soft, 4)
-    : none;
-  const innerH = def.innerH === "normal" ? solid("888888", 6)
-    : def.innerH === "thin" ? solid(soft, 4)
-    : none;
-  const innerV = def.innerV === "normal" ? solid("888888", 6)
-    : def.innerV === "thin" ? solid(soft, 4)
-    : none;
-
-  return {
-    top: outer, bottom: outer, left: outer, right: outer,
-    insideHorizontal: innerH, insideVertical: innerV,
-  };
-}
-
-function cellShading(role: "header" | "evenBody" | "body", style: string, accent: string) {
-  const def = TABLE_STYLE_DEFS[style as keyof typeof TABLE_STYLE_DEFS] ?? TABLE_STYLE_DEFS.classic;
-  if (role === "header") {
-    if (def.headerBg === "accent") return { fill: accent };
-    if (def.headerBg === "dark") return { fill: "1a1a1a" };
-    if (def.headerBg === "medium") return { fill: mixHex(`#${accent}`, 0.72) };
-    if (def.headerBg === "light") return { fill: mixHex(`#${accent}`, 0.88) };
-    return undefined;
-  }
-  if (role === "evenBody" && def.altRows) {
-    if (def.altBg === "accent-light") return { fill: mixHex(`#${accent}`, 0.93) };
-    if (def.altBg === "light") return { fill: "f5f5f5" };
-  }
-  return undefined;
-}
-
+// Mirrors the app's JobTemplate one-to-one: same sections, same order, the
+// guidance lines, the four capability lists, and the bordered area cards —
+// styled by the SAME resolved doc design the app renders with.
 export async function renderJobDocx(
   doc: JobDocument,
   lang: Lang = "he",
   formatting: Formatting = defaultFormatting(),
+  eff?: EffectiveDocDesign,
 ): Promise<Blob> {
   const t = strings[lang];
   const tj = t.job;
   const rtl = t.dir === "rtl";
-  const fmt = formatting;
-  const font = FONT_DOCX[fmt.fontFamily];
-  const bodyHp = Math.round(fmt.fontSize * 2);
-  const h1Hp = Math.round(fmt.fontSize * 1.6 * 2);
-  const h2Hp = Math.round(fmt.fontSize * 1.3 * 2);
-  const headColor = hexNoHash(fmt.headingColor);
-
-  const run = (text: string, opts: Partial<IRunOptions> = {}) =>
-    new TextRun({ text, font, rightToLeft: rtl, size: bodyHp, ...opts });
-  const bold = (text: string) => run(text, { bold: true });
-  const heading = (text: string, level: (typeof HeadingLevel)[keyof typeof HeadingLevel], hp: number) =>
-    new Paragraph({
-      children: [new TextRun({ text, font, rightToLeft: rtl, size: hp, color: headColor, bold: true })],
-      heading: level,
-      bidirectional: rtl,
-    });
-  const inlineField = (label: string, value: string, opts: { sep?: string; hint?: string } = {}) => {
-    const sep = opts.sep ?? ": ";
-    const hint = opts.hint ? `${opts.hint} ` : "";
-    const tail = value.trim() ? value : FILL_LINE;
-    return new Paragraph({
-      children: [bold(label), run(`${sep}${hint}${tail}`)],
-      bidirectional: rtl,
-    });
-  };
-  const guidance = (text: string) =>
-    new Paragraph({ children: [run(text)], bidirectional: rtl });
-  const paragraph = (text: string) =>
-    new Paragraph({
-      children: [run(text.trim() ? text : FILL_LINE)],
-      bidirectional: rtl,
-    });
+  const b = buildDocx(formatting, rtl, eff);
 
   const children: (Paragraph | Table)[] = [];
 
-  children.push(heading(tj.docTitle, HeadingLevel.HEADING_1, h1Hp));
+  children.push(b.h1(tj.docTitle));
 
-  children.push(inlineField(tj.title, doc.title));
-  children.push(inlineField(tj.positioning, doc.positioning, { hint: tj.positioningHint }));
-  children.push(inlineField(tj.reportsTo, doc.reportsTo));
-  children.push(inlineField(tj.directReports, doc.directReports));
-  children.push(inlineField(tj.division, doc.division));
-  children.push(inlineField(tj.date, doc.date));
+  children.push(b.inlineField(tj.title, doc.title));
+  children.push(b.inlineField(tj.positioning, doc.positioning, { hint: tj.positioningHint }));
+  children.push(b.inlineField(tj.reportsTo, doc.reportsTo));
+  children.push(b.inlineField(tj.directReports, doc.directReports));
+  children.push(b.inlineField(tj.division, doc.division));
+  children.push(b.inlineField(tj.date, doc.date));
 
-  children.push(heading(tj.purposeHeading, HeadingLevel.HEADING_2, h2Hp));
-  children.push(paragraph(doc.purpose));
+  children.push(b.h2(tj.purposeHeading));
+  children.push(b.guidance(tj.purposeGuidance));
+  children.push(b.paragraph(doc.purpose));
 
-  children.push(heading(tj.areasHeading, HeadingLevel.HEADING_2, h2Hp));
+  children.push(b.h2(tj.areasHeading));
+  children.push(b.guidance(tj.areasGuidance));
 
   doc.areas.forEach((a, i) => {
-    if (doc.areas.length > 1) {
-      children.push(
-        new Paragraph({
-          children: [run(tj.areaLabel(i), { color: "8a8a8a" })],
-          bidirectional: rtl,
-        }),
-      );
-    }
-    children.push(inlineField(tj.areaName, a.name));
-    children.push(
-      new Paragraph({
-        children: [bold(tj.duties + ":")],
-        bidirectional: rtl,
-      }),
-    );
-    a.duties.forEach((d) => {
-      children.push(
-        new Paragraph({
-          children: [run(d.trim() ? d : FILL_LINE)],
-          bullet: { level: 0 },
-          bidirectional: rtl,
-        }),
-      );
-    });
+    const inner: Paragraph[] = [
+      b.cardLabel(tj.areaLabel(i)),
+      b.inlineField(tj.areaName, a.name),
+      new Paragraph({ children: [b.bold(tj.duties + ":")], bidirectional: rtl, spacing: { after: 120, line: 396 } }),
+      ...a.duties.map((d) => b.bulletItem(d)),
+    ];
+    children.push(b.card(inner));
+    children.push(b.spacer(200));
   });
 
   if (doc.enabled.interfaces) {
-    children.push(heading(tj.interfacesHeading, HeadingLevel.HEADING_2, h2Hp));
-
-    const cell = (text: string, header: boolean, even: boolean) => {
-      const value = text.trim() ? text : FILL_LINE;
-      const isStripedHeader = header && fmt.tableStyle === "striped";
-      const textRun = header
-        ? new TextRun({
-            text: value,
-            font,
-            rightToLeft: rtl,
-            size: bodyHp,
-            bold: true,
-            ...(isStripedHeader ? { color: "FFFFFF" } : {}),
-          })
-        : run(value);
-      const shading = cellShading(header ? "header" : even ? "evenBody" : "body", fmt.tableStyle, headColor);
-      return new TableCell({
-        children: [new Paragraph({ children: [textRun], alignment: AlignmentType.CENTER, bidirectional: rtl })],
-        ...(shading ? { shading: { type: ShadingType.CLEAR, color: "auto", fill: shading.fill } } : {}),
-      });
-    };
-
-    const headerRow = new TableRow({
-      tableHeader: true,
-      children: [cell(tj.colParty, true, false), cell(tj.colKind, true, false), cell(tj.colPurpose, true, false)],
-    });
-    const bodyRows = doc.interfaces.map(
-      (r, idx) =>
-        new TableRow({
-          children: [cell(r.party, false, idx % 2 === 1), cell(r.kind, false, idx % 2 === 1), cell(r.purpose, false, idx % 2 === 1)],
-        }),
-    );
-
+    children.push(b.h2(tj.interfacesHeading));
+    children.push(b.guidance(tj.interfacesGuidance));
     children.push(
-      new Table({
-        rows: [headerRow, ...bodyRows],
-        width: { size: 100, type: WidthType.PERCENTAGE },
-        visuallyRightToLeft: rtl,
-        borders: tableBorders(fmt.tableStyle, headColor),
-      }),
+      buildTable(
+        [tj.colParty, tj.colKind, tj.colPurpose],
+        doc.interfaces.map((r) => [r.party, r.kind, r.purpose]),
+        b,
+        formatting,
+      ),
     );
+    children.push(b.spacer(200));
   }
 
   if (doc.enabled.successMetrics) {
-    children.push(heading(tj.metricsHeading, HeadingLevel.HEADING_2, h2Hp));
-    children.push(paragraph(doc.successMetrics));
+    children.push(b.h2(tj.metricsHeading));
+    children.push(b.guidance(tj.metricsGuidance));
+    children.push(b.paragraph(doc.successMetrics));
   }
 
   if (doc.enabled.qualifications) {
-    children.push(heading(tj.qualificationsHeading, HeadingLevel.HEADING_2, h2Hp));
-    children.push(inlineField(tj.required, doc.required));
-    children.push(inlineField(tj.advantage, doc.advantage));
+    children.push(b.h2(tj.qualificationsHeading));
+    children.push(b.guidance(tj.qualificationsGuidance));
+
+    const capList = (heading: string, items: string[]) => {
+      children.push(new Paragraph({
+        children: [b.bold(heading + ":")],
+        bidirectional: rtl,
+        spacing: { before: 160, after: 100, line: 396 },
+      }));
+      for (const it of items) children.push(b.bulletItem(it));
+    };
+    capList(
+      lang === "he" ? "יכולות מקצועיות (כלים, סטנדרטים, מומחיות)" : "Professional capabilities (tools, standards, expertise)",
+      doc.capabilitiesProfessional,
+    );
+    capList(
+      lang === "he" ? "יכולות אסטרטגיות וניהוליות" : "Strategic & managerial capabilities",
+      doc.capabilitiesStrategic,
+    );
+    capList(
+      lang === "he" ? "יכולות בין-אישיות" : "Interpersonal capabilities",
+      doc.capabilitiesInterpersonal,
+    );
+    capList(
+      lang === "he" ? "ציפיות מנהיגות ופרופיל אישיותי" : "Leadership expectations & personality profile",
+      doc.capabilitiesLeadership,
+    );
+
+    children.push(b.spacer(120));
+    children.push(b.inlineField(tj.required, doc.required));
+    children.push(b.inlineField(tj.advantage, doc.advantage));
   }
 
   if (doc.enabled.authority) {
-    children.push(heading(tj.authorityHeading, HeadingLevel.HEADING_2, h2Hp));
-    children.push(inlineField(tj.decides, doc.decides));
-    children.push(inlineField(tj.recommends, doc.recommends));
-    children.push(inlineField(tj.escalates, doc.escalates));
+    children.push(b.h2(tj.authorityHeading));
+    children.push(b.guidance(tj.authorityGuidance));
+    children.push(b.inlineField(tj.decides, doc.decides));
+    children.push(b.inlineField(tj.recommends, doc.recommends));
+    children.push(b.inlineField(tj.escalates, doc.escalates));
   }
 
   const document = new Document({
     creator: "Integrate AI",
     title: `${tj.docTitle} — ${doc.title || "Untitled"}`,
+    ...(eff && hexNoHash(eff.surface).toUpperCase() !== "FFFFFF"
+      ? { background: { color: hexNoHash(eff.surface) } }
+      : {}),
     styles: {
-      default: { document: { run: { font, rightToLeft: rtl, size: bodyHp } } },
+      default: { document: { run: { font: b.font, rightToLeft: rtl, size: b.bodyHp, color: b.fg } } },
     },
-    numbering: {
-      config: [{ reference: "bullets", levels: [{ level: 0, format: LevelFormat.BULLET, text: "•" }] }],
-    },
+    numbering: BULLET_NUMBERING,
     sections: [
       {
         properties: { page: { size: { orientation: PageOrientation.PORTRAIT } } },

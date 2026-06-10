@@ -1,6 +1,7 @@
 import { Document, Packer, PageOrientation, Paragraph, Table } from "docx";
 import type { StrategyDocument } from "../schemas/strategy-document";
 import { strings, type Lang } from "../i18n";
+import type { EffectiveDocDesign } from "../themes/doc-themes";
 import { defaultFormatting, type Formatting } from "../formatting";
 import { buildDocx, buildTable, BULLET_NUMBERING } from "./_docx-common";
 
@@ -8,10 +9,11 @@ export async function renderStrategyDocDocx(
   doc: StrategyDocument,
   lang: Lang = "he",
   formatting: Formatting = defaultFormatting(),
+  eff?: EffectiveDocDesign,
 ): Promise<Blob> {
   const t = strings[lang].strategy;
   const rtl = strings[lang].dir === "rtl";
-  const b = buildDocx(formatting, rtl);
+  const b = buildDocx(formatting, rtl, eff);
   const children: (Paragraph | Table)[] = [];
 
   children.push(b.h1(t.docTitle));

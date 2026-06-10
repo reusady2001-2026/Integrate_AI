@@ -1,226 +1,66 @@
 import {
-  AlignmentType,
-  BorderStyle,
   Document,
-  HeadingLevel,
   Packer,
   PageOrientation,
   Paragraph,
-  ShadingType,
   Table,
-  TableCell,
-  TableRow,
-  TextRun,
-  WidthType,
-  type IRunOptions,
 } from "docx";
 import type { KpiDocument } from "../schemas/kpis";
-import { strings, type Lang } from "../i18n";
-import {
-  defaultFormatting,
-  FONT_DOCX,
-  TABLE_STYLE_DEFS,
-  type Formatting,
-} from "../formatting";
+import { strings as i18nStrings, type Lang } from "../i18n";
+import { defaultFormatting, type Formatting } from "../formatting";
+import type { EffectiveDocDesign } from "../themes/doc-themes";
+import { buildDocx, buildTable, BULLET_NUMBERING, hexNoHash } from "./_docx-common";
 
-const FILL_LINE = "_______________________________________________________";
-
-function hexNoHash(hex: string): string {
-  return hex.replace(/^#/, "");
-}
-
-function mixHex(hex: string, withWhite: number): string {
-  const h = hexNoHash(hex);
-  const r = parseInt(h.slice(0, 2), 16);
-  const g = parseInt(h.slice(2, 4), 16);
-  const b = parseInt(h.slice(4, 6), 16);
-  const mix = (c: number) => Math.round(c + (255 - c) * (1 - withWhite));
-  const to2 = (n: number) => n.toString(16).padStart(2, "0");
-  return to2(mix(r)) + to2(mix(g)) + to2(mix(b));
-}
-
-function build(fmt: Formatting) {
-  const font = FONT_DOCX[fmt.fontFamily];
-  const bodyHp = Math.round(fmt.fontSize * 2);
-  const h1Hp = Math.round(fmt.fontSize * 1.6 * 2);
-  const h2Hp = Math.round(fmt.fontSize * 1.3 * 2);
-  const h3Hp = Math.round(fmt.fontSize * 1.1 * 2);
-  const headColor = hexNoHash(fmt.headingColor);
-
-  function run(text: string, rtl: boolean, opts: Partial<IRunOptions> = {}): TextRun {
-    return new TextRun({ text, font, rightToLeft: rtl, size: bodyHp, ...opts });
-  }
-  function bold(text: string, rtl: boolean): TextRun {
-    return run(text, rtl, { bold: true });
-  }
-  function heading(text: string, level: (typeof HeadingLevel)[keyof typeof HeadingLevel], hp: number, rtl: boolean) {
-    return new Paragraph({
-      children: [new TextRun({ text, font, rightToLeft: rtl, size: hp, color: headColor, bold: true })],
-      heading: level,
-      bidirectional: rtl,
-    });
-  }
-  function inlineField(label: string, value: string, rtl: boolean, opts: { sep?: string; hint?: string } = {}) {
-    const sep = opts.sep ?? " — ";
-    const hint = opts.hint ? `${opts.hint} ` : "";
-    const tail = value.trim() ? value : FILL_LINE;
-    return new Paragraph({
-      children: [bold(label, rtl), run(`${sep}${hint}${tail}`, rtl)],
-      bidirectional: rtl,
-    });
-  }
-  function guidance(text: string, rtl: boolean) {
-    return new Paragraph({ children: [run(text, rtl)], bidirectional: rtl });
-  }
-
-  return { run, bold, heading, inlineField, guidance, bodyHp, h1Hp, h2Hp, h3Hp, font, headColor };
-}
-
-function tableBorders(style: string, accent: string) {
-  const def = TABLE_STYLE_DEFS[style as keyof typeof TABLE_STYLE_DEFS] ?? TABLE_STYLE_DEFS.classic;
-  const solid = (color: string, size: number) => ({
-    style: BorderStyle.SINGLE,
-    size,
-    color,
-  });
-  const none = { style: BorderStyle.NONE, size: 0, color: "FFFFFF" };
-  const soft = mixHex(`#${accent}`, 0.18);
-  const accentSize = 8;
-
-  const outer = def.outerBorder === "thick" ? solid(accent, 16)
-    : def.outerBorder === "normal" ? solid("888888", 6)
-    : def.outerBorder === "thin" ? solid(soft, 4)
-    : none;
-  const innerH = def.innerH === "normal" ? solid("888888", 6)
-    : def.innerH === "thin" ? solid(soft, 4)
-    : none;
-  const innerV = def.innerV === "normal" ? solid("888888", 6)
-    : def.innerV === "thin" ? solid(soft, 4)
-    : none;
-
-  return {
-    top: outer,
-    bottom: outer,
-    left: outer,
-    right: outer,
-    insideHorizontal: innerH,
-    insideVertical: innerV,
-  };
-}
-
-function cellShading(role: "header" | "evenBody" | "body", style: string, accent: string): { fill: string } | undefined {
-  const def = TABLE_STYLE_DEFS[style as keyof typeof TABLE_STYLE_DEFS] ?? TABLE_STYLE_DEFS.classic;
-  if (role === "header") {
-    if (def.headerBg === "accent") return { fill: accent };
-    if (def.headerBg === "dark") return { fill: "1a1a1a" };
-    if (def.headerBg === "medium") return { fill: mixHex(`#${accent}`, 0.72) };
-    if (def.headerBg === "light") return { fill: mixHex(`#${accent}`, 0.88) };
-    return undefined;
-  }
-  if (role === "evenBody" && def.altRows) {
-    if (def.altBg === "accent-light") return { fill: mixHex(`#${accent}`, 0.93) };
-    if (def.altBg === "light") return { fill: "f5f5f5" };
-  }
-  return undefined;
-}
-
+// Mirrors the app's KPI template through the shared design-aware builder —
+// same fonts, accent-styled headings, guidance rhythm and table styling as
+// the on-screen document.
 export async function renderKpiDocx(
   doc: KpiDocument,
   lang: Lang = "he",
   formatting: Formatting = defaultFormatting(),
+  eff?: EffectiveDocDesign,
 ): Promise<Blob> {
-  const t = strings[lang];
+  const t = i18nStrings[lang];
   const rtl = t.dir === "rtl";
-  const fmt = formatting;
-  const b = build(fmt);
+  const b = buildDocx(formatting, rtl, eff);
   const children: (Paragraph | Table)[] = [];
 
-  children.push(b.heading(t.docTitle, HeadingLevel.HEADING_1, b.h1Hp, rtl));
+  children.push(b.h1(t.docTitle));
 
   const companyLabel = t.companyGloss ? `${t.company} / ${t.companyGloss}` : t.company;
-  children.push(b.inlineField(companyLabel, doc.company, rtl));
+  children.push(b.inlineField(companyLabel, doc.company));
 
   const roleLabel = t.roleGloss ? `${t.role} / ${t.roleGloss}` : t.role;
-  children.push(b.inlineField(roleLabel, doc.role, rtl, { hint: t.roleHint || undefined }));
+  children.push(b.inlineField(roleLabel, doc.role, { hint: t.roleHint || undefined }));
 
   const dateLabel = t.dateGloss ? `${t.date} / ${t.dateGloss}` : t.date;
-  children.push(b.inlineField(dateLabel, doc.date, rtl));
+  children.push(b.inlineField(dateLabel, doc.date));
 
-  children.push(b.heading(t.kpiDefsHeading, HeadingLevel.HEADING_2, b.h2Hp, rtl));
-  children.push(b.heading(t.kpisSubheading, HeadingLevel.HEADING_3, b.h3Hp, rtl));
+  children.push(b.h2(t.kpiDefsHeading));
+  children.push(b.h3(t.kpisSubheading));
 
-  doc.kpis.forEach((k) => {
+  doc.kpis.forEach((k: KpiDocument["kpis"][number], i: number) => {
     const nameLabel = t.kpiNameGloss ? `${t.kpiName} / ${t.kpiNameGloss}` : t.kpiName;
-    children.push(
-      new Paragraph({
-        children: [b.bold(nameLabel, rtl), b.run(`: ${k.name.trim() ? k.name : FILL_LINE} `, rtl)],
-        heading: HeadingLevel.HEADING_3,
-        bidirectional: rtl,
-      }),
-    );
+    const inner: Paragraph[] = [
+      b.cardLabel(`KPI ${i + 1}`),
+      b.inlineField(nameLabel, k.name),
+    ];
     const f = (label: string, gloss: string, value: string) => {
       const l = gloss ? `${label} / ${gloss}` : label;
-      return b.inlineField(l, value, rtl, { sep: ": " });
+      inner.push(b.inlineField(l, value));
     };
-    children.push(f(t.kpiDef, t.kpiDefGloss, k.definition));
-    children.push(f(t.kpiFormula, t.kpiFormulaGloss, k.formula));
-    children.push(f(t.kpiOwner, t.kpiOwnerGloss, k.owner));
-    children.push(f(t.kpiDataSource, t.kpiDataSourceGloss, k.dataSource));
-    children.push(f(t.kpiCadence, t.kpiCadenceGloss, k.cadence));
-    children.push(f(t.kpiBaseline, t.kpiBaselineGloss, k.baseline));
-    children.push(f(t.kpiTargets, t.kpiTargetsGloss, k.targets));
+    f(t.kpiDef, t.kpiDefGloss, k.definition);
+    f(t.kpiFormula, t.kpiFormulaGloss, k.formula);
+    f(t.kpiOwner, t.kpiOwnerGloss, k.owner);
+    f(t.kpiDataSource, t.kpiDataSourceGloss, k.dataSource);
+    f(t.kpiCadence, t.kpiCadenceGloss, k.cadence);
+    f(t.kpiBaseline, t.kpiBaselineGloss, k.baseline);
+    f(t.kpiTargets, t.kpiTargetsGloss, k.targets);
+    children.push(b.card(inner));
+    children.push(b.spacer(200));
   });
 
-  children.push(b.heading(t.scorecardHeading, HeadingLevel.HEADING_2, b.h2Hp, rtl));
-
-  function cell(text: string, header: boolean, even: boolean): TableCell {
-    const value = text.trim() ? text : FILL_LINE;
-    const isStripedHeader = header && fmt.tableStyle === "striped";
-    const textRun = header
-      ? new TextRun({
-          text: value,
-          font: b.font,
-          rightToLeft: rtl,
-          size: b.bodyHp,
-          bold: true,
-          ...(isStripedHeader ? { color: "FFFFFF" } : {}),
-        })
-      : b.run(value, rtl);
-    const shading = cellShading(
-      header ? "header" : even ? "evenBody" : "body",
-      fmt.tableStyle,
-      b.headColor,
-    );
-    return new TableCell({
-      children: [
-        new Paragraph({
-          children: [textRun],
-          alignment: AlignmentType.CENTER,
-          bidirectional: rtl,
-        }),
-      ],
-      ...(shading
-        ? {
-            shading: {
-              type: ShadingType.CLEAR,
-              color: "auto",
-              fill: shading.fill,
-            },
-          }
-        : {}),
-    });
-  }
-
-  const headerRow = new TableRow({
-    tableHeader: true,
-    children: [
-      cell(t.colKpi, true, false),
-      cell(t.colOwner, true, false),
-      cell(t.colBaseline, true, false),
-      cell(t.colTarget, true, false),
-      cell(t.colCadence, true, false),
-    ],
-  });
+  children.push(b.h2(t.scorecardHeading));
 
   const rows = doc.scorecard.length > 0
     ? doc.scorecard
@@ -230,35 +70,27 @@ export async function renderKpiDocx(
         { kpi: "", owner: "", baseline: "", target: "", cadence: "" },
       ];
 
-  const bodyRows = rows.map(
-    (r, idx) => new TableRow({
-      children: [
-        cell(r.kpi, false, idx % 2 === 1),
-        cell(r.owner, false, idx % 2 === 1),
-        cell(r.baseline, false, idx % 2 === 1),
-        cell(r.target, false, idx % 2 === 1),
-        cell(r.cadence, false, idx % 2 === 1),
-      ],
-    }),
-  );
-
   children.push(
-    new Table({
-      rows: [headerRow, ...bodyRows],
-      width: { size: 100, type: WidthType.PERCENTAGE },
-      visuallyRightToLeft: rtl,
-      borders: tableBorders(fmt.tableStyle, b.headColor),
-    }),
+    buildTable(
+      [t.colKpi, t.colOwner, t.colBaseline, t.colTarget, t.colCadence],
+      rows.map((r: { kpi: string; owner: string; baseline: string; target: string; cadence: string }) => [r.kpi, r.owner, r.baseline, r.target, r.cadence]),
+      b,
+      formatting,
+    ),
   );
 
   const document = new Document({
     creator: "Integrate AI",
     title: `${t.docTitle} — ${doc.company || "Untitled"}`,
+    ...(eff && hexNoHash(eff.surface).toUpperCase() !== "FFFFFF"
+      ? { background: { color: hexNoHash(eff.surface) } }
+      : {}),
     styles: {
       default: {
-        document: { run: { font: b.font, rightToLeft: rtl, size: b.bodyHp } },
+        document: { run: { font: b.font, rightToLeft: rtl, size: b.bodyHp, color: b.fg } },
       },
     },
+    numbering: BULLET_NUMBERING,
     sections: [
       {
         properties: { page: { size: { orientation: PageOrientation.PORTRAIT } } },
