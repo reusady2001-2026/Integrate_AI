@@ -370,8 +370,17 @@
 }
 
 /* ─── Print styles ─── */
+/* On screen the print container is parked off-viewport but FULLY LAID OUT
+   (not display:none). This matters: each slide's AutoFit measures itself
+   with a ResizeObserver, and a display:none subtree measures 0 — slides
+   would print unfitted. Off-viewport keeps the measurements live so the
+   printed slide is the exact fitted slide the canvas shows. */
 .printOnly {
-  display: none;
+  position: fixed;
+  left: -20000px;
+  top: 0;
+  pointer-events: none;
+  user-select: none;
 }
 
 @media print {
@@ -390,6 +399,19 @@
 
   .printOnly {
     display: block !important;
+    position: static !important;
+    left: auto !important;
+  }
+
+  /* Browsers drop CSS backgrounds when printing unless told otherwise
+     (the "Background graphics" checkbox). The deck IS backgrounds —
+     gradients, cards, dark covers — so force exact color reproduction
+     regardless of the user's dialog settings. */
+  .printOnly,
+  .printOnly * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
   }
 
   .printPage {

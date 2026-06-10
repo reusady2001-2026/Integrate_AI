@@ -402,13 +402,14 @@ export function DeckEditor() {
         </div>
       </div>
 
-      {/* Print-only container */}
-      <div className={styles.printOnly}>
+      {/* Print container — parked off-viewport on screen (so AutoFit keeps
+          it measured/fitted live) and the only thing visible in print. */}
+      <div className={styles.printOnly} aria-hidden="true">
         {doc.slides.map((sl, i) => (
           <div key={i} className={styles.printPage}>
             <div className={styles.printSlide}>
               <div className={styles.printSlideInner}
-                style={{ width: SLIDE_W, height: SLIDE_H, transform: "scale(var(--print-scale, 1))" }}>
+                style={{ width: SLIDE_W, height: SLIDE_H }}>
                 <SlideView slide={sl} theme={selectedTheme} doc={doc} interactive={false} pageNumber={i + 1} totalPages={doc.slides.length} />
               </div>
             </div>
