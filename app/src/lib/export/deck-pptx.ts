@@ -153,6 +153,21 @@ function applyTransform(text: string, tt: string): string {
   return text;
 }
 
+// In RTL paragraphs, PowerPoint (with a Hebrew run language) reorders digits
+// that touch Latin letters as if they were Arabic-context numbers: "195k"
+// renders "k195", "Engine 1" renders "1Engine". Wrap every Latin-containing
+// alphanumeric sequence in an explicit LTR embedding (LRE…PDF) so its
+// internal order is locked in every bidi implementation. Digit-only runs
+// ("215", "2026") are left alone — they already order correctly against
+// Hebrew, and embedding them would detach them from their Hebrew context.
+const LRE = "\u202A", PDF_ = "\u202C"; // LEFT-TO-RIGHT EMBEDDING … POP DIRECTIONAL FORMATTING
+function isolateLtr(text: string): string {
+  return text.replace(
+    /[A-Za-z0-9][A-Za-z0-9.:+\-/%]*(?: (?=[A-Za-z0-9+])[A-Za-z0-9.:+\-/%]+)*/g,
+    (m) => (/[A-Za-z]/.test(m) ? LRE + m + PDF_ : m),
+  );
+}
+
 type GradTask = { xPx: number; yPx: number; wPx: number; hPx: number; image: string };
 
 function buildOps(root: HTMLElement): { ops: Op[]; svgTasks: { el: SVGElement; x: number; y: number; w: number; h: number }[]; gradTasks: GradTask[]; bg: string } {
@@ -245,13 +260,25 @@ function buildOps(root: HTMLElement): { ops: Op[]; svgTasks: { el: SVGElement; x
       let lo = s + 1, hi = len, fit = s + 1;
       const rectsAt = (e: number) => {
         r.setStart(node, s); r.setEnd(node, e);
-        return r.getClientRects().length;
+        // A bidi direction change (Hebrew↔Latin) produces multiple rects on
+        // ONE visual line — only a TOP divergence means an actual line break.
+        // Splitting at direction boundaries would orphan each segment into
+        // its own box and lose the spaces between them.
+        const rects = Array.from(r.getClientRects()).filter((q) => q.width > 0.5);
+        if (rects.length <= 1) return true;
+        let minTop = Infinity, maxTop = -Infinity, minH = Infinity;
+        for (const q of rects) {
+          minTop = Math.min(minTop, q.top);
+          maxTop = Math.max(maxTop, q.top);
+          minH = Math.min(minH, q.height);
+        }
+        return maxTop - minTop < minH / 2;
       };
-      if (rectsAt(len) <= 1) { fit = len; }
+      if (rectsAt(len)) { fit = len; }
       else {
         while (lo <= hi) {
           const mid = (lo + hi) >> 1;
-          if (rectsAt(mid) <= 1) { fit = mid; lo = mid + 1; } else { hi = mid - 1; }
+          if (rectsAt(mid)) { fit = mid; lo = mid + 1; } else { hi = mid - 1; }
         }
       }
       // Shrink to the glyphs: measure the rect WITHOUT edge whitespace, so a
@@ -303,7 +330,8 @@ function buildOps(root: HTMLElement): { ops: Op[]; svgTasks: { el: SVGElement; x
 
     for (const ln of renderedLines(node)) {
       // ln boundaries are already whitespace-trimmed to match the glyph rect.
-      const text = applyTransform(raw.slice(ln.s, ln.e).replace(/\s+/g, " "), st.textTransform);
+      let text = applyTransform(raw.slice(ln.s, ln.e).replace(/\s+/g, " "), st.textTransform);
+      if (rtl) text = isolateLtr(text);
       if (!text) continue;
       if (ln.rect.width <= 0.5 || ln.rect.height <= 0.5) continue;
       const op = rel(ln.rect);
