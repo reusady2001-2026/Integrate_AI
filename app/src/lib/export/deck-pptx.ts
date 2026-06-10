@@ -168,10 +168,16 @@ function splitBidiSegs(text: string): { t: string; latin: boolean }[] {
   const segs: { t: string; latin: boolean }[] = [];
   let last = 0;
   for (const m of text.matchAll(LTR_TOKEN)) {
-    if (!/[A-Za-z]/.test(m[0])) continue; // digit-only: leave in Hebrew run
+    // A Latin run must START and END on a strong LTR character. PowerPoint
+    // reorders an edge neutral (a trailing "+", ".", ":") WITHIN the run by
+    // paragraph direction, throwing it to the far side ("דורגז + On EV"
+    // became "+ On EV דורגז"). Boundary neutrals stay in the Hebrew flow,
+    // where the surrounding strong RTL text anchors them correctly.
+    const tok = m[0].replace(/[^A-Za-z0-9%]+$/, "");
+    if (!/[A-Za-z]/.test(tok)) continue; // digit-only: leave in Hebrew run
     if (m.index! > last) segs.push({ t: text.slice(last, m.index), latin: false });
-    segs.push({ t: m[0], latin: true });
-    last = m.index! + m[0].length;
+    segs.push({ t: tok, latin: true });
+    last = m.index! + tok.length;
   }
   if (last < text.length) segs.push({ t: text.slice(last), latin: false });
   return segs;
