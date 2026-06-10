@@ -44,3 +44,12 @@ body {
     @apply text-xs px-2 py-1 rounded border border-[color:var(--app-border)] hover:bg-neutral-50;
   }
 }
+
+/* Print: kill the site gradient so the deck owns each PDF page. The deck
+   editor's own print stylesheet hides the app chrome and sizes slides. */
+@media print {
+  html, body {
+    background: #ffffff !important;
+    background-image: none !important;
+  }
+}

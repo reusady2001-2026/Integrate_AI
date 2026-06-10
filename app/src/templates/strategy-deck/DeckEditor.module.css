@@ -375,42 +375,52 @@
 }
 
 @media print {
+  /* The PDF page is the slide. 10×5.625in matches the 960×540px slide
+     reference 1:1 at 96 DPI, so the slide fills the page exactly with no
+     letterboxing, no scaling, and no app chrome leaking in. */
   @page {
-    size: landscape;
+    size: 10in 5.625in;
     margin: 0;
   }
 
-  .root {
-    display: none;
+  .root,
+  .root * {
+    display: none !important;
   }
 
   .printOnly {
-    display: block;
+    display: block !important;
   }
 
   .printPage {
-    width: 100vw;
-    height: 100vh;
+    width: 10in;
+    height: 5.625in;
     overflow: hidden;
     page-break-after: always;
     break-after: page;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    position: relative;
+  }
+  /* The last page must NOT force another break, or Chrome prints a blank
+     trailing page. */
+  .printPage:last-child {
+    page-break-after: auto;
+    break-after: auto;
   }
 
   .printSlide {
-    width: 100vw;
-    height: 56.25vw; /* 9/16 */
-    max-height: 100vh;
+    width: 10in;
+    height: 5.625in;
     overflow: hidden;
     position: relative;
   }
 
+  /* SlideView is authored at 960×540px. 960px = 10in @ 96 DPI, so no
+     scaling is required — just sit it at the page origin. */
   .printSlideInner {
     position: absolute;
-    top: 0;
-    left: 0;
-    transform-origin: top left;
+    inset: 0;
+    width: 960px;
+    height: 540px;
+    transform: none;
   }
 }

@@ -113,7 +113,20 @@ export function DeckEditor() {
     await renderDeckPptx(doc, lang);
   }, [doc, lang]);
 
-  const handleExportPdf = () => window.print();
+  // Chrome derives the "Save as PDF" filename from document.title. Swap it
+  // to the deck's name for the print, then restore — afterprint fires after
+  // the user confirms or cancels the dialog, so the swap is bounded.
+  const handleExportPdf = () => {
+    const original = document.title;
+    const deckName = (doc.planTitle?.trim() || doc.company?.trim() || "deck").replace(/\s+/g, "_");
+    document.title = deckName;
+    const restore = () => {
+      document.title = original;
+      window.removeEventListener("afterprint", restore);
+    };
+    window.addEventListener("afterprint", restore);
+    window.print();
+  };
 
   return (
     <>
