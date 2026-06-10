@@ -254,12 +254,20 @@ function buildOps(root: HTMLElement): { ops: Op[]; svgTasks: { el: SVGElement; x
           if (rectsAt(mid) <= 1) { fit = mid; lo = mid + 1; } else { hi = mid - 1; }
         }
       }
-      r.setStart(node, s); r.setEnd(node, fit);
-      const rect = r.getBoundingClientRect();
-      lines.push({ s, e: fit, rect });
-      s = fit;
-      // skip whitespace consumed by the wrap point
+      // Shrink to the glyphs: measure the rect WITHOUT edge whitespace, so a
+      // box's edges sit exactly on ink. Otherwise a fragment ending in a
+      // space exports a box one space wider than its (trimmed) text, and
+      // right-aligned glyphs slide into the gap — adjacent fragments like
+      // "אסטרטגיה" + "2026" end up touching.
       const txt = node.nodeValue ?? "";
+      let gs = s, ge = fit;
+      while (gs < ge && /\s/.test(txt[gs])) gs++;
+      while (ge > gs && /\s/.test(txt[ge - 1])) ge--;
+      if (ge > gs) {
+        r.setStart(node, gs); r.setEnd(node, ge);
+        lines.push({ s: gs, e: ge, rect: r.getBoundingClientRect() });
+      }
+      s = fit;
       while (s < len && /\s/.test(txt[s])) s++;
     }
     return lines;
@@ -294,7 +302,8 @@ function buildOps(root: HTMLElement): { ops: Op[]; svgTasks: { el: SVGElement; x
     const align = mapAlign(st, rtl);
 
     for (const ln of renderedLines(node)) {
-      const text = applyTransform(raw.slice(ln.s, ln.e).replace(/\s+/g, " ").trim(), st.textTransform);
+      // ln boundaries are already whitespace-trimmed to match the glyph rect.
+      const text = applyTransform(raw.slice(ln.s, ln.e).replace(/\s+/g, " "), st.textTransform);
       if (!text) continue;
       if (ln.rect.width <= 0.5 || ln.rect.height <= 0.5) continue;
       const op = rel(ln.rect);
@@ -310,7 +319,12 @@ function buildOps(root: HTMLElement): { ops: Op[]; svgTasks: { el: SVGElement; x
       ops.push({
         t: "text",
         x,
-        y: op.y - 0.012,
+        // Vertical calibration: PowerPoint/LibreOffice set the first baseline
+        // from the font's Win metrics, Chrome centres glyphs in the CSS line
+        // box — rendered side-by-side, exported text sits ~0.11em LOWER than
+        // the browser's ink for the same box. Measured across a 21-slide deck
+        // (median per font size, 7–62px) and corrected here so ink tops align.
+        y: op.y - 0.012 - 0.11 * sizePx * scale * PX2IN,
         w,
         h: op.h + 0.04,
         text,
