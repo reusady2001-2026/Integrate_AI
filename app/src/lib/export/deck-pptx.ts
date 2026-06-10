@@ -63,6 +63,8 @@ type TextOp = {
   align: "left" | "right" | "center";
   rtl: boolean;
   charSpacing: number;
+  // mixed Hebrew/Latin line, pre-split into runs (Office-native bidi encoding)
+  segs?: { t: string; latin: boolean }[];
 };
 type ImageOp = { t: "image"; x: number; y: number; w: number; h: number; data: string };
 type Op = RectOp | TextOp | ImageOp;
@@ -155,17 +157,24 @@ function applyTransform(text: string, tt: string): string {
 
 // In RTL paragraphs, PowerPoint (with a Hebrew run language) reorders digits
 // that touch Latin letters as if they were Arabic-context numbers: "195k"
-// renders "k195", "Engine 1" renders "1Engine". Wrap every Latin-containing
-// alphanumeric sequence in an explicit LTR embedding (LRE…PDF) so its
-// internal order is locked in every bidi implementation. Digit-only runs
-// ("215", "2026") are left alone — they already order correctly against
-// Hebrew, and embedding them would detach them from their Hebrew context.
-const LRE = "\u202A", PDF_ = "\u202C"; // LEFT-TO-RIGHT EMBEDDING … POP DIRECTIONAL FORMATTING
-function isolateLtr(text: string): string {
-  return text.replace(
-    /[A-Za-z0-9][A-Za-z0-9.:+\-/%]*(?: (?=[A-Za-z0-9+])[A-Za-z0-9.:+\-/%]+)*/g,
-    (m) => (/[A-Za-z]/.test(m) ? LRE + m + PDF_ : m),
-  );
+// renders "k195", "Engine 1" renders "1Engine". Unicode directional controls
+// fix this in standards-following renderers, but PowerPoint ignores them —
+// so mixed lines are encoded the way Office itself encodes them: the line is
+// split into alternating runs, and every Latin-containing alphanumeric token
+// gets its own run with a Latin language tag. Digit-only tokens ("215",
+// "2026") stay inside the Hebrew run — they already order correctly.
+const LTR_TOKEN = /[A-Za-z0-9][A-Za-z0-9.:+\-/%]*(?: (?=[A-Za-z0-9+])[A-Za-z0-9.:+\-/%]+)*/g;
+function splitBidiSegs(text: string): { t: string; latin: boolean }[] {
+  const segs: { t: string; latin: boolean }[] = [];
+  let last = 0;
+  for (const m of text.matchAll(LTR_TOKEN)) {
+    if (!/[A-Za-z]/.test(m[0])) continue; // digit-only: leave in Hebrew run
+    if (m.index! > last) segs.push({ t: text.slice(last, m.index), latin: false });
+    segs.push({ t: m[0], latin: true });
+    last = m.index! + m[0].length;
+  }
+  if (last < text.length) segs.push({ t: text.slice(last), latin: false });
+  return segs;
 }
 
 type GradTask = { xPx: number; yPx: number; wPx: number; hPx: number; image: string };
@@ -330,8 +339,15 @@ function buildOps(root: HTMLElement): { ops: Op[]; svgTasks: { el: SVGElement; x
 
     for (const ln of renderedLines(node)) {
       // ln boundaries are already whitespace-trimmed to match the glyph rect.
-      let text = applyTransform(raw.slice(ln.s, ln.e).replace(/\s+/g, " "), st.textTransform);
-      if (rtl) text = isolateLtr(text);
+      const text = applyTransform(raw.slice(ln.s, ln.e).replace(/\s+/g, " "), st.textTransform);
+      // Mixed Hebrew/Latin lines are split into alternating runs so the Latin
+      // tokens carry a Latin language tag — the only encoding PowerPoint
+      // reliably keeps in logical order (it ignores Unicode bidi controls).
+      let segs: { t: string; latin: boolean }[] | undefined;
+      if (rtl && /[A-Za-z]/.test(text) && /[\u0590-\u05FF]/.test(text)) {
+        const sp = splitBidiSegs(text);
+        if (sp.length > 1) segs = sp;
+      }
       if (!text) continue;
       if (ln.rect.width <= 0.5 || ln.rect.height <= 0.5) continue;
       const op = rel(ln.rect);
@@ -368,6 +384,7 @@ function buildOps(root: HTMLElement): { ops: Op[]; svgTasks: { el: SVGElement; x
         align,
         rtl,
         charSpacing: (Number.isFinite(lsPx) ? lsPx * PX2PT : 0) * scale,
+        segs,
       });
     }
   }
@@ -608,25 +625,53 @@ function paintSlide(slide: PSlide, ops: Op[], bg: string) {
       // its open side, so even a wider-metric substitute font stays on one
       // line — wrap stays ON because wrap="none" triggers a bidi-reversal
       // bug in some renderers (LibreOffice) for RTL paragraphs.
-      slide.addText(op.text, {
-        x: op.x, y: op.y, w: op.w, h: op.h,
+      const runStyle = {
         color: op.color,
         fontSize: op.size,
         bold: op.bold,
         italic: op.italic,
         fontFace: op.face,
+        charSpacing: op.charSpacing || undefined,
+      };
+      const boxOpts = {
+        x: op.x, y: op.y, w: op.w, h: op.h,
         align: op.align,
         rtlMode: op.rtl,
-        // Run language drives PowerPoint's bidi handling of neutral characters
-        // (commas, ·, :, dashes). Left at the default en-US, punctuation flips
-        // to the wrong side of Hebrew words ("פורטפוליו ,פעילויות").
-        lang: op.rtl ? "he-IL" : undefined,
         valign: "middle",
         margin: 0,
-        charSpacing: op.charSpacing || undefined,
         wrap: true,
         fit: "none",
-      });
+      };
+      if (op.segs) {
+        // Mixed Hebrew/Latin line → alternating runs; the Latin tokens carry
+        // a Latin language tag so PowerPoint keeps their internal order
+        // ("195k", "Engine 1") — the same encoding Office itself produces.
+        // Paragraph-level props (align/rtlMode) must ride on the FIRST run
+        // only: pptxgenjs stamps a <a:pPr> before every run that carries
+        // them, and a mid-paragraph pPr violates the OOXML schema. With box
+        // opts alone the rtl flag is dropped entirely in array form.
+        slide.addText(
+          op.segs.map((sg, i) => ({
+            text: sg.t,
+            options: {
+              ...runStyle,
+              breakLine: false,
+              lang: sg.latin ? "en-US" : "he-IL",
+              ...(i === 0 ? { align: op.align, rtlMode: op.rtl } : {}),
+            },
+          })),
+          { ...boxOpts, align: undefined, rtlMode: undefined },
+        );
+      } else {
+        slide.addText(op.text, {
+          ...boxOpts,
+          ...runStyle,
+          // Run language drives PowerPoint's bidi handling of neutral
+          // characters (commas, ·, :, dashes). Left at the default en-US,
+          // punctuation flips to the wrong side of Hebrew words.
+          lang: op.rtl ? "he-IL" : undefined,
+        });
+      }
     }
   }
 }
@@ -710,7 +755,40 @@ export async function renderDeckPptx(doc: StrategyDeck, lang: Lang): Promise<voi
       paintSlide(pslide, [...withImages, ...ops], bg);
     }
 
-    await prs.writeFile({ fileName: `${(doc.company || "deck").replace(/\s+/g, "_")}.pptx` });
+    // pptxgenjs stamps an <a:pPr> before EVERY run of a multi-run paragraph,
+    // but the OOXML schema only allows pPr as the first child of <a:p> —
+    // strict consumers reject the file. Post-process the zip: keep each
+    // paragraph's first pPr, drop the rest.
+    const buf: ArrayBuffer = await prs.write({ outputType: "arraybuffer" });
+    const JSZip = (await import("jszip")).default;
+    const zip = await JSZip.loadAsync(buf);
+    const slideFiles = Object.keys(zip.files).filter((f) => /^ppt\/slides\/slide\d+\.xml$/.test(f));
+    const PPR_RE = /<a:pPr[^>]*\/>|<a:pPr[^>]*>[\s\S]*?<\/a:pPr>/g;
+    for (const f of slideFiles) {
+      const xml = await zip.file(f)!.async("string");
+      const fixed = xml.replace(/<a:p>([\s\S]*?)<\/a:p>/g, (_m, body: string) => {
+        let first = true;
+        const cleaned = body.replace(PPR_RE, (ppr: string) => {
+          if (first) { first = false; return ppr; }
+          return "";
+        });
+        return "<a:p>" + cleaned + "</a:p>";
+      });
+      zip.file(f, fixed);
+    }
+    const blob = await zip.generateAsync({
+      type: "blob",
+      mimeType: "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+      compression: "DEFLATE",
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${(doc.company || "deck").replace(/\s+/g, "_")}.pptx`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
   } finally {
     root.unmount();
     host.remove();
