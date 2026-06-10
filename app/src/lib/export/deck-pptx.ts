@@ -183,13 +183,37 @@ function splitBidiSegs(text: string): { t: string; latin: boolean }[] {
   return segs;
 }
 
-type GradTask = { xPx: number; yPx: number; wPx: number; hPx: number; image: string };
+// Rasterise ALL gradient layers of one element into an element-sized PNG
+// (2x for crispness), clipped to its border radius. Synchronous — canvas
+// gradient painting needs no async loads.
+function elementGradientPng(bgImage: string, wPx: number, hPx: number, radPx: number): string | null {
+  try {
+    if (wPx < 1 || hPx < 1) return null;
+    const scale = 2;
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.max(1, Math.round(wPx * scale));
+    canvas.height = Math.max(1, Math.round(hPx * scale));
+    const cx = canvas.getContext("2d");
+    if (!cx) return null;
+    cx.scale(scale, scale);
+    if (radPx > 0 && typeof cx.roundRect === "function") {
+      cx.beginPath();
+      cx.roundRect(0, 0, wPx, hPx, Math.min(radPx, Math.min(wPx, hPx) / 2));
+      cx.clip();
+    }
+    const layers = splitLayers(bgImage).filter((l) => l.includes("gradient("));
+    // CSS paints the LAST layer first (bottom) — reverse for canvas order.
+    for (const layer of layers.reverse()) paintGradient(cx, layer, 0, 0, wPx, hPx);
+    return canvas.toDataURL("image/png");
+  } catch {
+    return null;
+  }
+}
 
-function buildOps(root: HTMLElement): { ops: Op[]; svgTasks: { el: SVGElement; x: number; y: number; w: number; h: number }[]; gradTasks: GradTask[]; bg: string } {
+function buildOps(root: HTMLElement): { ops: Op[]; svgTasks: { el: SVGElement; x: number; y: number; w: number; h: number }[]; bg: string } {
   const base = root.getBoundingClientRect();
   const ops: Op[] = [];
   const svgTasks: { el: SVGElement; x: number; y: number; w: number; h: number }[] = [];
-  const gradTasks: GradTask[] = [];
   let bg = "ffffff";
   let bgArea = 0;
 
@@ -219,9 +243,15 @@ function buildOps(root: HTMLElement): { ops: Op[]; svgTasks: { el: SVGElement; x
     // separately (collected below) so the canvas keeps its glow/fade —
     // PowerPoint shapes can't express CSS gradients.
     const fill = parseColor(st.backgroundColor);
+    // Gradient layers are rasterised PER ELEMENT and inserted at the
+    // element's own position in the paint order. A single bottom-layer
+    // image breaks stacking: a gradient INSIDE a card (e.g. a table-header
+    // bar) would be buried under the card's fill and its white caption
+    // would print white-on-white.
+    let gradOp: ImageOp | null = null;
     if (st.backgroundImage && st.backgroundImage.includes("gradient(")) {
-      const r = el.getBoundingClientRect();
-      gradTasks.push({ xPx: r.left - base.left, yPx: r.top - base.top, wPx: r.width, hPx: r.height, image: st.backgroundImage });
+      const data = elementGradientPng(st.backgroundImage, op.w / PX2IN, op.h / PX2IN, rad);
+      if (data) gradOp = { t: "image", x: op.x, y: op.y, w: op.w, h: op.h, data };
     }
 
     // borders, side by side.
@@ -241,6 +271,7 @@ function buildOps(root: HTMLElement): { ops: Op[]; svgTasks: { el: SVGElement; x
       ops.push(r);
       if (fill && op.w * op.h > bgArea) { bgArea = op.w * op.h; bg = fill.hex; }
     }
+    if (gradOp) ops.push(gradOp);
     if (!uniform) {
       // individual rules / bars (left rule, top bar, underline …)
       for (const b of sides) {
@@ -421,7 +452,7 @@ function buildOps(root: HTMLElement): { ops: Op[]; svgTasks: { el: SVGElement; x
   }
 
   recurse(root, 1, "ffffff");
-  return { ops, svgTasks, gradTasks, bg };
+  return { ops, svgTasks, bg };
 }
 
 // ── CSS gradient rasteriser ───────────────────────────────────────────
@@ -558,26 +589,6 @@ function paintGradient(cx: CanvasRenderingContext2D, layer: string, x: number, y
   }
 }
 
-// Rasterise all gradient layers of a slide into one full-slide PNG.
-function gradientsToPng(tasks: GradTask[]): string | null {
-  try {
-    const scale = 2;
-    const canvas = document.createElement("canvas");
-    canvas.width = PXW * scale;
-    canvas.height = PXH * scale;
-    const cx = canvas.getContext("2d");
-    if (!cx) return null;
-    cx.scale(scale, scale);
-    for (const t of tasks) {
-      // CSS paints the LAST layer first (bottom); reverse for canvas order.
-      const layers = splitLayers(t.image).filter((l) => l.includes("gradient("));
-      for (const layer of layers.reverse()) paintGradient(cx, layer, t.xPx, t.yPx, t.wPx, t.hPx);
-    }
-    return canvas.toDataURL("image/png");
-  } catch {
-    return null;
-  }
-}
 
 // Rasterise an inline <svg> (decorative corner shapes etc.) to a PNG so it
 // survives into the slide. Best-effort: on any failure the shape is skipped.
@@ -736,17 +747,7 @@ export async function renderDeckPptx(doc: StrategyDeck, lang: Lang): Promise<voi
 
       const rootEl = host.firstElementChild as HTMLElement | null;
       if (!rootEl) continue;
-      const { ops, svgTasks, gradTasks, bg } = buildOps(rootEl);
-
-      // Gradient layers (canvas glows, fading rules) → one full-slide PNG
-      // slotted right above the base background rect, below everything else.
-      if (gradTasks.length) {
-        const data = gradientsToPng(gradTasks);
-        if (data) {
-          const at = ops.length && ops[0].t === "rect" ? 1 : 0;
-          ops.splice(at, 0, { t: "image", x: 0, y: 0, w: INW, h: INH, data });
-        }
-      }
+      const { ops, svgTasks, bg } = buildOps(rootEl);
 
       // Rasterise any decorative SVGs and lay them behind the rest (corner
       // shapes etc. paint first in the DOM, so they sit at the back).
