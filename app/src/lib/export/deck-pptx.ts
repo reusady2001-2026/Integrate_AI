@@ -566,11 +566,17 @@ export async function renderDeckPptx(doc: StrategyDeck, lang: Lang): Promise<voi
       const slide = doc.slides[i];
       await new Promise<void>((resolve) => {
         root.render(
+          // Interactive (with an inert onChange) so the rendered tree — and
+          // therefore the measured geometry — is IDENTICAL to the editor
+          // canvas: empty optional fields keep their placeholder space.
+          // Placeholder text lives in a ::before pseudo-element, which the
+          // DOM walk never emits, so nothing editing-related is exported.
           createElement(SlideView, {
             slide,
             theme,
             doc,
-            interactive: false,
+            interactive: true,
+            onChange: () => {},
             pageNumber: i + 1,
             totalPages: doc.slides.length,
           }),

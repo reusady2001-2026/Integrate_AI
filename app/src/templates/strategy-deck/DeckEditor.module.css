@@ -383,6 +383,14 @@
   user-select: none;
 }
 
+/* The print tree renders interactively so empty optional fields keep the
+   exact placeholder space they occupy on the canvas — but the placeholder
+   TEXT must never show in a PDF. visibility (not display) hides the words
+   while preserving the geometry. */
+.printOnly :global([data-empty])::before {
+  visibility: hidden !important;
+}
+
 @media print {
   /* The PDF page is the slide. 10×5.625in matches the 960×540px slide
      reference 1:1 at 96 DPI, so the slide fills the page exactly with no

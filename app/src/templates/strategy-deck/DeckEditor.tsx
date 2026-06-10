@@ -403,14 +403,18 @@ export function DeckEditor() {
       </div>
 
       {/* Print container — parked off-viewport on screen (so AutoFit keeps
-          it measured/fitted live) and the only thing visible in print. */}
+          it measured/fitted live) and the only thing visible in print.
+          It renders interactive (with an inert onChange) so its layout is
+          IDENTICAL to the canvas the user designs against — empty optional
+          fields keep their placeholder space; the placeholder text itself
+          is hidden by CSS so nothing editing-related ever prints. */}
       <div className={styles.printOnly} aria-hidden="true">
         {doc.slides.map((sl, i) => (
           <div key={i} className={styles.printPage}>
             <div className={styles.printSlide}>
               <div className={styles.printSlideInner}
                 style={{ width: SLIDE_W, height: SLIDE_H }}>
-                <SlideView slide={sl} theme={selectedTheme} doc={doc} interactive={false} pageNumber={i + 1} totalPages={doc.slides.length} />
+                <SlideView slide={sl} theme={selectedTheme} doc={doc} interactive onChange={() => {}} pageNumber={i + 1} totalPages={doc.slides.length} />
               </div>
             </div>
           </div>
