@@ -132,6 +132,23 @@ function isDark(hex: string): boolean {
   return (r * 0.299 + g * 0.587 + b * 0.114) < 128;
 }
 
+// Every design letters compare-pane bullets itself (A/B/C…). Generated
+// content sometimes bakes the same marker into the text ("A · הקמת ועדה…"),
+// which doubles the letter on screen and in every export. Strip a redundant
+// single-letter marker (capital + separator) from the bullet text — the
+// design's own marker remains the single source of the letter.
+const BULLET_MARKER_RE = /^\s*[A-Z]\s*[·—–:.-]\s+/;
+function stripRedundantBulletMarkers(slide: Slide): Slide {
+  const fix = (p: Slide["leftPane"]): Slide["leftPane"] => {
+    if (!p?.bullets?.some((b) => BULLET_MARKER_RE.test(b))) return p;
+    return { ...p, bullets: p.bullets.map((b) => b.replace(BULLET_MARKER_RE, "")) };
+  };
+  const l = fix(slide.leftPane);
+  const r = fix(slide.rightPane);
+  if (l === slide.leftPane && r === slide.rightPane) return slide;
+  return { ...slide, leftPane: l, rightPane: r };
+}
+
 interface SlideViewProps {
   slide: Slide;
   theme: DeckTheme;
@@ -220,7 +237,7 @@ export function SlideView(props: SlideViewProps) {
     onChange: props.onChange,
   };
   const renderFn = DESIGN_RENDERERS[theme.design ?? "editorial"] ?? renderEditorial;
-  const rendered = renderFn(slide, designCtx);
+  const rendered = renderFn(stripRedundantBulletMarkers(slide), designCtx);
   // Font overrides from the format panel flow to every design as CSS
   // variables. Each design's font constants read these vars and fall back
   // to their own typographic identity when no override is set.
